@@ -114,11 +114,11 @@ export default function Header() {
                     variant="plain"
                     color="neutral"
                     component="a"
-                    href="/joy-ui/getting-started/templates/files/"
+                    href="/surveymanagement/"
                     size="sm"
                     sx={{ alignSelf: 'center' }}
                 >
-                    Files
+                    Survey Management
                 </Button>
             </Stack>
             <Box sx={{ display: { xs: 'inline-flex', sm: 'none' } }}>
