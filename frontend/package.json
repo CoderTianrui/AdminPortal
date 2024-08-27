@@ -8,7 +8,6 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest"
-
   },
   "dependencies": {
     "@emotion/cache": "^11.13.1",
