@@ -12,6 +12,7 @@ import AssignmentIndRoundedIcon from '@mui/icons-material/AssignmentIndRounded';
 import ArticleRoundedIcon from '@mui/icons-material/ArticleRounded';
 import AccountTreeRoundedIcon from '@mui/icons-material/AccountTreeRounded';
 import TodayRoundedIcon from '@mui/icons-material/TodayRounded';
+import Link from 'next/link';
 
 export default function Navigation() {
     return (
@@ -30,11 +31,11 @@ export default function Navigation() {
                     }}
                 >
                     <ListItem>
-                        <ListItemButton selected>
+                        <ListItemButton component={Link} href='/signin'>
                             <ListItemDecorator>
                                 <PeopleRoundedIcon fontSize="small" />
                             </ListItemDecorator>
-                            <ListItemContent>People</ListItemContent>
+                            <ListItemContent>Sign in</ListItemContent>
                         </ListItemButton>
                     </ListItem>
                     <ListItem>
