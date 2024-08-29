@@ -128,3 +128,62 @@
   opacity: 0.8;
 }
 
+/* 样式用于模态框背景 */
+.modal-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* 模态框容器 */
+.modal-container {
+  background-color: #f7f9fc;
+  border-radius: 10px;
+  padding: 20px;
+  width: 400px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+/* 关闭按钮 */
+.modal-close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* 输入框样式 */
+.modal-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #cfd4da;
+  border-radius: 5px;
+  background-color: #eef2f7;
+  font-size: 1rem;
+}
+
+/* 按钮样式 */
+.modal-add-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #a7c4e2;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: white;
+  margin-top: 15px;
+}
+

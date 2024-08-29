@@ -2,33 +2,34 @@ import React, { useState } from 'react';
 import './Calendar.css';
 
 const Calendar = ({ initialEvents, sx }) => {
-    const [events, setEvents] = useState(initialEvents);
-    const [selectedDate, setSelectedDate] = useState(null);
-    const [newEvent, setNewEvent] = useState('');
-    const [showForm, setShowForm] = useState(false);
-
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
+    const [events, setEvents] = useState(initialEvents);
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [newEvent, setNewEvent] = useState({ title: '', startTime: '', endTime: '' });
+    const [showForm, setShowForm] = useState(false);
+
     const handleDateClick = (day) => {
-        setSelectedDate(new Date(currentYear, currentMonth, day).toISOString().split('T')[0]);
+        const date = new Date(currentYear, currentMonth, day);
+        setSelectedDate(`${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
         setShowForm(true);
     };
 
     const handleClose = () => {
         setShowForm(false);
-        setNewEvent('');
+        setNewEvent({ title: '', startTime: '', endTime: '' });
         setSelectedDate(null);
     };
 
     const handleSave = () => {
-        setEvents([...events, { date: selectedDate, title: newEvent }]);
+        setEvents([...events, { date: selectedDate, ...newEvent }]);
         setShowForm(false);
-        setNewEvent('');
+        setNewEvent({ title: '', startTime: '', endTime: '' });
         setSelectedDate(null);
     };
 
-    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // 改为从星期天开始
+    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     const getDaysInMonth = (month, year) => {
         return new Date(year, month + 1, 0).getDate();
@@ -94,7 +95,8 @@ const Calendar = ({ initialEvents, sx }) => {
                                     );
                                 }).map((event, i) => (
                                     <div key={i} className="event">
-                                        {event.title}
+                                        {event.title} <br />
+                                        {event.startTime} - {event.endTime}
                                     </div>
                                 ))}
                             </div>
@@ -104,20 +106,52 @@ const Calendar = ({ initialEvents, sx }) => {
             </div>
 
             {showForm && (
-                <div className="event-form-container">
-                    <div className="event-form">
-                        <h2>Add Event for {selectedDate}</h2>
+                <div className="modal-background">
+                    <div className="modal-container">
+                        <button className="modal-close-button" onClick={handleClose}>&times;</button>
                         <input
                             type="text"
-                            placeholder="Event Title"
-                            value={newEvent}
-                            onChange={(e) => setNewEvent(e.target.value)}
-                            className="form-input"
+                            placeholder="Title"
+                            value={newEvent.title}
+                            onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                            className="modal-input"
                         />
-                        <div className="form-buttons">
-                            <button onClick={handleClose} className="btn rectangular-button">Cancel</button>
-                            <button onClick={handleSave} className="btn btn-save rectangular-button">Save</button>
+                        <textarea
+                            placeholder="Memo"
+                            className="modal-input"
+                            rows="3"
+                        ></textarea>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <input
+                                type="text"
+                                value={selectedDate}
+                                readOnly
+                                className="modal-input"
+                            />
+                            <input
+                                type="time"
+                                value={newEvent.startTime}
+                                onChange={(e) => setNewEvent({ ...newEvent, startTime: e.target.value })}
+                                className="modal-input"
+                                style={{ width: '45%' }}
+                            />
                         </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <input
+                                type="text"
+                                value={selectedDate}
+                                readOnly
+                                className="modal-input"
+                            />
+                            <input
+                                type="time"
+                                value={newEvent.endTime}
+                                onChange={(e) => setNewEvent({ ...newEvent, endTime: e.target.value })}
+                                className="modal-input"
+                                style={{ width: '45%' }}
+                            />
+                        </div>
+                        <button onClick={handleSave} className="modal-add-button">Add</button>
                     </div>
                 </div>
             )}

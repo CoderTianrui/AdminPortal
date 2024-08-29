@@ -47,7 +47,6 @@ export default function CalendarPage() {
                     borderColor: 'divider',
                 }}
             >
-                {/* Example of buttons, you might want to customize them */}
                 <Button
                     variant="plain"
                     color="neutral"
