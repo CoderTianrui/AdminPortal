@@ -11,9 +11,9 @@ function Root(props: BoxProps) {
                     bgcolor: 'background.appBody',
                     display: 'grid',
                     gridTemplateColumns: {
-                        xs: '1fr',
-                        sm: 'minmax(64px, 200px) minmax(450px, 1fr)',
-                        md: 'minmax(160px, 300px) minmax(300px, 500px) minmax(500px, 1fr)',
+                        xs: '1fr', 
+                        sm: 'minmax(64px, 200px) 1fr', 
+                        md: 'minmax(160px, 300px) 1fr', 
                     },
                     gridTemplateRows: '64px 1fr',
                     minHeight: '100vh',
@@ -23,6 +23,7 @@ function Root(props: BoxProps) {
         />
     );
 }
+
 
 function Header(props: BoxProps) {
     return (
@@ -102,7 +103,7 @@ function Main(props: BoxProps) {
             component="main"
             className="Main"
             {...props}
-            sx={[{ p: 2 }, ...(Array.isArray(props.sx) ? props.sx : [props.sx])]}
+            sx={[{ p: 2, width: '100%', maxWidth: '1200px', margin: '0 auto' }, ...(Array.isArray(props.sx) ? props.sx : [props.sx])]}
         />
     );
 }
