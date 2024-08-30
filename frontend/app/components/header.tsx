@@ -104,7 +104,7 @@ export default function Header() {
                     color="neutral"
                     aria-pressed="true"
                     component="a"
-                    href="/joy-ui/getting-started/templates/team/"
+                    href="/joy-ui/getting-started/templates//"
                     size="sm"
                     sx={{ alignSelf: 'center' }}
                 >
@@ -129,6 +129,16 @@ export default function Header() {
                     sx={{ alignSelf: 'center' }}
                 >
                     News/Notification Management
+                </Button>
+                <Button
+                    variant="plain"
+                    color="neutral"
+                    component="a"
+                    href="/Daily_mood/"
+                    size="sm"
+                    sx={{ alignSelf: 'center' }}
+                >
+                    DailyMood
                 </Button>
                 <Button
                     variant="plain"
