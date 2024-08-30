@@ -65,7 +65,7 @@ const Calendar = ({ initialEvents, sx }) => {
 
     return (
         <div className="calendar-container" style={sx}>
-            <h1>Calendar Management</h1>
+                    <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>Calendar Management</h1>
             <div className="calendar-header">
                 <button className="nav-button rectangular-button" onClick={handlePreviousMonth}>&lt;</button>
                 <span>{monthNames[currentMonth]} {currentYear}</span>
