@@ -2,6 +2,9 @@
     width: 100%;
     border-collapse: collapse; 
     margin-bottom: 20px;
+    background-color: #fff; 
+    border-radius: 8px; 
+    overflow: hidden; 
 }
 
 .table th, .table td {
@@ -23,17 +26,25 @@
     margin-right: 5px;
 }
 
-
 input {
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 8px;
     width: 100%;
+    box-sizing: border-box; 
 }
 
 button {
     border-radius: 4px;
     padding: 8px 12px;
+    background-color: #007bff; 
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3; 
 }
 
 .modal-overlay {
@@ -51,15 +62,15 @@ button {
 
 .modal-content {
     background: white;
-    padding: 30px;  /* Increased padding for better spacing */
+    padding: 30px;  
     border-radius: 8px;
-    max-width: 700px;  /* Increased max-width for a wider modal */
+    max-width: 700px;  
     width: 100%;
-    max-height: 80vh;  /* Optional: to make sure the modal doesn’t exceed the viewport height */
+    max-height: 80vh;  
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     border: 2px solid #ccc;
     position: relative;
-    overflow-y: auto;  /* Add scroll if content exceeds the modal height */
+    overflow-y: auto; 
 }
 
 .modal-close {
@@ -87,6 +98,7 @@ button {
     text-align: center;
     border-radius: 4px;
     color: #aaa;
+    background-color: #f9f9f9; 
 }
 
 .submit-button {
@@ -97,4 +109,25 @@ button {
     border: none;
     border-radius: 4px;
     cursor: pointer;
+}
+
+.submit-button:hover {
+    background-color: darkblue; 
+}
+
+.section-container {
+    padding: 20px;
+    margin-bottom: 40px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 10px;
 }
