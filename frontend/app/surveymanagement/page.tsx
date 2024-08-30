@@ -3,45 +3,84 @@
 import * as React from 'react';
 import { CssVarsProvider } from '@mui/joy/styles';
 import CssBaseline from '@mui/joy/CssBaseline';
-import Autocomplete from '@mui/joy/Autocomplete';
-import Box from '@mui/joy/Box';
-import Chip from '@mui/joy/Chip';
-import ChipDelete from '@mui/joy/ChipDelete';
-import Typography from '@mui/joy/Typography';
 import Button from '@mui/joy/Button';
-import Stack from '@mui/joy/Stack';
-import RadioGroup from '@mui/joy/RadioGroup';
-import Radio from '@mui/joy/Radio';
-import Slider from '@mui/joy/Slider';
-import AccordionGroup from '@mui/joy/AccordionGroup';
-import Accordion from '@mui/joy/Accordion';
-import AccordionDetails, {
-    accordionDetailsClasses,
-} from '@mui/joy/AccordionDetails';
-import AccordionSummary, {
-    accordionSummaryClasses,
-} from '@mui/joy/AccordionSummary';
-
-import EmailRoundedIcon from '@mui/icons-material/EmailRounded';
-import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
-import FolderRoundedIcon from '@mui/icons-material/FolderRounded';
-import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
-
+import Input from '@mui/joy/Input';
+import Box from '@mui/joy/Box';
 import Layout from '@/app/components/layout';
 import Header from '@/app/components/header';
 import Navigation from '@/app/components/navigation';
 
-import SurveyList from './SurveyManagement';
+import './SurveyManagement.css';
+
+// Define the types for News and Notification
+interface Surveys {
+    title: string;
+    description: string;
+    level: string;
+    recipient: string;
+}
+
 
 export default function SurveyManagementPage() {
     const [drawerOpen, setDrawerOpen] = React.useState(false);
+    const [isSurveyModalOpen, setIsSurveyModalOpen] = React.useState(false);
 
-    const initialSurveys = [
-        { name: 'Colours', description: 'favourite colours', level: 'one' },
-        { name: 'Jobs', description: 'jobs of interest', level: 'bachelors' },
-        { name: 'Subjects', description: 'HSC subject choices', level: 'eleven' }
-      ];
+    // Add a sample row for News and Notification
+    const [surveyList, setSurveyList] = React.useState<Surveys[]>([
+        {
+            title: 'Survey 1',
+            description: 'This is a description of survey 1',
+            level: 'one',
+            recipient: 'students',
+        },
+    ]);
 
+
+    const [newSurvey, setNewSurvey] = React.useState<Surveys>({ title: '', description: '', level: '', recipient: '' });
+
+    const [editSurveyIndex, setEditSurveyIndex] = React.useState<number | null>(null);
+
+    const openSurveyModal = (index: number | null = null) => {
+        if (index !== null) {
+            setNewSurvey(surveyList[index]);
+            setEditSurveyIndex(index);
+        }
+        setIsSurveyModalOpen(true);
+    };
+    const closeSurveyModal = () => {
+        setIsSurveyModalOpen(false);
+        setNewSurvey({ title: '', description: '', level: '', recipient: '' });
+        setEditSurveyIndex(null);
+    };
+
+    
+
+    const handleSurveyChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        setNewSurvey({ ...newSurvey, [e.target.name]: e.target.value });
+    };
+
+   
+
+    const submitSurvey = () => {
+        if (editSurveyIndex !== null) {
+            // Edit existing news
+            const updatedSurveyList = [...surveyList];
+            updatedSurveyList[editSurveyIndex] = newSurvey;
+            setSurveyList(updatedSurveyList);
+        } else {
+            // Add new news
+            setSurveyList([...surveyList, newSurvey]);
+        }
+        closeSurveyModal();
+    };
+
+
+    const deleteSurvey = (index: number) => {
+        const updatedSurveyList = surveyList.filter((_, i) => i !== index);
+        setSurveyList(updatedSurveyList);
+    };
+
+   
     return (
         <CssVarsProvider disableTransitionOnChange>
             <CssBaseline />
@@ -50,58 +89,6 @@ export default function SurveyManagementPage() {
                     <Navigation />
                 </Layout.SideDrawer>
             )}
-            <Stack
-                id="tab-bar"
-                direction="row"
-                justifyContent="space-around"
-                spacing={1}
-                sx={{
-                    display: { xs: 'flex', sm: 'none' },
-                    zIndex: '999',
-                    bottom: 0,
-                    position: 'fixed',
-                    width: '100dvw',
-                    py: 2,
-                    backgroundColor: 'background.body',
-                    borderTop: '1px solid',
-                    borderColor: 'divider',
-                }}
-            >
-                <Button
-                    variant="plain"
-                    color="neutral"
-                    component="a"
-                    href="/joy-ui/getting-started/templates/email/"
-                    size="sm"
-                    startDecorator={<EmailRoundedIcon />}
-                    sx={{ flexDirection: 'column', '--Button-gap': 0 }}
-                >
-                    Email
-                </Button>
-                <Button
-                    variant="plain"
-                    color="neutral"
-                    aria-pressed="true"
-                    component="a"
-                    href="/joy-ui/getting-started/templates/team/"
-                    size="sm"
-                    startDecorator={<PeopleAltRoundedIcon />}
-                    sx={{ flexDirection: 'column', '--Button-gap': 0 }}
-                >
-                    Team
-                </Button>
-                <Button
-                    variant="plain"
-                    color="neutral"
-                    component="a"
-                    href="/joy-ui/getting-started/templates/files/"
-                    size="sm"
-                    startDecorator={<FolderRoundedIcon />}
-                    sx={{ flexDirection: 'column', '--Button-gap': 0 }}
-                >
-                    Files
-                </Button>
-            </Stack>
             <Layout.Root
                 sx={{
                     ...(drawerOpen && {
@@ -117,7 +104,92 @@ export default function SurveyManagementPage() {
                     <Navigation />
                 </Layout.SideNav>
                 <Layout.Main>
-                    <SurveyList initialSurveys={initialSurveys} />
+                    <Box sx={{ width: '100%', padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+                        <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>Survey Management</h1>
+                        <Box sx={{ marginBottom: '20px', display: 'flex', gap: 1 }}>
+                            <Button variant="solid" color="primary" onClick={() => openSurveyModal()}>
+                                Create Survey
+                            </Button>
+                            <Input
+                                placeholder="Search Surveys"
+                                endDecorator={<Button variant="outlined">Filter</Button>}
+                                sx={{ width: '300px' }}
+                            />
+                            <Button variant="solid" color="danger" sx={{ ml: 'auto' }}>Manage Surveys</Button>
+                        </Box>
+                        {/* Modal for Create or Edit Surveys */}
+                        {isSurveyModalOpen && (
+                            <div className="modal-overlay">
+                                <div className="modal-content">
+                                    <button className="modal-close" onClick={closeSurveyModal}>✖️</button>
+                                    <div className="modal-body">
+                                        <label>Title</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            placeholder="Enter title"
+                                            name="title"
+                                            value={newSurvey.title}
+                                            onChange={handleSurveyChange}
+                                        />
+                                        <label>Level</label>
+                                        <input
+                                            type="level"
+                                            className="form-control"
+                                            name="level"
+                                            value={newSurvey.level}
+                                            onChange={handleSurveyChange}
+                                        />
+                                        <label>Recipient</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            placeholder="Enter recipient"
+                                            name="recipient"
+                                            value={newSurvey.recipient}
+                                            onChange={handleSurveyChange}
+                                        />
+                                        <label>Description</label>
+                                        <textarea
+                                            className="form-control"
+                                            placeholder="Enter description"
+                                            name="description"
+                                            value={newSurvey.description}
+                                            onChange={handleSurveyChange}
+                                        />
+                                    </div>
+                                    <button className="submit-button" onClick={submitSurvey}>Submit</button>
+                                </div>
+                            </div>
+                        )}
+                        <Box sx={{ overflowX: 'auto', marginBottom: '40px' }}>
+                            <table className="table">
+                                <thead>
+                                    <tr>
+                                        <th>Survey Title</th>
+                                        <th>Survey description</th>
+                                        <th>Level</th>
+                                        <th>Recipients</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {surveyList.map((survey, index) => (
+                                        <tr key={index}>
+                                            <td>{survey.title}</td>
+                                            <td>{survey.description}</td>
+                                            <td>{survey.level}</td>
+                                            <td><Button variant="soft" color="neutral" size="sm">{survey.recipient}</Button></td>
+                                            <td>
+                                                <Button variant="plain" size="sm" onClick={() => openSurveyModal(index)}>✏️</Button>
+                                                <Button variant="plain" size="sm" onClick={() => deleteSurvey(index)}>❌</Button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </Box>
+                    </Box>
                 </Layout.Main>
             </Layout.Root>
         </CssVarsProvider>
