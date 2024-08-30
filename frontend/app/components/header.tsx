@@ -93,6 +93,16 @@ export default function Header() {
                     variant="plain"
                     color="neutral"
                     component="a"
+                    href="/homepage/"
+                    size="sm"
+                    sx={{ alignSelf: 'center' }}
+                >
+                    Home
+                </Button>
+                <Button
+                    variant="plain"
+                    color="neutral"
+                    component="a"
                     href="/joy-ui/getting-started/templates/email/"
                     size="sm"
                     sx={{ alignSelf: 'center' }}
