@@ -15,17 +15,16 @@ import './NewsNotificationsManagement.css';
 // Define the types for News and Notification
 interface News {
     title: string;
-    description: string;
+    url: string;
     date: string;
     recipient: string;
 }
 
 interface Notification {
     title: string;
-    description: string;
+    content: string;
     date: string;
     recipient: string;
-    school: string;
 }
 
 export default function NewsNotificationManagementPage() {
@@ -33,37 +32,59 @@ export default function NewsNotificationManagementPage() {
     const [isNewsModalOpen, setIsNewsModalOpen] = React.useState(false);
     const [isNotificationModalOpen, setIsNotificationModalOpen] = React.useState(false);
 
-    // Add a sample row for News and Notification
+    // Sample data for News and Notification
     const [newsList, setNewsList] = React.useState<News[]>([
         {
             title: 'News 1',
-            description: 'This is a description of news 1',
+            url: 'url of the news 1',
             date: '2024-09-01',
             recipient: 'Parents',
         },
+        {
+            title: 'News 2',
+            url: 'url of the news 2',
+            date: '2024-09-20',
+            recipient: 'Schools',
+        },
+        {
+            title: 'News 3',
+            url: 'url of the news 3',
+            date: '2024-09-25',
+            recipient: 'Parents',
+        }
     ]);
 
     const [notificationList, setNotificationList] = React.useState<Notification[]>([
         {
             title: 'Notification 1',
-            description: 'This is a sample notification..',
+            content: 'This is the content of notification 1',
             date: '2024-09-01',
             recipient: 'Students',
-            school: 'University of Sydney',
         },
+        {
+            title: 'Notification 2',
+            content: 'This is the content of notification 2',
+            date: '2024-09-02',
+            recipient: 'Parents',
+        }
     ]);
 
-    const [newNews, setNewNews] = React.useState<News>({ title: '', description: '', date: '', recipient: '' });
+    const [newNews, setNewNews] = React.useState<News>({ title: '', url: '', date: '', recipient: '' });
     const [newNotification, setNewNotification] = React.useState<Notification>({
         title: '',
-        description: '',
+        content: '',
         date: '',
-        recipient: '',
-        school: ''
+        recipient: ''
     });
 
     const [editNewsIndex, setEditNewsIndex] = React.useState<number | null>(null);
     const [editNotificationIndex, setEditNotificationIndex] = React.useState<number | null>(null);
+
+    const [newsSearchQuery, setNewsSearchQuery] = React.useState('');
+    const [notificationSearchQuery, setNotificationSearchQuery] = React.useState('');
+
+    const [filteredNewsList, setFilteredNewsList] = React.useState<News[]>(newsList);
+    const [filteredNotificationList, setFilteredNotificationList] = React.useState<Notification[]>(notificationList);
 
     const openNewsModal = (index: number | null = null) => {
         if (index !== null) {
@@ -74,7 +95,7 @@ export default function NewsNotificationManagementPage() {
     };
     const closeNewsModal = () => {
         setIsNewsModalOpen(false);
-        setNewNews({ title: '', description: '', date: '', recipient: '' });
+        setNewNews({ title: '', url: '', date: '', recipient: '' });
         setEditNewsIndex(null);
     };
 
@@ -87,7 +108,7 @@ export default function NewsNotificationManagementPage() {
     };
     const closeNotificationModal = () => {
         setIsNotificationModalOpen(false);
-        setNewNotification({ title: '', description: '', date: '', recipient: '', school: '' });
+        setNewNotification({ title: '', content: '', date: '', recipient: '' });
         setEditNotificationIndex(null);
     };
 
@@ -99,40 +120,72 @@ export default function NewsNotificationManagementPage() {
         setNewNotification({ ...newNotification, [e.target.name]: e.target.value });
     };
 
+    const handleNewsSearchQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNewsSearchQuery(e.target.value);
+    };
+
+    const handleNotificationSearchQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNotificationSearchQuery(e.target.value);
+    };
+
+    const filterNews = () => {
+        const filtered = newsList.filter(news =>
+            news.title.toLowerCase().includes(newsSearchQuery.toLowerCase())
+        );
+        setFilteredNewsList(filtered);
+    };
+
+    const filterNotifications = () => {
+        const filtered = notificationList.filter(notification =>
+            notification.title.toLowerCase().includes(notificationSearchQuery.toLowerCase()) ||
+            notification.content.toLowerCase().includes(notificationSearchQuery.toLowerCase())
+        );
+        setFilteredNotificationList(filtered);
+    };
+
     const submitNews = () => {
         if (editNewsIndex !== null) {
             // Edit existing news
             const updatedNewsList = [...newsList];
-            updatedNewsList[editNewsIndex] = newNews;
+            updatedNewsList[editNewsIndex] = newNews; // Update the specific news item
             setNewsList(updatedNewsList);
+            setFilteredNewsList(updatedNewsList);  // Update the filtered list to reflect changes
         } else {
             // Add new news
-            setNewsList([...newsList, newNews]);
+            const updatedNewsList = [...newsList, newNews];
+            setNewsList(updatedNewsList);
+            setFilteredNewsList(updatedNewsList);  // Update the filtered list after adding new news
         }
         closeNewsModal();
     };
-
+    
     const submitNotification = () => {
         if (editNotificationIndex !== null) {
             // Edit existing notification
             const updatedNotificationList = [...notificationList];
-            updatedNotificationList[editNotificationIndex] = newNotification;
+            updatedNotificationList[editNotificationIndex] = newNotification; // Update the specific notification item
             setNotificationList(updatedNotificationList);
+            setFilteredNotificationList(updatedNotificationList);  // Update the filtered list to reflect changes
         } else {
             // Add new notification
-            setNotificationList([...notificationList, newNotification]);
+            const updatedNotificationList = [...notificationList, newNotification];
+            setNotificationList(updatedNotificationList);
+            setFilteredNotificationList(updatedNotificationList);  // Update the filtered list after adding new notification
         }
         closeNotificationModal();
     };
+    
 
     const deleteNews = (index: number) => {
         const updatedNewsList = newsList.filter((_, i) => i !== index);
         setNewsList(updatedNewsList);
+        setFilteredNewsList(updatedNewsList);  // Update the filtered list after deleting news
     };
 
     const deleteNotification = (index: number) => {
         const updatedNotificationList = notificationList.filter((_, i) => i !== index);
         setNotificationList(updatedNotificationList);
+        setFilteredNotificationList(updatedNotificationList);  // Update the filtered list after deleting notification
     };
 
     return (
@@ -160,182 +213,183 @@ export default function NewsNotificationManagementPage() {
                 <Layout.Main>
                     <Box sx={{ width: '100%', padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
                         <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>News and Notification Management</h1>
-                        <Box sx={{ marginBottom: '20px', display: 'flex', gap: 1 }}>
-                            <Button variant="solid" color="primary" onClick={() => openNewsModal()}>
-                                Create News
-                            </Button>
-                            <Input
-                                placeholder="Search News"
-                                endDecorator={<Button variant="outlined">Filter</Button>}
-                                sx={{ width: '300px' }}
-                            />
-                            <Button variant="solid" color="danger" sx={{ ml: 'auto' }}>Manage subscribed news channels</Button>
-                        </Box>
-                        {/* Modal for Create or Edit News */}
-                        {isNewsModalOpen && (
-                            <div className="modal-overlay">
-                                <div className="modal-content">
-                                    <button className="modal-close" onClick={closeNewsModal}>✖️</button>
-                                    <div className="modal-body">
-                                        <label>Title</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            placeholder="Enter title"
-                                            name="title"
-                                            value={newNews.title}
-                                            onChange={handleNewsChange}
-                                        />
-                                        <label>Date</label>
-                                        <input
-                                            type="date"
-                                            className="form-control"
-                                            name="date"
-                                            value={newNews.date}
-                                            onChange={handleNewsChange}
-                                        />
-                                        <label>Recipient</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            placeholder="Enter recipient"
-                                            name="recipient"
-                                            value={newNews.recipient}
-                                            onChange={handleNewsChange}
-                                        />
-                                        <label>Description</label>
-                                        <textarea
-                                            className="form-control"
-                                            placeholder="Enter description"
-                                            name="description"
-                                            value={newNews.description}
-                                            onChange={handleNewsChange}
-                                        />
+                        
+                        {/* News Section */}
+                        <Box className="section-container">
+                            <Box sx={{ marginBottom: '20px', display: 'flex', gap: 1 }}>
+                                <Button variant="solid" color="primary" onClick={() => openNewsModal()}>
+                                    Create News
+                                </Button>
+                                <Input
+                                    placeholder="Search News by title..."
+                                    value={newsSearchQuery}
+                                    onChange={handleNewsSearchQueryChange}
+                                    endDecorator={<Button variant="outlined" onClick={filterNews}>Search</Button>}
+                                    sx={{ width: '300px' }}
+                                />
+                                <Button variant="solid" color="danger" sx={{ ml: 'auto' }}>Manage subscribed news channels</Button>
+                            </Box>
+                            {/* Modal for Create or Edit News */}
+                            {isNewsModalOpen && (
+                                <div className="modal-overlay">
+                                    <div className="modal-content">
+                                        <button className="modal-close" onClick={closeNewsModal}>✖️</button>
+                                        <div className="modal-body">
+                                            <label>Title</label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Enter title"
+                                                name="title"
+                                                value={newNews.title}
+                                                onChange={handleNewsChange}
+                                            />
+                                            <label>Date</label>
+                                            <input
+                                                type="date"
+                                                className="form-control"
+                                                name="date"
+                                                value={newNews.date}
+                                                onChange={handleNewsChange}
+                                            />
+                                            <label>Recipient</label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Enter recipient"
+                                                name="recipient"
+                                                value={newNews.recipient}
+                                                onChange={handleNewsChange}
+                                            />
+                                            <label>URL</label>
+                                            <textarea
+                                                className="form-control"
+                                                placeholder="Enter url"
+                                                name="url"
+                                                value={newNews.url}
+                                                onChange={handleNewsChange}
+                                            />
+                                        </div>
+                                        <button className="submit-button" onClick={submitNews}>Submit</button>
                                     </div>
-                                    <button className="submit-button" onClick={submitNews}>Submit</button>
                                 </div>
-                            </div>
-                        )}
-                        <Box sx={{ overflowX: 'auto', marginBottom: '40px' }}>
-                            <table className="table">
-                                <thead>
-                                    <tr>
-                                        <th>News Title</th>
-                                        <th>News description</th>
-                                        <th>Date created</th>
-                                        <th>Recipients</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {newsList.map((news, index) => (
-                                        <tr key={index}>
-                                            <td>{news.title}</td>
-                                            <td>{news.description}</td>
-                                            <td>{news.date}</td>
-                                            <td><Button variant="soft" color="neutral" size="sm">{news.recipient}</Button></td>
-                                            <td>
-                                                <Button variant="plain" size="sm" onClick={() => openNewsModal(index)}>✏️</Button>
-                                                <Button variant="plain" size="sm" onClick={() => deleteNews(index)}>❌</Button>
-                                            </td>
+                            )}
+                            <Box sx={{ overflowX: 'auto', marginBottom: '40px' }}>
+                                <table className="table">
+                                    <thead>
+                                        <tr>
+                                            <th>News Title</th>
+                                            <th>News URL</th>
+                                            <th>Date created</th>
+                                            <th>Recipients</th>
+                                            <th>Actions</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {filteredNewsList.map((news, index) => (
+                                            <tr key={index}>
+                                                <td>{news.title}</td>
+                                                <td>{news.url}</td>
+                                                <td>{news.date}</td>
+                                                <td><Button variant="soft" color="neutral" size="sm">{news.recipient}</Button></td>
+                                                <td>
+                                                    <Button variant="plain" size="sm" onClick={() => openNewsModal(index)}>✏️</Button>
+                                                    <Button variant="plain" size="sm" onClick={() => deleteNews(index)}>❌</Button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </Box>
                         </Box>
 
-                        <Box sx={{ marginBottom: '20px', display: 'flex', gap: 1 }}>
-                            <Button variant="solid" color="primary" onClick={() => openNotificationModal()}>
-                                Create Notification
-                            </Button>
-                            <Input
-                                placeholder="Search Notification"
-                                endDecorator={<Button variant="outlined">Filter</Button>}
-                                sx={{ width: '300px' }}
-                            />
-                        </Box>
-                        {/* Modal for Create or Edit Notification */}
-                        {isNotificationModalOpen && (
-                            <div className="modal-overlay">
-                                <div className="modal-content">
-                                    <button className="modal-close" onClick={closeNotificationModal}>✖️</button>
-                                    <div className="modal-body">
-                                        <label>Title</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            placeholder="Enter title"
-                                            name="title"
-                                            value={newNotification.title}
-                                            onChange={handleNotificationChange}
-                                        />
-                                        <label>Date</label>
-                                        <input
-                                            type="date"
-                                            className="form-control"
-                                            name="date"
-                                            value={newNotification.date}
-                                            onChange={handleNotificationChange}
-                                        />
-                                        <label>Content</label>
-                                        <textarea
-                                            className="form-control"
-                                            placeholder="Enter content"
-                                            name="description"
-                                            value={newNotification.description}
-                                            onChange={handleNotificationChange}
-                                            style={{border: '1px solid #ccc', borderRadius: '4px'}}
-                                        />
-                                        <label>Recipient</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            placeholder="Enter recipient"
-                                            name="recipient"
-                                            value={newNotification.recipient}
-                                            onChange={handleNotificationChange}
-                                        />
-                                        <label>What School?</label>
-                                        <select
-                                            className="form-control"
-                                            name="school"
-                                            value={newNotification.school}
-                                            onChange={handleNotificationChange}
-                                        >
-                                            <option>University of Sydney</option>
-                                            {/* Add more options here as needed */}
-                                        </select>
+                        {/* Notification Section */}
+                        <Box className="section-container">
+                            <Box sx={{ marginBottom: '20px', display: 'flex', gap: 1 }}>
+                                <Button variant="solid" color="primary" onClick={() => openNotificationModal()}>
+                                    Create Notification
+                                </Button>
+                                <Input
+                                    placeholder="Search Notification by title or content..."
+                                    value={notificationSearchQuery}
+                                    onChange={handleNotificationSearchQueryChange}
+                                    endDecorator={<Button variant="outlined" onClick={filterNotifications}>Search</Button>}
+                                    sx={{ width: '300px' }}
+                                />
+                            </Box>
+                            {/* Modal for Create or Edit Notification */}
+                            {isNotificationModalOpen && (
+                                <div className="modal-overlay">
+                                    <div className="modal-content">
+                                        <button className="modal-close" onClick={closeNotificationModal}>✖️</button>
+                                        <div className="modal-body">
+                                            <label>Title</label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Enter title"
+                                                name="title"
+                                                value={newNotification.title}
+                                                onChange={handleNotificationChange}
+                                            />
+                                            <label>Date</label>
+                                            <input
+                                                type="date"
+                                                className="form-control"
+                                                name="date"
+                                                value={newNotification.date}
+                                                onChange={handleNotificationChange}
+                                            />
+                                            <label>Content</label>
+                                            <textarea
+                                                className="form-control"
+                                                placeholder="Enter content"
+                                                name="content" // Changed from 'description' to 'content'
+                                                value={newNotification.content}
+                                                onChange={handleNotificationChange}
+                                                style={{ border: '1px solid #ccc', borderRadius: '4px' }}
+                                            />
+                                            <label>Recipient</label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Enter recipient"
+                                                name="recipient"
+                                                value={newNotification.recipient}
+                                                onChange={handleNotificationChange}
+                                            />
+                                        </div>
+                                        <button className="submit-button" onClick={submitNotification}>Submit</button>
                                     </div>
-                                    <button className="submit-button" onClick={submitNotification}>Submit</button>
                                 </div>
-                            </div>
-                        )}
-                        <Box sx={{ overflowX: 'auto' }}>
-                            <table className="table">
-                                <thead>
-                                    <tr>
-                                        <th>Notification Title</th>
-                                        <th>Notification description</th>
-                                        <th>Date created</th>
-                                        <th>Recipients</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {notificationList.map((notification, index) => (
-                                        <tr key={index}>
-                                            <td>{notification.title}</td>
-                                            <td>{notification.description}</td>
-                                            <td>{notification.date}</td>
-                                            <td><Button variant="soft" color="neutral" size="sm">{notification.recipient}</Button></td>
-                                            <td>
-                                                <Button variant="plain" size="sm" onClick={() => openNotificationModal(index)}>✏️</Button>
-                                                <Button variant="plain" size="sm" onClick={() => deleteNotification(index)}>❌</Button>
-                                            </td>
+                            )}
+                            <Box sx={{ overflowX: 'auto' }}>
+                                <table className="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Notification Title</th>
+                                            <th>Notification Content</th>
+                                            <th>Date created</th>
+                                            <th>Recipients</th>
+                                            <th>Actions</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {filteredNotificationList.map((notification, index) => (
+                                            <tr key={index}>
+                                                <td>{notification.title}</td>
+                                                <td>{notification.content}</td>
+                                                <td>{notification.date}</td>
+                                                <td><Button variant="soft" color="neutral" size="sm">{notification.recipient}</Button></td>
+                                                <td>
+                                                    <Button variant="plain" size="sm" onClick={() => openNotificationModal(index)}>✏️</Button>
+                                                    <Button variant="plain" size="sm" onClick={() => deleteNotification(index)}>❌</Button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </Box>
                         </Box>
                     </Box>
                 </Layout.Main>
