@@ -8,7 +8,7 @@ import Button from '@mui/joy/Button';
 
 import Layout from '@/app/components/layout';
 import Header from '@/app/components/header';
-import Navigation from '@/app/comp -onents/navigation';
+import Navigation from '@/app/components/navigation';
 
 import Calendar from './Calendar';
 
