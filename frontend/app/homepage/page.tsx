@@ -100,7 +100,7 @@ export default function HomePage() {
                     <div className="button-container">
                         <Button className="button-item" variant="outlined" component="a" href="/userlist/">User List</Button>
                         <Button className="button-item" variant="outlined" component="a" href="/surveymanagement/">Survey Management</Button>
-                        <Button className="button-item" variant="outlined" component="a" href="/dailymoods/">Daily Moods</Button>
+                        <Button className="button-item" variant="outlined" component="a" href="/Daily_mood/">Daily Moods</Button>
                         <Button className="button-item" variant="outlined" component="a" href="/news_notifications/">News and Notification</Button>
                     </div>
                 </Layout.Main>
