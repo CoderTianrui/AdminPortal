@@ -81,7 +81,7 @@ export default function CalendarPage() {
                 height: '100%',
             }}
         >
-            <div style={{ marginLeft: '1000px' }}> {/* 使用外部 div 包裹 */}
+            <div style={{ marginLeft: '0px' }}> {/* 使用外部 div 包裹 */}
                 <Calendar initialEvents={initialEvents} />
             </div>
         </Layout.Main>
