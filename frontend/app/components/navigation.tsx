@@ -12,7 +12,9 @@ import AssignmentIndRoundedIcon from '@mui/icons-material/AssignmentIndRounded';
 import ArticleRoundedIcon from '@mui/icons-material/ArticleRounded';
 import AccountTreeRoundedIcon from '@mui/icons-material/AccountTreeRounded';
 import TodayRoundedIcon from '@mui/icons-material/TodayRounded';
+import CalendarMonth from '@mui/icons-material/CalendarMonth';
 import Link from 'next/link';
+import { IconButton } from '@/node_modules/@mui/joy/index';
 
 export default function Navigation() {
     return (
@@ -38,41 +40,17 @@ export default function Navigation() {
                             <ListItemContent>Sign in</ListItemContent>
                         </ListItemButton>
                     </ListItem>
+                
                     <ListItem>
-                        <ListItemButton>
-                            <ListItemDecorator sx={{ color: 'neutral.500' }}>
-                                <AssignmentIndRoundedIcon fontSize="small" />
+                        <ListItemButton component={Link} href='/calendar'>
+                            <ListItemDecorator>
+                                <CalendarMonth fontSize="small" />
                             </ListItemDecorator>
-                            <ListItemContent>Managing accounts</ListItemContent>
+                            <ListItemContent>Calendar</ListItemContent>
                         </ListItemButton>
                     </ListItem>
-                    <ListItem>
-                        <ListItemButton>
-                            <ListItemDecorator sx={{ color: 'neutral.500' }}>
-                                <AccountTreeRoundedIcon fontSize="small" />
-                            </ListItemDecorator>
-                            <ListItemContent>Org chart</ListItemContent>
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem>
-                        <ListItemButton>
-                            <ListItemDecorator sx={{ color: 'neutral.500' }}>
-                                <TodayRoundedIcon fontSize="small" />
-                            </ListItemDecorator>
-                            <ListItemContent>Time off</ListItemContent>
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem>
-                        <ListItemButton>
-                            <ListItemDecorator sx={{ color: 'neutral.500' }}>
-                                <ArticleRoundedIcon fontSize="small" />
-                            </ListItemDecorator>
-                            <ListItemContent>Policies</ListItemContent>
-                            <Chip variant="soft" color="warning" size="sm">
-                                2
-                            </Chip>
-                        </ListItemButton>
-                    </ListItem>
+
+                    
                 </List>
             </ListItem>
         </List>

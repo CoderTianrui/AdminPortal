@@ -103,27 +103,6 @@ export default function Header() {
                     variant="plain"
                     color="neutral"
                     component="a"
-                    href="/joy-ui/getting-started/templates/email/"
-                    size="sm"
-                    sx={{ alignSelf: 'center' }}
-                >
-                    Email
-                </Button>
-                <Button
-                    variant="plain"
-                    color="neutral"
-                    aria-pressed="true"
-                    component="a"
-                    href="/joy-ui/getting-started/templates//"
-                    size="sm"
-                    sx={{ alignSelf: 'center' }}
-                >
-                    Team
-                </Button>
-                <Button
-                    variant="plain"
-                    color="neutral"
-                    component="a"
                     href="/surveymanagement/"
                     size="sm"
                     sx={{ alignSelf: 'center' }}
@@ -149,16 +128,6 @@ export default function Header() {
                     sx={{ alignSelf: 'center' }}
                 >
                     DailyMood
-                </Button>
-                <Button
-                    variant="plain"
-                    color="neutral"
-                    component="a"
-                    href="/calendar/"
-                    size="sm"
-                    sx={{ alignSelf: 'center' }}
-                >
-                    Calendar
                 </Button>
             </Stack>
             <Box sx={{ display: { xs: 'inline-flex', sm: 'none' } }}>
@@ -298,9 +267,11 @@ export default function Header() {
                         </MenuItem>
                         <ListDivider />
                         <MenuItem>
+                        <a href="/signin" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
                             <LogoutRoundedIcon />
                             Log out
-                        </MenuItem>
+                        </a>
+                    </MenuItem>
                     </Menu>
                 </Dropdown>
             </Box>
