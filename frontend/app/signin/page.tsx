@@ -18,6 +18,10 @@ import Stack from '@mui/joy/Stack';
 import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
 import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
 import BadgeRoundedIcon from '@mui/icons-material/BadgeRounded';
+import { useFormState } from 'react-dom'
+import { login } from './login';
+import { InfoOutlined } from '@mui/icons-material';
+import { FormHelperText } from '@mui/joy';
 
 interface FormElements extends HTMLFormControlsCollection {
     email: HTMLInputElement;
@@ -54,6 +58,8 @@ function ColorSchemeToggle(props: IconButtonProps) {
 }
 
 export default function JoySignInSideTemplate() {
+    const [loginState, formAction] = useFormState(login, { success: undefined });
+
     return (
         <CssVarsProvider defaultMode="dark" disableTransitionOnChange>
             <CssBaseline />
@@ -152,25 +158,19 @@ export default function JoySignInSideTemplate() {
                             Welcome back
                         </Divider>
                         <Stack gap={4} sx={{ mt: 2 }}>
-                            <form
-                                onSubmit={(event: React.FormEvent<SignInFormElement>) => {
-                                    event.preventDefault();
-                                    const formElements = event.currentTarget.elements;
-                                    const data = {
-                                        email: formElements.email.value,
-                                        password: formElements.password.value,
-                                        persistent: formElements.persistent.checked,
-                                    };
-                                    alert(JSON.stringify(data, null, 2));
-                                }}
-                            >
-                                <FormControl required>
+                            <form action={formAction}>
+                                <FormControl required error={loginState.success === false}>
                                     <FormLabel>Email</FormLabel>
                                     <Input type="email" name="email" />
                                 </FormControl>
-                                <FormControl required>
+                                <FormControl required error={loginState.success === false}>
                                     <FormLabel>Password</FormLabel>
                                     <Input type="password" name="password" />
+                                    {loginState.success === false &&
+                                        <FormHelperText>
+                                            <InfoOutlined />
+                                            {loginState.message ?? 'Oops something went wrong!'}
+                                        </FormHelperText>}
                                 </FormControl>
                                 <Stack gap={4} sx={{ mt: 2 }}>
                                     <Box
