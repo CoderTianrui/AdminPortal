@@ -130,6 +130,16 @@ export default function Header() {
                 >
                     News/Notification Management
                 </Button>
+                <Button
+                    variant="plain"
+                    color="neutral"
+                    component="a"
+                    href="/calendar/"
+                    size="sm"
+                    sx={{ alignSelf: 'center' }}
+                >
+                    Calendar
+                </Button>
             </Stack>
             <Box sx={{ display: { xs: 'inline-flex', sm: 'none' } }}>
                 <IconButton variant="plain" color="neutral" onClick={() => setOpen(true)}>

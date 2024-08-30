@@ -4,16 +4,22 @@
   padding: 20px;
   display: flex;
   flex-direction: column;
-  align-items: center; /* 水平居中 */
+  align-items: flex-start; /* 水平居左 */
+  font-size: 18px; /* 通过调整这个值来改变字体大小 */
+
+  
 }
+
 
 .calendar-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   margin-bottom: 20px;
   font-size: 1.5rem;
   width: 100%; /* 确保标题和按钮占据整个宽度 */
+  font-size: 18px; /* 通过调整这个值来改变字体大小 */
+
 }
 
 .nav-button {
@@ -25,10 +31,7 @@
   text-align: center; /* 按钮文本居中 */
 }
 
-.calendar-header span {
-  flex: 4; /* 使标题占据更多空间 */
-  text-align: center;
-}
+
 
 .calendar-grid {
   display: grid;
