@@ -8,7 +8,7 @@ import Button from '@mui/joy/Button';
 
 import Layout from '@/app/components/layout';
 import Header from '@/app/components/header';
-import Navigation from '@/app/components/navigation';
+import Navigation from '@/app/comp -onents/navigation';
 
 import Calendar from './Calendar';
 
@@ -81,7 +81,7 @@ export default function CalendarPage() {
                 height: '100%',
             }}
         >
-            <div style={{ marginLeft: '1000px' }}> {/* 使用外部 div 包裹 */}
+            <div style={{ marginLeft: '0px' }}> {/* 使用外部 div 包裹 */}
                 <Calendar initialEvents={initialEvents} />
             </div>
         </Layout.Main>
