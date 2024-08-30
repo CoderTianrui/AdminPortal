@@ -98,7 +98,7 @@ export default function HomePage() {
                         <img src="/OIClogo.png" alt="OIC Education Logo" className="image-logo" />
                     </div>
                     <div className="button-container">
-                        <Button className="button-item" variant="outlined" component="a" href="/userlist/">User List</Button>
+                        <Button className="button-item" variant="outlined" component="a" href="/usermanagement/">User List</Button>
                         <Button className="button-item" variant="outlined" component="a" href="/surveymanagement/">Survey Management</Button>
                         <Button className="button-item" variant="outlined" component="a" href="/Daily_mood/">Daily Moods</Button>
                         <Button className="button-item" variant="outlined" component="a" href="/news_notifications/">News and Notification</Button>
