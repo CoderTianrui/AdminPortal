@@ -216,18 +216,36 @@ export default function NewsNotificationManagementPage() {
                         
                         {/* News Section */}
                         <Box className="section-container">
-                            <Box sx={{ marginBottom: '20px', display: 'flex', gap: 1 }}>
-                                <Button variant="solid" color="primary" onClick={() => openNewsModal()}>
-                                    Create News
+                            <Box sx={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', gap: 1 }}>
+                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                    <Button variant="solid" color="primary" onClick={() => openNewsModal()}>
+                                        Create News
+                                    </Button>
+                                    <Input
+                                        placeholder="Search News by title..."
+                                        value={newsSearchQuery}
+                                        onChange={handleNewsSearchQueryChange}
+                                        endDecorator={<Button variant="outlined" onClick={filterNews}>Search</Button>}
+                                        sx={{ width: '300px' }}
+                                    />
+                                </Box>
+                                <Button
+                                    variant="plain"
+                                    color="neutral"
+                                    size="sm"
+                                    component="a"
+                                    href="/news_notifications/subscribed_news_channels/"
+                                    sx={{
+                                        backgroundColor: 'red',
+                                        color: 'white',
+                                        '&:hover': {
+                                            backgroundColor: 'darkred',
+                                        },
+                                        alignSelf: 'center',
+                                    }}
+                                >
+                                    Manage Subscribed News Channels
                                 </Button>
-                                <Input
-                                    placeholder="Search News by title..."
-                                    value={newsSearchQuery}
-                                    onChange={handleNewsSearchQueryChange}
-                                    endDecorator={<Button variant="outlined" onClick={filterNews}>Search</Button>}
-                                    sx={{ width: '300px' }}
-                                />
-                                <Button variant="solid" color="danger" sx={{ ml: 'auto' }}>Manage subscribed news channels</Button>
                             </Box>
                             {/* Modal for Create or Edit News */}
                             {isNewsModalOpen && (
