@@ -11,6 +11,7 @@ import Typography from '@mui/joy/Typography';
 import Button from '@mui/joy/Button';
 import Stack from '@mui/joy/Stack';
 import Input from '@mui/joy/Input';
+import MenuItem from '@mui/material/MenuItem';
 import Select,{ SelectChangeEvent } from '@mui/joy/Select';
 import Option from '@mui/joy/Option'
 import RadioGroup from '@mui/joy/RadioGroup';
@@ -57,13 +58,25 @@ export default function UserManagementPage() {
     const [showForm, setShowForm] = React.useState(false);
     const [search, setSearch] = React.useState('');
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setNewUser({
-            ...newUser,
-            [name]: value
-        });
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement> | SelectChangeEvent<string>
+    ) => {
+        if (e && e.target) {
+            const target = e.target as HTMLInputElement | HTMLSelectElement;
+
+            if (target) {
+                const { name, value } = target;
+                setNewUser((prevUser) => ({
+                    ...prevUser,
+                    [name]: value,
+                }));
+            }
+        } else {
+            console.error("Event object is null or undefined");
+        }
     };
+
+    
 
     const handleSubmit = () => {
         if (editIndex !== null) {
@@ -213,23 +226,30 @@ export default function UserManagementPage() {
                                             onChange={handleChange}
                                         />
                                         <label>Profile</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            placeholder="Student"
-                                            name="profile"
-                                            value={newUser.profile}
-                                            onChange={handleChange}
-                                        />
+                                        <select 
+                                                className="form-select" 
+                                                aria-label="Profile" 
+                                                name="profile"
+                                                value={newUser.profile}
+                                                onChange={handleChange}>
+                                            <option selected>Student</option>
+                                            <option value="Student">Student</option>
+                                            <option value="Parent">Parent</option>
+                                            <option value="Teacher">Teacher</option>
+                                        </select>
                                         <label>Access</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            placeholder="Low"
-                                            name="access"
-                                            value={newUser.access}
-                                            onChange={handleChange}
-                                        />
+                                        <select 
+                                                className="form-select" 
+                                                aria-label="Access" 
+                                                name="access"
+                                                value={newUser.access}
+                                                onChange={handleChange}>
+                                            <option selected>Low</option>
+                                            <option value="Low">Low</option>
+                                            <option value="Medium">Medium</option>
+                                            <option value="High">High</option>
+                                            <option value="Full">Full</option>
+                                        </select>
                                     </div>
                                     <button className="submit-button" onClick={handleSubmit}>Submit</button>
                                 </div>
