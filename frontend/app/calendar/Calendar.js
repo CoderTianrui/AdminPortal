@@ -23,11 +23,12 @@ const Calendar = ({ initialEvents, sx }) => {
     };
 
     const handleSave = () => {
-        setEvents([...events, { date: selectedDate, ...newEvent }]);
+        setEvents([...events, { date: selectedDate, title: newEvent.title, startTime: newEvent.startTime, endTime: newEvent.endTime }]);
         setShowForm(false);
         setNewEvent({ title: '', startTime: '', endTime: '' });
         setSelectedDate(null);
     };
+    
 
     const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
