@@ -45,6 +45,7 @@ interface User {
 
 export default function UserManagementPage() {
     const [drawerOpen, setDrawerOpen] = React.useState(false);
+    const [isUserModalOpen, setIsUserModalOpen] = React.useState(false);
     const [users, setUsers] = React.useState<User[]>([
         { name: 'Mark', profile: 'Parent', access: 'Medium' },
         { name: 'Jacob', profile: 'Student', access: 'Full' },
@@ -64,20 +65,20 @@ export default function UserManagementPage() {
         });
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const handleSubmit = () => {
         if (editIndex !== null) {
-            // Edit existing user
+           
             const updatedUsers = [...users];
             updatedUsers[editIndex] = newUser;
             setUsers(updatedUsers);
             setEditIndex(null);
         } else {
-            // Add new user
-            setUsers([...users, newUser]);
+            
+            const updatedNewsList = [...users, newUser];
+            setUsers(updatedNewsList);
+            setEditIndex(null);
         }
-        setNewUser({ name: '', profile: '', access: '' });
-        setShowForm(false); // Hide form after submission
+        closeUserModal();
     };
 
     const handleEdit = (index: number) => {
@@ -94,16 +95,25 @@ export default function UserManagementPage() {
         setSearch(e.target.value.toLowerCase()); // Update search state
     };
 
-    const handleSelectChange = (name: 'profile' | 'access', value: string) => {
-        setNewUser({
-            ...newUser,
-            [name]: value
-        });
-    };
+
+    const [editUserIndex, setEditUserIndex] = React.useState<number | null>(null);
 
     const filteredUsers = users.filter(user =>
         user.name.toLowerCase().includes(search)
     );
+
+    const openUserModal = (index: number | null = null) => {
+        if (index !== null) {
+            setNewUser(users[index]);
+            setEditUserIndex(index);
+        }
+        setIsUserModalOpen(true);
+    };
+    const closeUserModal = () => {
+        setIsUserModalOpen(false);
+        setNewUser({ name: '', profile: '', access: '' });
+        setEditUserIndex(null);
+    };
 
 
     return (
@@ -184,59 +194,46 @@ export default function UserManagementPage() {
                 <article className="table-container">
                         <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>User Management</h1>
                         <Box sx={{ marginBottom: '20px', display: 'flex', gap: 1 }}>
-                        <Button 
-                            variant="solid" 
-                            color="primary" 
-                            onClick={() => setShowForm(!showForm)}
-                        >
-                            {showForm ? 'Cancel' : 'Add User'}
-                        </Button>
-                        {showForm && (
-                            <form onSubmit={handleSubmit} className="mb-3">
-                                <div className="mb-3">
-                                    <label htmlFor="name" className="form-label">Name</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        id="name"
-                                        name="name"
-                                        value={newUser.name}
-                                        onChange={handleChange}
-                                        required
-                                    />
+                        <Button variant="solid" color="primary" onClick={() => openUserModal()}>
+                                Create User
+                            </Button>
+                        {/* Modal for Create or Edit Users */}
+                        {isUserModalOpen && (
+                            <div className="modal-overlay">
+                                <div className="modal-content">
+                                    <button className="modal-close" onClick={closeUserModal}>✖️</button>
+                                    <div className="modal-body">
+                                        <label>Name</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            name="name"
+                                            placeholder="Name"
+                                            value={newUser.name}
+                                            onChange={handleChange}
+                                        />
+                                        <label>Profile</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            placeholder="Student"
+                                            name="profile"
+                                            value={newUser.profile}
+                                            onChange={handleChange}
+                                        />
+                                        <label>Access</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            placeholder="Low"
+                                            name="access"
+                                            value={newUser.access}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                    <button className="submit-button" onClick={handleSubmit}>Submit</button>
                                 </div>
-                                <div className="mb-3">
-                                    <label htmlFor="profile" className="form-label">Profile</label>
-                                    <Select
-                                        id="profile"
-                                        name="profile"
-                                        value={newUser.profile}
-                                        onChange={(e: SelectChangeEvent<string>) => handleSelectChange('profile', e)}
-                                            required
-                                    >
-                                        <Option value="Teacher">Teacher</Option>
-                                        <Option value="Parent">Parent</Option>
-                                        <Option value="Student">Student</Option>
-                                    </Select>
-                                </div>
-                                <div className="mb-3">
-                                    <label htmlFor="access" className="form-label">Access</label>
-                                    <Select
-                                        id="access"
-                                        name="access"
-                                        value={newUser.profile}
-                                        onChange={(e: SelectChangeEvent<string>) => handleSelectChange('access', e)}
-                                            required
-                                    >
-                                        <Option value="High">High</Option>
-                                        <Option value="Medium">Medium</Option>
-                                        <Option value="Low">Low</Option>
-                                    </Select>
-                                </div>
-                                <Button type="submit" className="btn btn-success">
-                                    {'Submit'}
-                                </Button>
-                            </form>
+                            </div>
                         )}
                         <div className="mb-3">
                             <Input
@@ -267,7 +264,7 @@ export default function UserManagementPage() {
                                             <td>{user.profile}</td>
                                             <td>{user.access}</td>
                                                         <td>
-                                                            <Button variant="plain" size="sm" onClick={() => handleEdit(index)}>✏️</Button>
+                                                        <Button variant="plain" size="sm" onClick={() => openUserModal(index)}>✏️</Button>
                                                             <Button variant="plain" size="sm" onClick={() => handleDelete(index)}>❌</Button>
                                                         </td>
                                         </tr>
