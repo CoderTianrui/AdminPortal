@@ -23,6 +23,10 @@ const Calendar = ({ initialEvents, sx }) => {
     };
 
     const handleSave = () => {
+        if (newEvent.startTime >= newEvent.endTime) {
+            alert("Start time cannot be later than end time.");
+            return;
+        }
         setEvents([...events, { date: selectedDate, title: newEvent.title, startTime: newEvent.startTime, endTime: newEvent.endTime }]);
         setShowForm(false);
         setNewEvent({ title: '', startTime: '', endTime: '' });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent,within } from '@testing-library/react';
 import UserList from '../app/usermanagement/UserList';
 import '@testing-library/jest-dom';
 
@@ -13,7 +13,6 @@ describe('UserList Component', () => {
 
         render(<UserList initialUsers={initialUsers} />);
 
-        // 检查是否正确显示了初始用户
         expect(screen.getByText(/Mark/i)).toBeInTheDocument();
         expect(screen.getByText(/Otto/i)).toBeInTheDocument();
         expect(screen.getByText(/Jacob/i)).toBeInTheDocument();
@@ -47,21 +46,23 @@ describe('UserList Component', () => {
     //     expect(screen.getByText(/@johndoe/i)).toBeInTheDocument();
     // });
 
-    test('allows users to be deleted from the list', () => {
+    test('allows a specific user to be deleted from the list', () => {
         const initialUsers = [
             { name: 'Mark', username: 'Otto', level: '@mdo' },
             { name: 'Jacob', username: 'Thornton', level: '@fat' }
         ];
-
+    
         render(<UserList initialUsers={initialUsers} />);
-
-        // 删除用户 Jacob
-        fireEvent.click(screen.getAllByText(/Delete/i)[1]);
-
-        // 检查用户是否被删除
+    
+        const jacobRow = screen.getByText('Jacob').closest('tr');
+        const deleteButton = within(jacobRow).getByText(/Delete/i);
+    
+        fireEvent.click(deleteButton);
+    
         expect(screen.queryByText(/Jacob/i)).not.toBeInTheDocument();
-        expect(screen.queryByText(/Thornton/i)).not.toBeInTheDocument();
+        expect(screen.queryByText(/Mark/i)).toBeInTheDocument();
     });
+    
 
     test('filters users based on search input', () => {
         const initialUsers = [

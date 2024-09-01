@@ -19,23 +19,17 @@ afterAll(() => {
   jest.useRealTimers();
 });
 
-// test('adds a new event to the calendar', () => {
-//   render(<Calendar initialEvents={[]} />);
+test('switches to the next and previous month successfully', () => {
+  render(<Calendar initialEvents={[]} />);
+  
+  // Initially, the month should be August 2023 (set by the fake timer)
+  expect(screen.getByText(/August 2023/i)).toBeInTheDocument();
 
-//   // Simulate clicking on a date to open the form
-//   fireEvent.click(screen.getByText('15'));
+  // Click to switch to the next month
+  fireEvent.click(screen.getByText(/>/i));
+  expect(screen.getByText(/September 2023/i)).toBeInTheDocument();
 
-//   // Fill in the event form fields
-//   fireEvent.change(screen.getByPlaceholderText(/Title/i), { target: { value: 'New Event' } });
-
-//   // 填写时间字段
-//   fireEvent.change(screen.getAllByRole('textbox')[1], { target: { value: '14:00' } }); // 开始时间
-//   fireEvent.change(screen.getAllByRole('textbox')[3], { target: { value: '15:00' } }); // 结束时间
-
-//   // Click the "Add" button to save the event
-//   fireEvent.click(screen.getByText('Add'));
-
-//   // Check if the new event is displayed on the calendar
-//   expect(screen.getByText('New Event')).toBeInTheDocument();
-//   expect(screen.getByText('14:00 - 15:00')).toBeInTheDocument();
-// });
+  // Click to switch back to the previous month
+  fireEvent.click(screen.getByText(/</i));
+  expect(screen.getByText(/August 2023/i)).toBeInTheDocument();
+});
