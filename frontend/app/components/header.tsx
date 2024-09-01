@@ -104,6 +104,16 @@ export default function Header() {
                     variant="plain"
                     color="neutral"
                     component="a"
+                    href="/usermanagement/"
+                    size="sm"
+                    sx={{ alignSelf: 'center' }}
+                >
+                    User Management
+                </Button>
+                <Button
+                    variant="plain"
+                    color="neutral"
+                    component="a"
                     href="/surveymanagement/"
                     size="sm"
                     sx={{ alignSelf: 'center' }}
