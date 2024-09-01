@@ -6,9 +6,9 @@ import CssBaseline from '@mui/joy/CssBaseline';
 import Button from '@mui/joy/Button';
 import Input from '@mui/joy/Input';
 import Box from '@mui/joy/Box';
-import Layout from '@/app/components/layout';
-import Header from '@/app/components/header';
-import Navigation from '@/app/components/navigation';
+import Layout from '../components/layout';
+import Header from '../components/header';
+import Navigation from '../components/navigation';
 import './DailyMood.css';
 
 interface Mood {
@@ -158,20 +158,24 @@ export default function DailyMoodPage() {
                             <div className="modal-content">
                                 <button className="modal-close" onClick={() => setIsModalOpen(false)}>✖️</button>
                                 <div className="modal-body">
-                                    <label>Mood Name</label>
+                                <label htmlFor="moodName">Mood Name</label>
                                     <input
+                                        id="moodName"
                                         type="text"
                                         name="name"
                                         value={newMood.name}
                                         onChange={handleMoodChange}
                                     />
-                                    <label>Mood Image URL</label>
+
+                                    <label htmlFor="moodImage">Mood Image URL</label>
                                     <input
+                                        id="moodImage"
                                         type="text"
                                         name="image"
                                         value={newMood.image}
                                         onChange={handleMoodChange}
                                     />
+
                                     <button className="submit-button" onClick={submitMood}>Submit</button>
                                 </div>
                             </div>

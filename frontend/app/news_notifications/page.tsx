@@ -6,9 +6,9 @@ import CssBaseline from '@mui/joy/CssBaseline';
 import Button from '@mui/joy/Button';
 import Input from '@mui/joy/Input';
 import Box from '@mui/joy/Box';
-import Layout from '@/app/components/layout';
-import Header from '@/app/components/header';
-import Navigation from '@/app/components/navigation';
+import Layout from '../components/layout';
+import Header from '../components/header';
+import Navigation from '../components/navigation';
 
 import './NewsNotificationsManagement.css';
 

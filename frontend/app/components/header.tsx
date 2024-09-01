@@ -28,7 +28,8 @@ import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded';
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 
-import TeamNav from '@/app/components/navigation';
+import TeamNav from '../components/navigation';
+
 
 function ColorSchemeToggle() {
     const { mode, setMode } = useColorScheme();
