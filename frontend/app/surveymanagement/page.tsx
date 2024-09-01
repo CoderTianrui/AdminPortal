@@ -40,6 +40,10 @@ export default function SurveyManagementPage() {
 
     const [editSurveyIndex, setEditSurveyIndex] = React.useState<number | null>(null);
 
+    const [surveySearchQuery, setSurveySearchQuery] = React.useState('');
+
+    const [filteredSurveyList, setFilteredSurveyList] = React.useState<Surveys[]>(surveyList);
+
     const openSurveyModal = (index: number | null = null) => {
         if (index !== null) {
             setNewSurvey(surveyList[index]);
@@ -59,17 +63,31 @@ export default function SurveyManagementPage() {
         setNewSurvey({ ...newSurvey, [e.target.name]: e.target.value });
     };
 
+    const handleSurveySearchQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSurveySearchQuery(e.target.value);
+    };
+
+    const filterSurvey = () => {
+        const filtered = surveyList.filter(survey =>
+            survey.title.toLowerCase().includes(surveySearchQuery.toLowerCase())
+        );
+        setFilteredSurveyList(filtered);
+    };
+
    
 
     const submitSurvey = () => {
         if (editSurveyIndex !== null) {
-            // Edit existing news
+            // Edit existing surveys
             const updatedSurveyList = [...surveyList];
             updatedSurveyList[editSurveyIndex] = newSurvey;
             setSurveyList(updatedSurveyList);
+            setFilteredSurveyList(updatedSurveyList)
         } else {
-            // Add new news
-            setSurveyList([...surveyList, newSurvey]);
+            // Add new surveys
+            const updatedSurveyList = [...surveyList, newSurvey];
+            setSurveyList(updatedSurveyList);
+            setFilteredSurveyList(updatedSurveyList);  // Update the filtered list after adding new survey
         }
         closeSurveyModal();
     };
@@ -78,6 +96,7 @@ export default function SurveyManagementPage() {
     const deleteSurvey = (index: number) => {
         const updatedSurveyList = surveyList.filter((_, i) => i !== index);
         setSurveyList(updatedSurveyList);
+        setFilteredSurveyList(updatedSurveyList);  // Update the filtered list after deleting news
     };
 
    
@@ -111,8 +130,10 @@ export default function SurveyManagementPage() {
                                 Create Survey
                             </Button>
                             <Input
-                                placeholder="Search Surveys"
-                                endDecorator={<Button variant="outlined">Filter</Button>}
+                                placeholder="Search Surveys by title"
+                                value={surveySearchQuery}
+                                onChange={handleSurveySearchQueryChange}
+                                endDecorator={<Button variant="outlined" onClick={filterSurvey}>Search</Button>}
                                 sx={{ width: '300px' }}
                             />
                             <Button variant="solid" color="danger" sx={{ ml: 'auto' }}>Manage Surveys</Button>
@@ -174,7 +195,7 @@ export default function SurveyManagementPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {surveyList.map((survey, index) => (
+                                    {filteredSurveyList.map((survey, index) => (
                                         <tr key={index}>
                                             <td>{survey.title}</td>
                                             <td>{survey.description}</td>
