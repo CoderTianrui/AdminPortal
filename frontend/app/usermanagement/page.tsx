@@ -37,9 +37,10 @@ import Navigation from '@/app/components/navigation';
 
 import './UserList.css';
 
-
 interface User {
-    name: string;
+    firstName: string;
+    lastName: string;
+    email: string;
     profile: string;
     access: string;
 }
@@ -48,22 +49,21 @@ export default function UserManagementPage() {
     const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [isUserModalOpen, setIsUserModalOpen] = React.useState(false);
     const [users, setUsers] = React.useState<User[]>([
-        { name: 'Mark', profile: 'Parent', access: 'Medium' },
-        { name: 'Jacob', profile: 'Student', access: 'Full' },
-        { name: 'Larry', profile: 'Teacher', access: 'High' }
+        { firstName: 'Mark', lastName: 'Smith', email: 'mark.smith@example.com', profile: 'Parent', access: 'Medium' },
+        { firstName: 'Jacob', lastName: 'Johnson', email: 'jacob.johnson@example.com', profile: 'Student', access: 'Full' },
+        { firstName: 'Larry', lastName: 'Williams', email: 'larry.williams@example.com', profile: 'Teacher', access: 'High' }
     ]);
 
-    const [newUser, setNewUser] = React.useState<User>({ name: '', profile: '', access: '' });
+    const [newUser, setNewUser] = React.useState<User>({ firstName: '', lastName: '', email: '', profile: '', access: '' });
     const [editIndex, setEditIndex] = React.useState<number | null>(null);
-    const [showForm, setShowForm] = React.useState(false);
     const [search, setSearch] = React.useState('');
+    const [selectedProfile, setSelectedProfile] = React.useState<string | ''>('');
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement> | SelectChangeEvent<string>
     ) => {
         if (e && e.target) {
             const target = e.target as HTMLInputElement | HTMLSelectElement;
-
             if (target) {
                 const { name, value } = target;
                 setNewUser((prevUser) => ({
@@ -76,20 +76,15 @@ export default function UserManagementPage() {
         }
     };
 
-    
-
     const handleSubmit = () => {
         if (editIndex !== null) {
-           
             const updatedUsers = [...users];
             updatedUsers[editIndex] = newUser;
             setUsers(updatedUsers);
             setEditIndex(null);
         } else {
-            
-            const updatedNewsList = [...users, newUser];
-            setUsers(updatedNewsList);
-            setEditIndex(null);
+            const updatedUsersList = [...users, newUser];
+            setUsers(updatedUsersList);
         }
         closeUserModal();
     };
@@ -97,37 +92,37 @@ export default function UserManagementPage() {
     const handleEdit = (index: number) => {
         setEditIndex(index);
         setNewUser(users[index]);
-        setShowForm(true);
+        setIsUserModalOpen(true);
     };
 
-    const handleDelete = (index : number) => {
+    const handleDelete = (index: number) => {
         setUsers(users.filter((_, i) => i !== index));
     };
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearch(e.target.value.toLowerCase()); // Update search state
+        setSearch(e.target.value.toLowerCase());
     };
+    
 
-
-    const [editUserIndex, setEditUserIndex] = React.useState<number | null>(null);
+    
 
     const filteredUsers = users.filter(user =>
-        user.name.toLowerCase().includes(search)
+        `${user.firstName.toLowerCase()} ${user.lastName.toLowerCase()}`.includes(search)
     );
 
     const openUserModal = (index: number | null = null) => {
         if (index !== null) {
             setNewUser(users[index]);
-            setEditUserIndex(index);
+            setEditIndex(index);
         }
         setIsUserModalOpen(true);
     };
+
     const closeUserModal = () => {
         setIsUserModalOpen(false);
-        setNewUser({ name: '', profile: '', access: '' });
-        setEditUserIndex(null);
+        setNewUser({ firstName: '', lastName: '', email: '', profile: '', access: '' });
+        setEditIndex(null);
     };
-
 
     return (
         <CssVarsProvider disableTransitionOnChange>
@@ -160,7 +155,6 @@ export default function UserManagementPage() {
                     component="a"
                     href="/joy-ui/getting-started/templates/email/"
                     size="sm"
-                    startDecorator={<EmailRoundedIcon />}
                     sx={{ flexDirection: 'column', '--Button-gap': 0 }}
                 >
                     User Management
@@ -172,7 +166,6 @@ export default function UserManagementPage() {
                     component="a"
                     href="/joy-ui/getting-started/templates/team/"
                     size="sm"
-                    startDecorator={<PeopleAltRoundedIcon />}
                     sx={{ flexDirection: 'column', '--Button-gap': 0 }}
                 >
                     News Management
@@ -183,7 +176,6 @@ export default function UserManagementPage() {
                     component="a"
                     href="/joy-ui/getting-started/templates/files/"
                     size="sm"
-                    startDecorator={<FolderRoundedIcon />}
                     sx={{ flexDirection: 'column', '--Button-gap': 0 }}
                 >
                     Survey Management
@@ -204,66 +196,82 @@ export default function UserManagementPage() {
                     <Navigation />
                 </Layout.SideNav>
                 <Layout.Main>
-                <article className="table-container">
+                    <article className="table-container">
                         <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>User Management</h1>
                         <Box sx={{ marginBottom: '20px', display: 'flex', gap: 1 }}>
-                        <Button variant="solid" color="primary" onClick={() => openUserModal()}>
+                            <Button variant="solid" color="primary" onClick={() => openUserModal()}>
                                 Create User
                             </Button>
-                        {/* Modal for Create or Edit Users */}
-                        {isUserModalOpen && (
-                            <div className="modal-overlay">
-                                <div className="modal-content">
-                                    <button className="modal-close" onClick={closeUserModal}>✖️</button>
-                                    <div className="modal-body">
-                                        <label>Name</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            name="name"
-                                            placeholder="Name"
-                                            value={newUser.name}
-                                            onChange={handleChange}
-                                        />
-                                        <label>Profile</label>
-                                        <select 
+                            {/* Modal for Create or Edit Users */}
+                            {isUserModalOpen && (
+                                <div className="modal-overlay">
+                                    <div className="modal-content">
+                                        <button className="modal-close" onClick={closeUserModal}>✖️</button>
+                                        <div className="modal-body">
+                                            <label>First Name</label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                name="firstName"
+                                                placeholder="First Name"
+                                                value={newUser.firstName}
+                                                onChange={handleChange}
+                                            />
+                                            <label>Last Name</label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                name="lastName"
+                                                placeholder="Last Name"
+                                                value={newUser.lastName}
+                                                onChange={handleChange}
+                                            />
+                                            <label>Email</label>
+                                            <input
+                                                type="email"
+                                                className="form-control"
+                                                name="email"
+                                                placeholder="Email"
+                                                value={newUser.email}
+                                                onChange={handleChange}
+                                            />
+                                            <label>Profile</label>
+                                            <select 
                                                 className="form-select" 
                                                 aria-label="Profile" 
                                                 name="profile"
                                                 value={newUser.profile}
                                                 onChange={handleChange}>
-                                            <option selected>Student</option>
-                                            <option value="Student">Student</option>
-                                            <option value="Parent">Parent</option>
-                                            <option value="Teacher">Teacher</option>
-                                        </select>
-                                        <label>Access</label>
-                                        <select 
+                                                <option value="Student">Student</option>
+                                                <option value="Parent">Parent</option>
+                                                <option value="Teacher">Teacher</option>
+                                            </select>
+                                            <label>Access</label>
+                                            <select 
                                                 className="form-select" 
                                                 aria-label="Access" 
                                                 name="access"
                                                 value={newUser.access}
                                                 onChange={handleChange}>
-                                            <option selected>Low</option>
-                                            <option value="Low">Low</option>
-                                            <option value="Medium">Medium</option>
-                                            <option value="High">High</option>
-                                            <option value="Full">Full</option>
-                                        </select>
+                                                <option value="Low">Low</option>
+                                                <option value="Medium">Medium</option>
+                                                <option value="High">High</option>
+                                                <option value="Full">Full</option>
+                                            </select>
+                                        </div>
+                                        <button className="submit-button" onClick={handleSubmit}>Submit</button>
                                     </div>
-                                    <button className="submit-button" onClick={handleSubmit}>Submit</button>
                                 </div>
+                            )}
+                            <div className="mb-3">
+                                <Input
+                                    placeholder="Search by name"
+                                    value={search}
+                                    onChange={handleSearchChange}
+                                    endDecorator={<Button variant="outlined">Filter</Button>}
+                                    sx={{ width: '300px' }}
+                                />
                             </div>
-                        )}
-                        <div className="mb-3">
-                            <Input
-                                placeholder="Search by name"
-                                value={search}
-                                onChange={handleSearchChange}
-                                endDecorator={<Button variant="outlined">Filter</Button>}
-                                sx={{ width: '300px' }}
-                            />
-                        </div>
                         </Box>
                         <table className="table table-striped">
                             <thead>
@@ -280,13 +288,17 @@ export default function UserManagementPage() {
                                     filteredUsers.map((user, index) => (
                                         <tr key={index}>
                                             <th scope="row">{index + 1}</th>
-                                            <td>{user.name}</td>
+                                            <td>
+                                                {/* <img src={user.profileImage} alt="Profile" className="profile-image" /> */}
+                                                {user.firstName} {user.lastName}
+                                                <br />
+                                                {user.email}</td>
                                             <td>{user.profile}</td>
                                             <td>{user.access}</td>
-                                                        <td>
-                                                        <Button variant="plain" size="sm" onClick={() => openUserModal(index)}>✏️</Button>
-                                                            <Button variant="plain" size="sm" onClick={() => handleDelete(index)}>❌</Button>
-                                                        </td>
+                                            <td>
+                                                <Button variant="plain" size="sm" onClick={() => openUserModal(index)}>✏️</Button>
+                                                <Button variant="plain" size="sm" onClick={() => handleDelete(index)}>❌</Button>
+                                            </td>
                                         </tr>
                                     ))
                                 ) : (
