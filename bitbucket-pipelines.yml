@@ -18,9 +18,27 @@ pipelines:
             - yarn run build
             - yarn run test
       - step:
-          name: 'Lint'
+          name: 'Lint Frontend'
           script:
             - cd frontend
+            - corepack enable
+            - corepack prepare yarn@stable --activate
+            - yarn install
+            - yarn run lint
+    - parallel:
+      - step:
+          name: 'Build and Test the Backend'
+          script:
+            - cd backend
+            - corepack enable
+            - corepack prepare yarn@stable --activate
+            - yarn install
+            - yarn run build
+            - yarn run test
+      - step:
+          name: 'Lint Backend'
+          script:
+            - cd backend
             - corepack enable
             - corepack prepare yarn@stable --activate
             - yarn install
