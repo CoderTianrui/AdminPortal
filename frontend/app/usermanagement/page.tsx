@@ -12,7 +12,8 @@ import Button from '@mui/joy/Button';
 import Stack from '@mui/joy/Stack';
 import Input from '@mui/joy/Input';
 import MenuItem from '@mui/material/MenuItem';
-import Select,{ SelectChangeEvent } from '@mui/joy/Select';
+import Select  from '@mui/joy/Select';
+import { SelectChangeEvent } from '@mui/material/Select';
 import Option from '@mui/joy/Option'
 import RadioGroup from '@mui/joy/RadioGroup';
 import Radio from '@mui/joy/Radio';
@@ -42,25 +43,27 @@ interface User {
     lastName: string;
     email: string;
     profile: string;
+    school: string;
     access: string;
+    relatedNames: string[];
 }
 
 export default function UserManagementPage() {
     const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [isUserModalOpen, setIsUserModalOpen] = React.useState(false);
     const [users, setUsers] = React.useState<User[]>([
-        { firstName: 'Mark', lastName: 'Smith', email: 'mark.smith@example.com', profile: 'Parent', access: 'Medium' },
-        { firstName: 'Jacob', lastName: 'Johnson', email: 'jacob.johnson@example.com', profile: 'Student', access: 'Full' },
-        { firstName: 'Larry', lastName: 'Williams', email: 'larry.williams@example.com', profile: 'Teacher', access: 'High' }
+        { firstName: 'Mark', lastName: 'Smith', email: 'mark.smith@example.com', profile: 'Parent', school: 'University Of Sydney', access: 'Medium',  relatedNames: ['Jacob Johnson'] },
+        { firstName: 'Jacob', lastName: 'Johnson', email: 'jacob.johnson@example.com', profile: 'Student', school: 'University Of Sydney',access: 'Full' , relatedNames: ['Mark Smith']},
+        { firstName: 'Larry', lastName: 'Williams', email: 'larry.williams@example.com', profile: 'Teacher', school: 'University Of Sydney', access: 'High', relatedNames: [] }
     ]);
 
-    const [newUser, setNewUser] = React.useState<User>({ firstName: '', lastName: '', email: '', profile: '', access: '' });
+    const [newUser, setNewUser] = React.useState<User>({ firstName: '', lastName: '', email: '', profile: '', school: '',access: '', relatedNames: [] });
     const [editIndex, setEditIndex] = React.useState<number | null>(null);
     const [search, setSearch] = React.useState('');
     const [selectedProfile, setSelectedProfile] = React.useState<string | ''>('');
 
     const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement> | SelectChangeEvent<string>
+        e: React.ChangeEvent<HTMLInputElement |HTMLSelectElement>
     ) => {
         if (e && e.target) {
             const target = e.target as HTMLInputElement | HTMLSelectElement;
@@ -120,7 +123,7 @@ export default function UserManagementPage() {
 
     const closeUserModal = () => {
         setIsUserModalOpen(false);
-        setNewUser({ firstName: '', lastName: '', email: '', profile: '', access: '' });
+        setNewUser({ firstName: '', lastName: '', email: '', profile: '', school: '', access: '' , relatedNames: []});
         setEditIndex(null);
     };
 
@@ -246,6 +249,18 @@ export default function UserManagementPage() {
                                                 <option value="Parent">Parent</option>
                                                 <option value="Teacher">Teacher</option>
                                             </select>
+                                            <label>School</label>
+                                            <select 
+                                                className="form-select" 
+                                                aria-label="School" 
+                                                name="school"
+                                                value={newUser.school}
+                                                onChange={handleChange}>
+                                                <option value="University of Sydney">University of Sydney</option>
+                                                <option value="University of Melbourne">University of Melbourne</option>
+                                                <option value="Monte Sant' Angelo">Monte Sant' Angelo</option>
+                                                <option value="Willoughby High School">Willoughby High School</option>
+                                            </select>
                                             <label>Access</label>
                                             <select 
                                                 className="form-select" 
@@ -258,6 +273,20 @@ export default function UserManagementPage() {
                                                 <option value="High">High</option>
                                                 <option value="Full">Full</option>
                                             </select>
+                                            <label>Related Names (comma-separated)</label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                name="relatedNames"
+                                                placeholder="e.g., John Doe, Jane Smith"
+                                                value={newUser.relatedNames.join(', ')}  
+                                                onChange={(e) => {
+                                                    setNewUser((prevUser) => ({
+                                                        ...prevUser,
+                                                        relatedNames: e.target.value.split(',').map(name => name.trim())  
+                                                    }));
+                                                }}
+                                            />
                                         </div>
                                         <button className="submit-button" onClick={handleSubmit}>Submit</button>
                                     </div>
@@ -279,7 +308,9 @@ export default function UserManagementPage() {
                                     <th scope="col">#</th>
                                     <th scope="col">Name</th>
                                     <th scope="col">Profile</th>
+                                    <th scope="col">School</th>
                                     <th scope="col">Access</th>
+                                    <th scope="col">Relations</th>
                                     <th scope="col">Actions</th>
                                 </tr>
                             </thead>
@@ -294,7 +325,11 @@ export default function UserManagementPage() {
                                                 <br />
                                                 {user.email}</td>
                                             <td>{user.profile}</td>
+                                            <td>{user.school}</td>
                                             <td>{user.access}</td>
+                                            <td>
+                                                {user.relatedNames.join(', ')}
+                                            </td>
                                             <td>
                                                 <Button variant="plain" size="sm" onClick={() => openUserModal(index)}>✏️</Button>
                                                 <Button variant="plain" size="sm" onClick={() => handleDelete(index)}>❌</Button>
