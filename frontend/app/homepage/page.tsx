@@ -95,13 +95,45 @@ export default function HomePage() {
                 </Layout.SideNav>
                 <Layout.Main>
                     <div className="imageContainer">
-                        <img src="/OIClogo.png" alt="OIC Education Logo" className="image-logo" />
+                        <img src="/Name2_OIC.png" alt="OIC Education Logo" className="image-logo" />
                     </div>
                     <div className="button-container">
-                        <Button className="button-item" variant="outlined" component="a" href="/usermanagement/">User List</Button>
-                        <Button className="button-item" variant="outlined" component="a" href="/surveymanagement/">Survey Management</Button>
-                        <Button className="button-item" variant="outlined" component="a" href="/Daily_mood/">Daily Moods</Button>
-                        <Button className="button-item" variant="outlined" component="a" href="/news_notifications/">News and Notification</Button>
+                            <Button className="button-item" variant="outlined" component="a" href="/usermanagement/" sx={{
+                            color: 'white',        // Text color
+                            backgroundColor: 'rgb(0,33,71)',  // Button background color
+                            borderColor: '#1976d2',  // Outline color
+                            '&:hover': {
+                            backgroundColor: '#1565c0',  // Background on hover
+                            borderColor: '#1565c0',
+                            },
+                        }}>User List</Button>
+                        <Button className="button-item" variant="outlined" component="a" href="/surveymanagement/" sx={{
+                            color: 'white',        // Text color
+                            backgroundColor: 'rgb(0,33,71)',  // Button background color
+                            borderColor: '#1976d2',  // Outline color
+                            '&:hover': {
+                            backgroundColor: '#1565c0',  // Background on hover
+                            borderColor: '#1565c0',
+                            },
+                        }}>Survey Management</Button>
+                        <Button className="button-item" variant="outlined" component="a" href="/Daily_mood/" sx={{
+                            color: 'white',        // Text color
+                            backgroundColor: 'rgb(0,33,71)',  // Button background color
+                            borderColor: '#1976d2',  // Outline color
+                            '&:hover': {
+                            backgroundColor: '#1565c0',  // Background on hover
+                            borderColor: '#1565c0',
+                            },
+                        }}>Daily Moods</Button>
+                        <Button className="button-item" variant="outlined" component="a" href="/news_notifications/" sx={{
+                            color: 'white',        // Text color
+                            backgroundColor: 'rgb(0,33,71)',  // Button background color
+                            borderColor: '#1976d2',  // Outline color
+                            '&:hover': {
+                            backgroundColor: '#1565c0',  // Background on hover
+                            borderColor: '#1565c0',
+                            },
+                        }}>News and Notification</Button>
                     </div>
                 </Layout.Main>
             </Layout.Root>
