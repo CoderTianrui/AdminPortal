@@ -1,31 +1,33 @@
-'use server'
+'use client'
 
 import { redirect } from 'next/navigation'
+
 // import { cookies } from "next/headers"
 
 export async function login(prevState: any, formData: FormData): Promise<{
     success: boolean | undefined
     message?: string
 } | never> {
-    // mock the login details before we implement the actual login endpoint
-    const mockUser = {
-        email: 'test@test.com',
-        password: 'password'
-    }
+    const request = await fetch('http://localhost:3333/login', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            email: formData.get('email'),
+            password: formData.get('password')
+        })
+    })
 
-    const email = formData.get('email')
-    const password = formData.get('password')
-
-    if (email !== mockUser.email || password !== mockUser.password) {
+    if (!request.ok) {
         return {
             success: false,
             message: 'Invalid email or password'
         }
     }
 
-    // set the authorization token in the cookie
-    // cookies().set('Authorization', 'Bearer mockToken')
-
     // login successful, redirect to the team page
+
     redirect('/team')
 }
