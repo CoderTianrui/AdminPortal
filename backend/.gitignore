@@ -1,7 +1,6 @@
 # Dependencies and AdonisJS build
 node_modules
 build
-tmp
 
 # dependencies
 /node_modules
@@ -10,7 +9,6 @@ tmp
 .yarn/install-state.gz
 
 # Secrets
-.env
 .env.local
 .env.production.local
 .env.development.local
