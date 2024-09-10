@@ -258,7 +258,7 @@ export default function UserManagementPage() {
                                                 onChange={handleChange}>
                                                 <option value="University of Sydney">University of Sydney</option>
                                                 <option value="University of Melbourne">University of Melbourne</option>
-                                                <option value="Monte Sant' Angelo">Monte Sant' Angelo</option>
+                                                <option value="Monte Sant' Angelo">Monte Sant&apos; Angelo</option>
                                                 <option value="Willoughby High School">Willoughby High School</option>
                                             </select>
                                             <label>Access</label>
