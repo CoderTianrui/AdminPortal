@@ -29,5 +29,5 @@ export async function login(prevState: any, formData: FormData): Promise<{
 
     // login successful, redirect to the team page
 
-    redirect('/team')
+    redirect('/homepage')
 }
