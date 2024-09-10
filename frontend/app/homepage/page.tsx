@@ -106,7 +106,7 @@ export default function HomePage() {
                             backgroundColor: '#1565c0',  // Background on hover
                             borderColor: '#1565c0',
                             },
-                        }}>User List</Button>
+                        }}>User Management</Button>
                         <Button className="button-item" variant="outlined" component="a" href="/surveymanagement/" sx={{
                             color: 'white',        // Text color
                             backgroundColor: 'rgb(0,33,71)',  // Button background color
