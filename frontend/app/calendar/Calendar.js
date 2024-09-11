@@ -4,23 +4,23 @@ import './Calendar.css';
 const Calendar = ({ initialEvents, sx }) => {
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-
     const [events, setEvents] = useState(initialEvents);
     const [selectedDate, setSelectedDate] = useState(null);
-    const [newEvent, setNewEvent] = useState({ title: '', startTime: '', endTime: '' });
+    const [newEvent, setNewEvent] = useState({ title: '', startTime: '', endTime: '', memo: '' });
     const [showForm, setShowForm] = useState(false);
     const [editEvent, setEditEvent] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
 
     const handleDateClick = (day) => {
         const date = new Date(currentYear, currentMonth, day);
-        setSelectedDate(`${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
+        const formattedDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        setSelectedDate(formattedDate);
         setShowForm(true);
     };
 
     const handleClose = () => {
         setShowForm(false);
-        setNewEvent({ title: '', startTime: '', endTime: '' });
+        setNewEvent({ title: '', startTime: '', endTime: '', memo: '' });
         setSelectedDate(null);
         setEditEvent(null);
         setIsEditing(false);
@@ -34,7 +34,7 @@ const Calendar = ({ initialEvents, sx }) => {
         if (isEditing) {
             handleSaveEdit();
         } else {
-            setEvents([...events, { date: selectedDate, title: newEvent.title, startTime: newEvent.startTime, endTime: newEvent.endTime }]);
+            setEvents([...events, { date: selectedDate, title: newEvent.title, startTime: newEvent.startTime, endTime: newEvent.endTime, memo: newEvent.memo }]);
             handleClose();
         }
     };
@@ -45,7 +45,7 @@ const Calendar = ({ initialEvents, sx }) => {
             return;
         }
         setEvents(events.map(event =>
-            event === editEvent ? { ...editEvent, ...newEvent } : event
+            event.date === editEvent.date && event.title === editEvent.title ? { ...editEvent, ...newEvent } : event
         ));
         handleClose();
     };
@@ -56,13 +56,18 @@ const Calendar = ({ initialEvents, sx }) => {
             title: event.title,
             startTime: event.startTime,
             endTime: event.endTime,
+            memo: event.memo || ''
         });
+        setSelectedDate(event.date); 
         setIsEditing(true);
         setShowForm(true);
     };
 
     const handleDelete = (eventToDelete) => {
         setEvents(events.filter(event => event !== eventToDelete));
+        if (showForm) {
+            handleClose();
+        }
     };
 
     const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -120,24 +125,24 @@ const Calendar = ({ initialEvents, sx }) => {
                     const day = index + 1;
                     return (
                         <div key={day} className="calendar-cell" onClick={() => handleDateClick(day)}>
-                            <div className="date">{day}</div>
-                            <div className="events">
-                                {events.filter(event => {
-                                    const eventDate = new Date(event.date);
-                                    return (
-                                        eventDate.getDate() === day &&
-                                        eventDate.getMonth() === currentMonth &&
-                                        eventDate.getFullYear() === currentYear
-                                    );
-                                }).map((event, i) => (
-                                    <div key={i} className="event">
-                                        {event.title} <br />
-                                        {event.startTime} - {event.endTime}
-                                        <button onClick={() => handleEdit(event)} className="event-edit-button">Edit</button>
-                                        <button onClick={() => handleDelete(event)} className="event-delete-button">Delete</button>
-                                    </div>
-                                ))}
-                            </div>
+                        <div className="date">{day}</div>
+                        <div className="events">
+                            {events.filter(event => {
+                            const eventDate = new Date(event.date);
+                            return (
+                                eventDate.getDate() === day &&
+                                eventDate.getMonth() === currentMonth &&
+                                eventDate.getFullYear() === currentYear
+                            );
+                            }).map((event, i) => (
+                            <div key={i} className="event-dot" 
+                                onClick={(e) => {
+                                e.stopPropagation();
+                                handleEdit(event);
+                                }}
+                            />
+                            ))}
+                        </div>
                         </div>
                     );
                 })}
@@ -156,6 +161,8 @@ const Calendar = ({ initialEvents, sx }) => {
                         />
                         <textarea
                             placeholder="Memo"
+                            value={newEvent.memo}
+                            onChange={(e) => setNewEvent({ ...newEvent, memo: e.target.value })}
                             className="modal-input"
                             rows="3"
                         ></textarea>
@@ -190,6 +197,9 @@ const Calendar = ({ initialEvents, sx }) => {
                             />
                         </div>
                         <button onClick={handleSave} className="modal-add-button">{isEditing ? 'Save Changes' : 'Add'}</button>
+                        {isEditing && (
+                            <button onClick={() => handleDelete(editEvent)} className="modal-delete-button">Delete Event</button>
+                        )}
                     </div>
                 </div>
             )}
