@@ -9,6 +9,8 @@ const Calendar = ({ initialEvents, sx }) => {
     const [selectedDate, setSelectedDate] = useState(null);
     const [newEvent, setNewEvent] = useState({ title: '', startTime: '', endTime: '' });
     const [showForm, setShowForm] = useState(false);
+    const [editEvent, setEditEvent] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
 
     const handleDateClick = (day) => {
         const date = new Date(currentYear, currentMonth, day);
@@ -20,6 +22,8 @@ const Calendar = ({ initialEvents, sx }) => {
         setShowForm(false);
         setNewEvent({ title: '', startTime: '', endTime: '' });
         setSelectedDate(null);
+        setEditEvent(null);
+        setIsEditing(false);
     };
 
     const handleSave = () => {
@@ -27,12 +31,39 @@ const Calendar = ({ initialEvents, sx }) => {
             alert("Start time cannot be later than end time.");
             return;
         }
-        setEvents([...events, { date: selectedDate, title: newEvent.title, startTime: newEvent.startTime, endTime: newEvent.endTime }]);
-        setShowForm(false);
-        setNewEvent({ title: '', startTime: '', endTime: '' });
-        setSelectedDate(null);
+        if (isEditing) {
+            handleSaveEdit();
+        } else {
+            setEvents([...events, { date: selectedDate, title: newEvent.title, startTime: newEvent.startTime, endTime: newEvent.endTime }]);
+            handleClose();
+        }
     };
-    
+
+    const handleSaveEdit = () => {
+        if (newEvent.startTime >= newEvent.endTime) {
+            alert("Start time cannot be later than end time.");
+            return;
+        }
+        setEvents(events.map(event =>
+            event === editEvent ? { ...editEvent, ...newEvent } : event
+        ));
+        handleClose();
+    };
+
+    const handleEdit = (event) => {
+        setEditEvent(event);
+        setNewEvent({
+            title: event.title,
+            startTime: event.startTime,
+            endTime: event.endTime,
+        });
+        setIsEditing(true);
+        setShowForm(true);
+    };
+
+    const handleDelete = (eventToDelete) => {
+        setEvents(events.filter(event => event !== eventToDelete));
+    };
 
     const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -70,7 +101,7 @@ const Calendar = ({ initialEvents, sx }) => {
 
     return (
         <div className="calendar-container" style={sx}>
-                    <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>Calendar Management</h1>
+            <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>Calendar Management</h1>
             <div className="calendar-header">
                 <button className="nav-button rectangular-button" onClick={handlePreviousMonth}>&lt;</button>
                 <span>{monthNames[currentMonth]} {currentYear}</span>
@@ -102,6 +133,8 @@ const Calendar = ({ initialEvents, sx }) => {
                                     <div key={i} className="event">
                                         {event.title} <br />
                                         {event.startTime} - {event.endTime}
+                                        <button onClick={() => handleEdit(event)} className="event-edit-button">Edit</button>
+                                        <button onClick={() => handleDelete(event)} className="event-delete-button">Delete</button>
                                     </div>
                                 ))}
                             </div>
@@ -156,7 +189,7 @@ const Calendar = ({ initialEvents, sx }) => {
                                 style={{ width: '45%' }}
                             />
                         </div>
-                        <button onClick={handleSave} className="modal-add-button">Add</button>
+                        <button onClick={handleSave} className="modal-add-button">{isEditing ? 'Save Changes' : 'Add'}</button>
                     </div>
                 </div>
             )}
