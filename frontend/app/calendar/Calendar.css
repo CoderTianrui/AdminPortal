@@ -1,13 +1,9 @@
 .calendar-container {
-  max-width: 1200px; /* 可以根据需要调整 */
-  margin: 0 auto; /* 将容器居中 */
+  max-width: 1200px; 
+  margin: 0 auto;
   padding: 20px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* 水平居左 */
-  font-size: 18px; /* 通过调整这个值来改变字体大小 */
-
-  
 }
 
 
@@ -17,9 +13,8 @@
   align-items: center;
   margin-bottom: 20px;
   font-size: 1.5rem;
-  width: 100%; /* 确保标题和按钮占据整个宽度 */
-  font-size: 18px; /* 通过调整这个值来改变字体大小 */
-
+  width: 100%; 
+  font-size: 18px; 
 }
 
 .nav-button {
@@ -27,18 +22,16 @@
   border: none;
   cursor: pointer;
   font-size: 1.5rem;
-  flex: 1; /* 左右按钮占据均等空间 */
-  text-align: center; /* 按钮文本居中 */
+  flex: 1; 
+  text-align: center; 
 }
-
-
 
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 40px;
   margin-top: 10px;
-  width: 100%; /* 让网格占据整个容器宽度 */
+  width: 100%; 
 }
 
 .day-header {
@@ -55,9 +48,8 @@
   border: 1px solid #dee2e6;
   padding: 40px;
   border-radius: 5px;
-  cursor: pointer;
   position: relative;
-  text-align: center; /* 日期居中 */
+  text-align: center; 
 }
 
 .calendar-cell .date {
@@ -68,33 +60,13 @@
   margin-top: 5px;
 }
 
-.event {
-  background-color: #ffeb3b;
-  border-radius: 3px;
-  padding: 3px;
-  margin-top: 5px;
-  font-size: 0.8em;
-}
-
-/* 新增的表单样式 */
-.event-form-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+.events {
   display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.event-form {
-  background-color: white;
-  padding: 20px;
-  border-radius: 5px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-  width: 300px;
+  flex-wrap: wrap; 
+  gap: 5px; 
+  position: absolute;
+  bottom: 5px; 
+  left: 5px; 
 }
 
 .event-form h2 {
@@ -102,36 +74,6 @@
   margin-bottom: 15px;
 }
 
-.form-input {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 15px;
-  border: 1px solid #dee2e6;
-  border-radius: 5px;
-}
-
-.form-buttons {
-  display: flex;
-  justify-content: space-between;
-}
-
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.btn-save {
-  background-color: #007bff;
-  color: white;
-}
-
-.btn:hover {
-  opacity: 0.8;
-}
-
-/* 样式用于模态框背景 */
 .modal-background {
   position: fixed;
   top: 0;
@@ -145,7 +87,6 @@
   z-index: 1000;
 }
 
-/* 模态框容器 */
 .modal-container {
   background-color: #f7f9fc;
   border-radius: 10px;
@@ -155,7 +96,6 @@
   position: relative;
 }
 
-/* 关闭按钮 */
 .modal-close-button {
   position: absolute;
   top: 10px;
@@ -166,7 +106,6 @@
   cursor: pointer;
 }
 
-/* 输入框样式 */
 .modal-input {
   width: 100%;
   padding: 10px;
@@ -177,7 +116,6 @@
   font-size: 1rem;
 }
 
-/* 按钮样式 */
 .modal-add-button {
   width: 100%;
   padding: 10px;
@@ -190,3 +128,25 @@
   margin-top: 15px;
 }
 
+.event-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: blue;
+  cursor: pointer;
+}
+
+.modal-delete-button {
+  background-color: #f44336; 
+  color: white; 
+  border: none; 
+  padding: 10px 20px;
+  text-align: center; 
+  font-size: 16px; 
+  margin: 5px 0; 
+  border-radius: 5px; 
+}
+
+.modal-delete-button:hover {
+  background-color: #c62828; 
+}
