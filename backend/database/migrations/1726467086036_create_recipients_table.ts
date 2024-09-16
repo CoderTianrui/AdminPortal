@@ -11,10 +11,6 @@ export default class extends BaseSchema {
       table.timestamp('updated_at')
 
       table.string('type').notNullable()
-
-      table.integer('new_id').unsigned().references('news.id').onDelete('CASCADE')
-      table.integer('survey_id').unsigned().references('surveys.id').onDelete('CASCADE')
-      table.integer('notification_id').unsigned().references('notifications.id').onDelete('CASCADE')
     })
   }
 

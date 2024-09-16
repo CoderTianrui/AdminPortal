@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
-import type { HasMany } from '@adonisjs/lucid/types/relations'
+import { BaseModel, column, manyToMany } from '@adonisjs/lucid/orm'
+import type { ManyToMany } from '@adonisjs/lucid/types/relations'
 import Recipient from './recipient.js'
 
 export default class New extends BaseModel {
@@ -19,6 +19,6 @@ export default class New extends BaseModel {
   @column()
   declare url: string
 
-  @hasMany(() => Recipient)
-  declare recipients: HasMany<typeof Recipient>
+  @manyToMany(() => Recipient)
+  declare recipients: ManyToMany<typeof Recipient>
 }

@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
-import type { HasMany } from '@adonisjs/lucid/types/relations'
+import { BaseModel, column, manyToMany } from '@adonisjs/lucid/orm'
+import type { ManyToMany } from '@adonisjs/lucid/types/relations'
 import User from './user.js'
 
 export default class School extends BaseModel {
@@ -16,8 +16,6 @@ export default class School extends BaseModel {
   @column()
   declare name: string
 
-  @hasMany(() => User, {
-    foreignKey: 'schoolAdminId'
-  })
-  declare adminUsers: HasMany<typeof User>
+  @manyToMany(() => User)
+  declare adminUsers: ManyToMany<typeof User>
 }

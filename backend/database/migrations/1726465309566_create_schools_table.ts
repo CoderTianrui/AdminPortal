@@ -11,8 +11,6 @@ export default class extends BaseSchema {
       table.timestamp('updated_at')
 
       table.string('name').notNullable()
-
-      table.integer('user_id').unsigned().references('users.id').onDelete('CASCADE')
     })
   }
 
