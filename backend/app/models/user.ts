@@ -1,8 +1,8 @@
 import { DateTime } from 'luxon'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
-import { BaseModel, column, manyToMany } from '@adonisjs/lucid/orm'
-import type { ManyToMany } from '@adonisjs/lucid/types/relations'
+import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
+import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import School from './school.js'
 
@@ -36,11 +36,17 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare permission: string
 
-  @manyToMany(() => School)
-  declare schoolId: ManyToMany<typeof School>
+  @column()
+  declare userSchoolId: number
 
-  @manyToMany(() => User)
-  declare relationUser: ManyToMany<typeof User>
+  @belongsTo(() => School)
+  declare schoolId: BelongsTo<typeof School>
+
+  @column()
+  declare relationUserId: number
+
+  @belongsTo(() => User)
+  declare relationUser: BelongsTo<typeof User>
 
   @column()
   declare profileImage: string | null

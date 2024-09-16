@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, manyToMany } from '@adonisjs/lucid/orm'
-import type { ManyToMany } from '@adonisjs/lucid/types/relations'
+import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
+import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import User from './user.js'
 
 export default class School extends BaseModel {
@@ -16,6 +16,11 @@ export default class School extends BaseModel {
   @column()
   declare name: string
 
-  @manyToMany(() => User)
-  declare adminUsers: ManyToMany<typeof User>
+  @column()
+  declare adminUserId: number
+
+  @belongsTo(() => User, {
+    foreignKey: 'adminUserId',
+  })
+  declare adminUser: BelongsTo<typeof User>
 }
