@@ -11,18 +11,6 @@ export default class UsersController {
   }
 
   /**
-   * Display form to create a new record
-   */
-  async create({}: HttpContext) {
-    return {
-      full_name: '',
-      email: '',
-      password: '',
-      is_admin: false
-    }
-  }
-
-  /**
    * Handle form submission for the create action
    */
   async store({ request }: HttpContext) {
@@ -33,13 +21,6 @@ export default class UsersController {
    * Show individual record
    */
   async show({ params }: HttpContext) {
-    return await User.findOrFail(params.id)
-  }
-
-  /**
-   * Edit individual record
-   */
-  async edit({ params }: HttpContext) {
     return await User.findOrFail(params.id)
   }
 

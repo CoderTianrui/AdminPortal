@@ -10,15 +10,6 @@ export default class SosMessagesController {
   }
 
   /**
-   * Display form to create a new record
-   */
-  async create({}: HttpContext) {
-    return {
-      message: '',
-    }
-  }
-
-  /**
    * Handle form submission for the create action
    */
   async store({ request }: HttpContext) {
@@ -29,13 +20,6 @@ export default class SosMessagesController {
    * Show individual record
    */
   async show({ params }: HttpContext) {
-    return await SosMessage.findOrFail(params.id)
-  }
-
-  /**
-   * Edit individual record
-   */
-  async edit({ params }: HttpContext) {
     return await SosMessage.findOrFail(params.id)
   }
 
