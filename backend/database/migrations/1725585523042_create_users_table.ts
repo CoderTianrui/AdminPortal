@@ -12,7 +12,13 @@ export default class extends BaseSchema {
 
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
-      table.boolean('is_admin').notNullable().defaultTo(false)
+      table.enum('profile_type', ['admin', 'school', 'teacher', 'student']).notNullable()
+      table.string('permission').notNullable()
+      table.string('profile_image').nullable()
+
+      table.integer('school_id').unsigned().references('schools.id').onDelete('CASCADE').nullable()
+      table.integer('school_admin_id').unsigned().references('users.id').onDelete('CASCADE').nullable()
+      table.integer('sos_message_id').unsigned().references('sos_messages.id').onDelete('CASCADE').nullable()
     })
   }
 
