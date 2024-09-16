@@ -25,7 +25,6 @@ pipelines:
             - corepack prepare yarn@stable --activate
             - yarn install
             - yarn run lint
-    - parallel:
       - step:
           name: 'Build and Test the Backend'
           script:
