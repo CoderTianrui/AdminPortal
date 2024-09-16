@@ -1,13 +1,12 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import User from '#models/user'
+import Recipient from '#models/recipient'
 
-export default class UsersController {
+export default class RecipientsController {
   /**
    * Display a list of resource
    */
   async index({}: HttpContext) {
-    const users = await User.query().paginate(1)
-    return users
+    return await Recipient.query().paginate(1)
   }
 
   /**
@@ -15,10 +14,7 @@ export default class UsersController {
    */
   async create({}: HttpContext) {
     return {
-      full_name: '',
-      email: '',
-      password: '',
-      is_admin: false
+      type: '',
     }
   }
 
@@ -26,38 +22,39 @@ export default class UsersController {
    * Handle form submission for the create action
    */
   async store({ request }: HttpContext) {
-    return await User.create(request.all())
+    return await Recipient.create(request.all())
   }
 
   /**
    * Show individual record
    */
   async show({ params }: HttpContext) {
-    return await User.findOrFail(params.id)
+    return await Recipient.findOrFail(params.id)
   }
 
   /**
    * Edit individual record
    */
   async edit({ params }: HttpContext) {
-    return await User.findOrFail(params.id)
+    return await Recipient.findOrFail(params.id)
   }
 
   /**
    * Handle form submission for the edit action
    */
   async update({ params, request }: HttpContext) {
-    const user = await User.findOrFail(params.id)
-    user.merge(request.all())
-    await user.save()
-    return user
+    const recipient = await Recipient.findOrFail(params.id)
+    recipient.merge(request.all())
+    await recipient.save()
+    return recipient
   }
 
   /**
    * Delete record
    */
   async destroy({ params }: HttpContext) {
-    const user = await User.findOrFail(params.id)
-    await user.delete()
+    const recipient = await Recipient.findOrFail(params.id)
+    await recipient.delete()
+    return recipient
   }
 }

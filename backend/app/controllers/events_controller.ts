@@ -1,13 +1,12 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import User from '#models/user'
+import Event from '#models/event'
 
-export default class UsersController {
+export default class EventsController {
   /**
    * Display a list of resource
    */
   async index({}: HttpContext) {
-    const users = await User.query().paginate(1)
-    return users
+    return await Event.query().paginate(1)
   }
 
   /**
@@ -15,10 +14,10 @@ export default class UsersController {
    */
   async create({}: HttpContext) {
     return {
-      full_name: '',
-      email: '',
-      password: '',
-      is_admin: false
+      name: '',
+      description: '',
+      start_date: '',
+      end_date: ''
     }
   }
 
@@ -26,38 +25,39 @@ export default class UsersController {
    * Handle form submission for the create action
    */
   async store({ request }: HttpContext) {
-    return await User.create(request.all())
+    return await Event.create(request.all())
   }
 
   /**
    * Show individual record
    */
   async show({ params }: HttpContext) {
-    return await User.findOrFail(params.id)
+    return await Event.findOrFail(params.id)
   }
 
   /**
    * Edit individual record
    */
   async edit({ params }: HttpContext) {
-    return await User.findOrFail(params.id)
+    return await Event.findOrFail(params.id)
   }
 
   /**
    * Handle form submission for the edit action
    */
   async update({ params, request }: HttpContext) {
-    const user = await User.findOrFail(params.id)
-    user.merge(request.all())
-    await user.save()
-    return user
+    const event = await Event.findOrFail(params.id)
+    event.merge(request.all())
+    await event.save()
+    return event
   }
 
   /**
    * Delete record
    */
   async destroy({ params }: HttpContext) {
-    const user = await User.findOrFail(params.id)
-    await user.delete()
+    const event = await Event.findOrFail(params.id)
+    await event.delete()
+    return event
   }
 }
