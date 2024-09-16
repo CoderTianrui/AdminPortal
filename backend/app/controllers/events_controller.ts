@@ -10,18 +10,6 @@ export default class EventsController {
   }
 
   /**
-   * Display form to create a new record
-   */
-  async create({}: HttpContext) {
-    return {
-      name: '',
-      description: '',
-      start_date: '',
-      end_date: ''
-    }
-  }
-
-  /**
    * Handle form submission for the create action
    */
   async store({ request }: HttpContext) {
@@ -32,13 +20,6 @@ export default class EventsController {
    * Show individual record
    */
   async show({ params }: HttpContext) {
-    return await Event.findOrFail(params.id)
-  }
-
-  /**
-   * Edit individual record
-   */
-  async edit({ params }: HttpContext) {
     return await Event.findOrFail(params.id)
   }
 

@@ -12,15 +12,6 @@ export default class SchoolsController {
   }
 
   /**
-   * Display form to create a new record
-   */
-  async create({ }: HttpContext) {
-    return {
-      name: '',
-    }
-  }
-
-  /**
    * Handle form submission for the create action
    */
   async store({ request }: HttpContext) {

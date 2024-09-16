@@ -10,16 +10,6 @@ export default class NotificationsController {
   }
 
   /**
-   * Display form to create a new record
-   */
-  async create({}: HttpContext) {
-    return {
-      title: '',
-      description: '',
-    }
-  }
-
-  /**
    * Handle form submission for the create action
    */
   async store({ request }: HttpContext) {
@@ -30,13 +20,6 @@ export default class NotificationsController {
    * Show individual record
    */
   async show({ params }: HttpContext) {
-    return await Notification.findOrFail(params.id)
-  }
-
-  /**
-   * Edit individual record
-   */
-  async edit({ params }: HttpContext) {
     return await Notification.findOrFail(params.id)
   }
 
