@@ -30,8 +30,15 @@ export default function SurveyManagementPage() {
         {
             title: 'Survey 1',
             description: 'This is a description of survey 1',
-            level: 'one',
-            recipient: 'students',
+            level: '1',
+            recipient: 'school 1, school 2, school 3',
+        },
+
+        {
+            title: 'Survey 2',
+            description: 'This is a description of survey 2',
+            level: '2',
+            recipient: 'school 4, school 5, school 6',
         },
     ]);
 
