@@ -1,44 +1,44 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import User from '#models/user'
+import New from '#models/new'
 
-export default class UsersController {
+export default class NewsController {
   /**
    * Display a list of resource
    */
   async index({}: HttpContext) {
-    const users = await User.query().paginate(1)
-    return users
+    return await New.query().paginate(1)
   }
 
   /**
    * Handle form submission for the create action
    */
   async store({ request }: HttpContext) {
-    return await User.create(request.all())
+    return await New.create(request.all())
   }
 
   /**
    * Show individual record
    */
   async show({ params }: HttpContext) {
-    return await User.findOrFail(params.id)
+    return await New.findOrFail(params.id)
   }
 
   /**
    * Handle form submission for the edit action
    */
   async update({ params, request }: HttpContext) {
-    const user = await User.findOrFail(params.id)
-    user.merge(request.all())
-    await user.save()
-    return user
+    const _new = await New.findOrFail(params.id)
+    _new.merge(request.all())
+    await _new.save()
+    return _new
   }
 
   /**
    * Delete record
    */
   async destroy({ params }: HttpContext) {
-    const user = await User.findOrFail(params.id)
-    await user.delete()
+    const _new = await New.findOrFail(params.id)
+    await _new.delete()
+    return _new
   }
 }

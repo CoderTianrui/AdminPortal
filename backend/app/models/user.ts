@@ -1,8 +1,10 @@
 import { DateTime } from 'luxon'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
-import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
+import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
+import School from './school.js'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],
@@ -29,5 +31,23 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare updatedAt: DateTime | null
 
   @column()
-  declare isAdmin: boolean
+  declare profileType: ['admin', 'school', 'teacher', 'student']
+
+  @column()
+  declare permission: string
+
+  @column()
+  declare userSchoolId: number
+
+  @belongsTo(() => School)
+  declare schoolId: BelongsTo<typeof School>
+
+  @column()
+  declare relationUserId: number
+
+  @belongsTo(() => User)
+  declare relationUser: BelongsTo<typeof User>
+
+  @column()
+  declare profileImage: string | null
 }
