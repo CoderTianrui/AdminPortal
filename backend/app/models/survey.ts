@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column, manyToMany } from '@adonisjs/lucid/orm'
 import type { ManyToMany } from '@adonisjs/lucid/types/relations'
-import Recipient from './recipient.js'
+import School from './school.js'
 
 export default class Survey extends BaseModel {
   @column({ isPrimary: true })
@@ -22,6 +22,6 @@ export default class Survey extends BaseModel {
   @column()
   declare level: number
 
-  @manyToMany(() => Recipient)
-  declare recipients: ManyToMany<typeof Recipient>
+  @manyToMany(() => School)
+  declare recipients: ManyToMany<typeof School>
 }
