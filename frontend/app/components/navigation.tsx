@@ -30,16 +30,7 @@ export default function Navigation() {
                     sx={{
                         '& .JoyListItemButton-root': { p: '8px' },
                     }}
-                >
-                    <ListItem>
-                        <ListItemButton component={Link} href='/signin'>
-                            <ListItemDecorator>
-                                <PeopleRoundedIcon fontSize="small" />
-                            </ListItemDecorator>
-                            <ListItemContent>Sign in</ListItemContent>
-                        </ListItemButton>
-                    </ListItem>
-                
+                >              
                     <ListItem>
                         <ListItemButton component={Link} href='/calendar'>
                             <ListItemDecorator>
