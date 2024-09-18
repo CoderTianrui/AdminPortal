@@ -19,7 +19,7 @@ export default class UsersController {
 }
 
   async store({ request }: HttpContext) {
-    const userData = request.only(['fulltName', 'lastName', 'email', 'profile', 'school', 'access', 'relatedNames']);
+    const userData = request.only(['fullName', 'lastName', 'email', 'profile', 'school', 'access', 'relatedNames']);
     const user = await User.create(userData);
     return user;
   }
@@ -30,7 +30,7 @@ export default class UsersController {
 
   async update({ params, request }: HttpContext) {
     const user = await User.findOrFail(params.id);
-    const userData = request.only(['firstName', 'lastName', 'email', 'profile', 'school', 'access', 'relatedNames']);
+    const userData = request.only(['fullName', 'lastName', 'email', 'profile', 'school', 'access', 'relatedNames']);
     user.merge(userData);
     await user.save();
     return user;

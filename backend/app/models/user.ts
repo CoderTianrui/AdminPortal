@@ -19,6 +19,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare fullName: string | null
 
   @column()
+  declare lastName: string | null
+
+  @column()
   declare email: string
 
   @column({ serializeAs: null })
@@ -32,6 +35,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @column()
   declare profileType: ['admin', 'school', 'teacher', 'student']
+
+  @column()
+  declare accessType: ['full', 'high', 'medium', 'low']
 
   @column()
   declare permission: string
