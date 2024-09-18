@@ -67,7 +67,7 @@ export default function UserManagementPage() {
 
     const fetchUsers = async () => {
         try {
-            const response = await fetch('/http://localhost:3333/users');  
+            const response = await fetch('http://localhost:3333/users');  
             const data = await response.json();
             setUsers(data);
         } catch (error) {
@@ -87,7 +87,7 @@ export default function UserManagementPage() {
         if (editIndex !== null) {
            
             try {
-                await fetch(`/http://localhost:3333/users/${users[editIndex].id}`, {
+                await fetch(`http://localhost:3333/users/${users[editIndex].id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ export default function UserManagementPage() {
 
     const handleDelete = async (index: number) => {
         try {
-            await fetch(`/http://localhost:3333/users/${users[index].id}`, {
+            await fetch(`http://localhost:3333/users/${users[index].id}`, {
                 method: 'DELETE',
             });
             fetchUsers();  
