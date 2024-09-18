@@ -16,7 +16,10 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare id: number
 
   @column()
-  declare fullName: string | null
+  declare firstName: string | null
+
+  @column()
+  declare lastName: string | null
 
   @column()
   declare email: string
@@ -31,16 +34,16 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare updatedAt: DateTime | null
 
   @column()
-  declare profileType: ['admin', 'school', 'teacher', 'student']
+  declare profile: ['admin', 'school', 'teacher', 'student']
 
   @column()
-  declare permission: string
+  declare access: ['full', 'high', 'medium', 'low']
 
-  @column()
-  declare userSchoolId: number
 
-  @belongsTo(() => School)
-  declare schoolId: BelongsTo<typeof School>
+  @belongsTo(() => School, {
+    foreignKey: 'userSchoolId', // Points to the foreign key column
+  })
+  public school!: BelongsTo<typeof School>; 
 
   @column()
   declare relationUserId: number

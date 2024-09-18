@@ -11,7 +11,9 @@ export default class extends BaseSchema {
       table.timestamp('updated_at')
 
       table.string('name').notNullable()
-      table.integer('admin_user_id').unsigned().references('id').inTable('users').onDelete('CASCADE')
+      
+      // Making admin_user_id nullable
+      table.integer('admin_user_id').unsigned().nullable().references('id').inTable('users').onDelete('CASCADE')
     })
   }
 
