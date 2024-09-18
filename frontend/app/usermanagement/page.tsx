@@ -39,6 +39,7 @@ import Navigation from '@/app/components/navigation';
 import './UserList.css';
 
 interface User {
+    id?: string;
     firstName: string;
     lastName: string;
     email: string;
@@ -51,43 +52,67 @@ interface User {
 export default function UserManagementPage() {
     const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [isUserModalOpen, setIsUserModalOpen] = React.useState(false);
-    const [users, setUsers] = React.useState<User[]>([
-        { firstName: 'Mark', lastName: 'Smith', email: 'mark.smith@example.com', profile: 'Parent', school: 'University Of Sydney', access: 'Medium',  relatedNames: ['Jacob Johnson'] },
-        { firstName: 'Jacob', lastName: 'Johnson', email: 'jacob.johnson@example.com', profile: 'Student', school: 'University Of Sydney',access: 'Full' , relatedNames: ['Mark Smith']},
-        { firstName: 'Larry', lastName: 'Williams', email: 'larry.williams@example.com', profile: 'Teacher', school: 'University Of Sydney', access: 'High', relatedNames: [] }
-    ]);
-
-    const [newUser, setNewUser] = React.useState<User>({ firstName: '', lastName: '', email: '', profile: '', school: '',access: '', relatedNames: [] });
+    const [users, setUsers] = React.useState<User[]>([]);
+    const [newUser, setNewUser] = React.useState<User>({
+        firstName: '', lastName: '', email: '', profile: '', school: '', access: '', relatedNames: []
+    });
     const [editIndex, setEditIndex] = React.useState<number | null>(null);
     const [search, setSearch] = React.useState('');
     const [selectedProfile, setSelectedProfile] = React.useState<string | ''>('');
 
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement |HTMLSelectElement>
-    ) => {
-        if (e && e.target) {
-            const target = e.target as HTMLInputElement | HTMLSelectElement;
-            if (target) {
-                const { name, value } = target;
-                setNewUser((prevUser) => ({
-                    ...prevUser,
-                    [name]: value,
-                }));
-            }
-        } else {
-            console.error("Event object is null or undefined");
+    
+    React.useEffect(() => {
+        fetchUsers();
+    }, []);
+
+    const fetchUsers = async () => {
+        try {
+            const response = await fetch('/http://localhost:3333/users');  
+            const data = await response.json();
+            setUsers(data);
+        } catch (error) {
+            console.error('Failed to fetch users:', error);
         }
     };
 
-    const handleSubmit = () => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setNewUser((prevUser) => ({
+            ...prevUser,
+            [name]: value,
+        }));
+    };
+
+    const handleSubmit = async () => {
         if (editIndex !== null) {
-            const updatedUsers = [...users];
-            updatedUsers[editIndex] = newUser;
-            setUsers(updatedUsers);
+           
+            try {
+                await fetch(`/http://localhost:3333/users/${users[editIndex].id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(newUser),
+                });
+                fetchUsers();  
+            } catch (error) {
+                console.error('Failed to update user:', error);
+            }
             setEditIndex(null);
         } else {
-            const updatedUsersList = [...users, newUser];
-            setUsers(updatedUsersList);
+            
+            try {
+                await fetch('/api/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(newUser),
+                });
+                fetchUsers();  
+            } catch (error) {
+                console.error('Failed to create user:', error);
+            }
         }
         closeUserModal();
     };
@@ -98,16 +123,20 @@ export default function UserManagementPage() {
         setIsUserModalOpen(true);
     };
 
-    const handleDelete = (index: number) => {
-        setUsers(users.filter((_, i) => i !== index));
+    const handleDelete = async (index: number) => {
+        try {
+            await fetch(`/http://localhost:3333/users/${users[index].id}`, {
+                method: 'DELETE',
+            });
+            fetchUsers();  
+        } catch (error) {
+            console.error('Failed to delete user:', error);
+        }
     };
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value.toLowerCase());
     };
-    
-
-    
 
     const filteredUsers = users.filter(user =>
         `${user.firstName.toLowerCase()} ${user.lastName.toLowerCase()}`.includes(search)
@@ -123,7 +152,7 @@ export default function UserManagementPage() {
 
     const closeUserModal = () => {
         setIsUserModalOpen(false);
-        setNewUser({ firstName: '', lastName: '', email: '', profile: '', school: '', access: '' , relatedNames: []});
+        setNewUser({ firstName: '', lastName: '', email: '', profile: '', school: '', access: '', relatedNames: [] });
         setEditIndex(null);
     };
 
