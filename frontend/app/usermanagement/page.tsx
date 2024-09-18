@@ -3,35 +3,10 @@
 import * as React from 'react';
 import { CssVarsProvider } from '@mui/joy/styles';
 import CssBaseline from '@mui/joy/CssBaseline';
-import Autocomplete from '@mui/joy/Autocomplete';
 import Box from '@mui/joy/Box';
-import Chip from '@mui/joy/Chip';
-import ChipDelete from '@mui/joy/ChipDelete';
-import Typography from '@mui/joy/Typography';
 import Button from '@mui/joy/Button';
 import Stack from '@mui/joy/Stack';
 import Input from '@mui/joy/Input';
-import MenuItem from '@mui/material/MenuItem';
-import Select  from '@mui/joy/Select';
-import { SelectChangeEvent } from '@mui/material/Select';
-import Option from '@mui/joy/Option'
-import RadioGroup from '@mui/joy/RadioGroup';
-import Radio from '@mui/joy/Radio';
-import Slider from '@mui/joy/Slider';
-import AccordionGroup from '@mui/joy/AccordionGroup';
-import Accordion from '@mui/joy/Accordion';
-import AccordionDetails, {
-    accordionDetailsClasses,
-} from '@mui/joy/AccordionDetails';
-import AccordionSummary, {
-    accordionSummaryClasses,
-} from '@mui/joy/AccordionSummary';
-
-import EmailRoundedIcon from '@mui/icons-material/EmailRounded';
-import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
-import FolderRoundedIcon from '@mui/icons-material/FolderRounded';
-import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
-
 import Layout from '@/app/components/layout';
 import Header from '@/app/components/header';
 import Navigation from '@/app/components/navigation';
@@ -60,21 +35,23 @@ export default function UserManagementPage() {
     const [search, setSearch] = React.useState('');
     const [selectedProfile, setSelectedProfile] = React.useState<string | ''>('');
 
-    
+    // This useEffect fetches all users when the component is mounted
     React.useEffect(() => {
         fetchUsers();
     }, []);
 
+    // Function to fetch all users from the back-end
     const fetchUsers = async () => {
         try {
             const response = await fetch('http://localhost:3333/users');  
             const data = await response.json();
-            setUsers(data);
+            setUsers(data); // Set the users state with the fetched data
         } catch (error) {
             console.error('Failed to fetch users:', error);
         }
     };
 
+    // Function to handle form changes for creating/editing a user
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setNewUser((prevUser) => ({
@@ -83,9 +60,10 @@ export default function UserManagementPage() {
         }));
     };
 
+    // Handle submission for creating or updating a user
     const handleSubmit = async () => {
         if (editIndex !== null) {
-           
+            // Update existing user
             try {
                 await fetch(`http://localhost:3333/users/${users[editIndex].id}`, {
                     method: 'PUT',
@@ -100,9 +78,9 @@ export default function UserManagementPage() {
             }
             setEditIndex(null);
         } else {
-            
+            // Create new user
             try {
-                await fetch('/api/users', {
+                await fetch('http://localhost:3333/users', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -117,12 +95,14 @@ export default function UserManagementPage() {
         closeUserModal();
     };
 
+    // Handle user edit action
     const handleEdit = (index: number) => {
         setEditIndex(index);
         setNewUser(users[index]);
         setIsUserModalOpen(true);
     };
 
+    // Handle user delete action
     const handleDelete = async (index: number) => {
         try {
             await fetch(`http://localhost:3333/users/${users[index].id}`, {
@@ -134,14 +114,17 @@ export default function UserManagementPage() {
         }
     };
 
+    // Update the search value and filter users based on the search term
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value.toLowerCase());
     };
 
+    // Filter users based on the search term
     const filteredUsers = users.filter(user =>
         `${user.firstName.toLowerCase()} ${user.lastName.toLowerCase()}`.includes(search)
     );
 
+    // Open modal for creating or editing a user
     const openUserModal = (index: number | null = null) => {
         if (index !== null) {
             setNewUser(users[index]);
@@ -150,6 +133,7 @@ export default function UserManagementPage() {
         setIsUserModalOpen(true);
     };
 
+    // Close the user creation/edit modal
     const closeUserModal = () => {
         setIsUserModalOpen(false);
         setNewUser({ firstName: '', lastName: '', email: '', profile: '', school: '', access: '', relatedNames: [] });
@@ -348,17 +332,11 @@ export default function UserManagementPage() {
                                     filteredUsers.map((user, index) => (
                                         <tr key={index}>
                                             <th scope="row">{index + 1}</th>
-                                            <td>
-                                                {/* <img src={user.profileImage} alt="Profile" className="profile-image" /> */}
-                                                {user.firstName} {user.lastName}
-                                                <br />
-                                                {user.email}</td>
+                                            <td>{user.firstName} {user.lastName}<br />{user.email}</td>
                                             <td>{user.profile}</td>
                                             <td>{user.school}</td>
                                             <td>{user.access}</td>
-                                            <td>
-                                                {user.relatedNames.join(', ')}
-                                            </td>
+                                            <td>{user.relatedNames.join(', ')}</td>
                                             <td>
                                                 <Button variant="plain" size="sm" onClick={() => openUserModal(index)}>✏️</Button>
                                                 <Button variant="plain" size="sm" onClick={() => handleDelete(index)}>❌</Button>
@@ -367,7 +345,7 @@ export default function UserManagementPage() {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={5} className="text-center">No users found</td>
+                                        <td colSpan={7} className="text-center">No users found</td>
                                     </tr>
                                 )}
                             </tbody>
