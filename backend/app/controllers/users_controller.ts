@@ -2,43 +2,44 @@ import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
 
 export default class UsersController {
-  /**
-   * Display a list of resource
-   */
-  async index({}: HttpContext) {
-    const users = await User.query().paginate(1)
-    return users
-  }
 
-  /**
-   * Handle form submission for the create action
-   */
+  async index({ request }: HttpContext) {
+    const search = request.input('search', '').toLowerCase();  
+    const page = request.input('page', 1); 
+
+    const usersQuery = User.query();
+
+    if (search) {
+        usersQuery.whereRaw('LOWER(firstName) LIKE ?', [`%${search}%`])
+                  .orWhereRaw('LOWER(lastName) LIKE ?', [`%${search}%`]);
+    }
+
+    const users = await usersQuery.paginate(page);
+    return users;
+}
+
   async store({ request }: HttpContext) {
-    return await User.create(request.all())
+    const userData = request.only(['fulltName', 'lastName', 'email', 'profile', 'school', 'access', 'relatedNames']);
+    const user = await User.create(userData);
+    return user;
   }
 
-  /**
-   * Show individual record
-   */
   async show({ params }: HttpContext) {
     return await User.findOrFail(params.id)
   }
 
-  /**
-   * Handle form submission for the edit action
-   */
   async update({ params, request }: HttpContext) {
-    const user = await User.findOrFail(params.id)
-    user.merge(request.all())
-    await user.save()
-    return user
+    const user = await User.findOrFail(params.id);
+    const userData = request.only(['firstName', 'lastName', 'email', 'profile', 'school', 'access', 'relatedNames']);
+    user.merge(userData);
+    await user.save();
+    return user;
   }
 
-  /**
-   * Delete record
-   */
+
   async destroy({ params }: HttpContext) {
-    const user = await User.findOrFail(params.id)
-    await user.delete()
+    const user = await User.findOrFail(params.id);
+    await user.delete();
+    return { message: 'User deleted successfully' };
   }
 }
