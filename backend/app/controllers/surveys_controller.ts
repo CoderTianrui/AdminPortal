@@ -5,7 +5,7 @@ export default class SurveysController {
   /**
    * Display a list of resource
    */
-  async index({ }: HttpContext) {
+  async index({}: HttpContext) {
     return await Survey.query().paginate(1)
   }
 

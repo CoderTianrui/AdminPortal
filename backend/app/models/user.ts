@@ -39,11 +39,10 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare access: ['full', 'high', 'medium', 'low']
 
-
   @belongsTo(() => School, {
     foreignKey: 'userSchoolId', // Points to the foreign key column
   })
-  public school!: BelongsTo<typeof School>; 
+  public school!: BelongsTo<typeof School>
 
   @column()
   declare relationUserId: number
