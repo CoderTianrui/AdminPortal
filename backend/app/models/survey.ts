@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, manyToMany } from '@adonisjs/lucid/orm'
+import { column, manyToMany } from '@adonisjs/lucid/orm'
 import type { ManyToMany } from '@adonisjs/lucid/types/relations'
 import Recipient from './recipient.js'
+import ManagedModel from './managed_model.js'
 
-export default class Survey extends BaseModel {
+export default class Survey extends ManagedModel {
   @column({ isPrimary: true })
   declare id: number
 

@@ -41,13 +41,6 @@ export default class SchoolsController {
   }
 
   /**
-   * Edit individual record
-   */
-  async edit({ params }: HttpContext) {
-    return await School.findOrFail(params.id)
-  }
-
-  /**
    * Handle form submission for the edit action
    */
   async update({ params, request }: HttpContext) {
