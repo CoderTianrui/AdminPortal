@@ -14,11 +14,12 @@ export default class extends BaseSchema {
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
       table.enum('profile', ['admin', 'school', 'teacher', 'student']).notNullable()
-      table.enum('access', ['full', 'high', 'medium', 'low']).notNullable()
+      table.json('permission_metadata').notNullable().defaultTo(JSON.stringify([]))
       table.string('profile_image').nullable()
 
       table.integer('user_school_id').unsigned().references('schools.id').onDelete('CASCADE')
       table.integer('related_user_id').unsigned().references('users.id').onDelete('CASCADE')
+      table.integer('owned_by_id').unsigned().references('users.id').onDelete('CASCADE')
     })
   }
 

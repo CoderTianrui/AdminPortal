@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, hasOne } from '@adonisjs/lucid/orm'
+import { column, hasOne } from '@adonisjs/lucid/orm'
 import type { HasOne } from '@adonisjs/lucid/types/relations'
 import User from './user.js'
+import ManagedModel from './managed_model.js'
 
-export default class SosMessage extends BaseModel {
+export default class SosMessage extends ManagedModel {
   @column({ isPrimary: true })
   declare id: number
 
