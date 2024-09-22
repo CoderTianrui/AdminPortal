@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
+import { belongsTo, column } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import User from './user.js'
+import ManagedModel from './managed_model.js'
 
-export default class School extends BaseModel {
+export default class School extends ManagedModel {
   @column({ isPrimary: true })
   declare id: number
 

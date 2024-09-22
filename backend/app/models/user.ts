@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
-import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
+import { BaseModel, belongsTo, column, computed } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import School from './school.js'
@@ -12,11 +12,16 @@ const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
 })
 
 export default class User extends compose(BaseModel, AuthFinder) {
+  permissionNode = this.constructor.name.toLowerCase()
+
   @column({ isPrimary: true })
   declare id: number
 
   @column()
-  declare fullName: string | null
+  declare firstName: string | null
+
+  @column()
+  declare lastName: string | null
 
   @column()
   declare email: string
@@ -31,16 +36,27 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare updatedAt: DateTime | null
 
   @column()
-  declare profileType: ['admin', 'school', 'teacher', 'student']
+  declare profile: ['admin', 'school', 'teacher', 'student']
 
-  @column()
-  declare permission: string
+  @column({
+    prepare: (value) => JSON.stringify(value),
+    consume: (value) => JSON.parse(value),
+    serializeAs: null,
+  })
+  declare permissionMetadata: string[]
+
+  @computed()
+  get permissions(): string[] {
+    return this.permissionMetadata
+  }
 
   @column()
   declare userSchoolId: number
 
-  @belongsTo(() => School)
-  declare schoolId: BelongsTo<typeof School>
+  @belongsTo(() => School, {
+    foreignKey: 'userSchoolId', // Points to the foreign key column
+  })
+  declare school: BelongsTo<typeof School>
 
   @column()
   declare relationUserId: number
@@ -50,4 +66,10 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @column()
   declare profileImage: string | null
+
+  @column()
+  declare ownedById: number
+
+  @belongsTo(() => User)
+  declare ownedBy: BelongsTo<typeof User>
 }

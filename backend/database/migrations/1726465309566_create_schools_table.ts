@@ -9,9 +9,19 @@ export default class extends BaseSchema {
 
       table.timestamp('created_at')
       table.timestamp('updated_at')
+      table.json('permission_metadata').notNullable().defaultTo(JSON.stringify([]))
+      table.integer('owned_by_id').unsigned().references('users.id').onDelete('CASCADE')
 
       table.string('name').notNullable()
-      table.integer('admin_user_id').unsigned().references('id').inTable('users').onDelete('CASCADE')
+
+      // Making admin_user_id nullable
+      table
+        .integer('admin_user_id')
+        .unsigned()
+        .nullable()
+        .references('id')
+        .inTable('users')
+        .onDelete('CASCADE')
     })
   }
 
