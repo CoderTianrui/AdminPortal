@@ -1,5 +1,5 @@
-import React from 'react'; // 恢复 React 的导入
-import { render, screen, fireEvent,within } from '@testing-library/react';
+import React from 'react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import NewsNotificationManagementPage from '../app/news_notifications/page';
 import '@testing-library/jest-dom';
 
@@ -16,23 +16,17 @@ beforeAll(() => {
 test('renders the NewsNotificationManagementPage and checks for basic elements', () => {
     render(<NewsNotificationManagementPage />);
     
-    // 检查页面标题是否存在
     expect(screen.getByText(/News and Notification Management/i)).toBeInTheDocument();
-    
-    // 检查 "Create News" 和 "Create Notification" 按钮是否存在
     expect(screen.getByText(/Create News/i)).toBeInTheDocument();
     expect(screen.getByText(/Create Notification/i)).toBeInTheDocument();
 });
 
-
 test('opens and closes the news modal', () => {
     render(<NewsNotificationManagementPage />);
 
-    // 打开新闻模态框
     fireEvent.click(screen.getByText(/Create News/i));
     expect(screen.getByPlaceholderText(/Enter title/i)).toBeInTheDocument();
 
-    // 关闭新闻模态框
     fireEvent.click(screen.getByText(/✖️/i));
     expect(screen.queryByPlaceholderText(/Enter title/i)).not.toBeInTheDocument();
 });
@@ -40,35 +34,28 @@ test('opens and closes the news modal', () => {
 test('adds a new news item', () => {
     render(<NewsNotificationManagementPage />);
 
-    // 打开新闻模态框
     fireEvent.click(screen.getByText(/Create News/i));
 
-    // 填写表单
     fireEvent.change(screen.getByPlaceholderText(/Enter title/i), { target: { value: 'Test News' } });
     fireEvent.change(screen.getByPlaceholderText(/Enter url/i), { target: { value: 'http://example.com' } });
     fireEvent.change(screen.getByPlaceholderText(/Enter recipient/i), { target: { value: 'Everyone' } });
 
-    // 提交表单
     fireEvent.click(screen.getByText(/Submit/i));
 
-    // 检查新新闻是否被添加到列表中
     expect(screen.getByText(/Test News/i)).toBeInTheDocument();
 });
 
 test('deletes a news item', () => {
     render(<NewsNotificationManagementPage />);
 
-    // 删除第一个新闻项目
     fireEvent.click(screen.getAllByText(/❌/i)[0]);
 
-    // 检查新闻是否已被删除
     expect(screen.queryByText(/News 1/i)).not.toBeInTheDocument();
 });
 
 test('filters news based on search input', () => {
     render(<NewsNotificationManagementPage />);
 
-    // 搜索 "News 2"
     fireEvent.change(screen.getByPlaceholderText(/Search News by title/i), { target: { value: 'News 2' } });
 
     const news2Elements = screen.getAllByText(/News 2/i);
@@ -91,3 +78,65 @@ test('filters news based on search input', () => {
         );
       });
       expect(news3TitleElements.length).toBe(0);});
+
+test('renders initial notification items', () => {
+    render(<NewsNotificationManagementPage />);
+  
+    // Ensure the initial notifications are rendered
+    const notification1Elements = screen.getAllByText(/Notification 1/i);
+    const notification2Elements = screen.getAllByText(/Notification 2/i);
+    
+    expect(notification1Elements.length).toBeGreaterThan(0); // Check at least one instance is present
+    expect(notification2Elements.length).toBeGreaterThan(0);
+});
+
+test('adds a new notification', () => {
+  render(<NewsNotificationManagementPage />);
+
+  // Open the notification modal
+  fireEvent.click(screen.getByText(/Create Notification/i));
+
+  // Fill in the notification form
+  fireEvent.change(screen.getByPlaceholderText(/Enter title/i), { target: { value: 'Test Notification' } });
+  fireEvent.change(screen.getByPlaceholderText(/Enter content/i), { target: { value: 'This is a test notification content.' } });
+  fireEvent.change(screen.getByPlaceholderText(/Enter recipient/i), { target: { value: 'Students' } });
+
+  // Submit the form
+  fireEvent.click(screen.getByText(/Submit/i));
+
+  // Check that the new notification is displayed in the document
+  const notifications = screen.getAllByText(/Test Notification/i);
+  expect(notifications.length).toBeGreaterThan(0); // Check at least one instance is present
+  expect(screen.getByText(/This is a test notification content./i)).toBeInTheDocument();
+});
+
+test('deletes a notification item', () => {
+  render(<NewsNotificationManagementPage />);
+
+  // Ensure that the initial notifications are rendered
+  const notification1Elements = screen.getAllByText(/Notification 1/i);
+  const notification2Elements = screen.getAllByText(/Notification 2/i);
+  
+  expect(notification1Elements.length).toBeGreaterThan(0);
+  expect(notification2Elements.length).toBeGreaterThan(0);
+
+  // Click the delete button for the first notification
+  fireEvent.click(screen.getAllByText(/❌/i)[3]); // Adjust index as necessary
+
+  // Check that Notification 1 has been removed from the document
+  expect(screen.queryByText(/Notification 1/i)).not.toBeInTheDocument();
+
+  // Ensure Notification 2 is still present
+  const notifications = screen.getAllByText(/Notification 2/i);
+  expect(notifications.length).toBeGreaterThan(0);
+});
+
+test('opens and closes the notification modal', () => {
+  render(<NewsNotificationManagementPage />);
+
+  fireEvent.click(screen.getByText(/Create Notification/i));
+  expect(screen.getByPlaceholderText(/Enter title/i)).toBeInTheDocument();
+
+  fireEvent.click(screen.getByText(/✖️/i));
+  expect(screen.queryByPlaceholderText(/Enter title/i)).not.toBeInTheDocument();
+});
