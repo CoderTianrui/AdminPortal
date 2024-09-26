@@ -1,26 +1,43 @@
 import { DateTime } from 'luxon'
-import { column } from '@adonisjs/lucid/orm'
-import ManagedModel from './managed_model.js'
+import {
+  BaseModel,
+  column,
+  belongsTo,
+} from '@adonisjs/lucid/orm'
+import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 
-export default class Event extends ManagedModel {
+import User from './user.js' 
+
+export default class Event extends BaseModel {
   @column({ isPrimary: true })
-  declare id: number
+  public declare id: number
 
   @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
+  public declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime
+  public declare updatedAt: DateTime
 
   @column()
-  declare title: string
+  public declare title: string
 
   @column()
-  declare description: string
+  public declare description: string
 
   @column.dateTime()
-  declare startDate: DateTime
+  public declare startDate: DateTime
 
   @column.dateTime()
-  declare endDate: DateTime
+  public declare endDate: DateTime
+
+  @column()
+  public declare permissionMetadata: any
+
+  @column()
+  public declare ownedById: number
+
+  @belongsTo(() => User, {
+    foreignKey: 'ownedById',
+  })
+  public declare owner: BelongsTo<typeof User>
 }
