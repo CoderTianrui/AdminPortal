@@ -12,44 +12,39 @@ import Navigation from '../components/navigation';
 
 import './SurveyManagement.css';
 
-// Define the types for News and Notification
+// Define the types for Survey
 interface Surveys {
+    id?: number;
     title: string;
     description: string;
     level: string;
     recipient: string;
 }
 
-
 export default function SurveyManagementPage() {
     const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [isSurveyModalOpen, setIsSurveyModalOpen] = React.useState(false);
-
-    // Add a sample row for News and Notification
-    const [surveyList, setSurveyList] = React.useState<Surveys[]>([
-        {
-            title: 'Survey 1',
-            description: 'This is a description of survey 1',
-            level: '1',
-            recipient: 'school 1, school 2, school 3',
-        },
-
-        {
-            title: 'Survey 2',
-            description: 'This is a description of survey 2',
-            level: '2',
-            recipient: 'school 4, school 5, school 6',
-        },
-    ]);
-
-
+    const [surveyList, setSurveyList] = React.useState<Surveys[]>([]);
     const [newSurvey, setNewSurvey] = React.useState<Surveys>({ title: '', description: '', level: '', recipient: '' });
-
     const [editSurveyIndex, setEditSurveyIndex] = React.useState<number | null>(null);
-
     const [surveySearchQuery, setSurveySearchQuery] = React.useState('');
-
     const [filteredSurveyList, setFilteredSurveyList] = React.useState<Surveys[]>(surveyList);
+
+    React.useEffect(() => {
+        // Fetch the initial survey list when the component mounts
+        fetchSurveys();
+    }, []);
+
+    const fetchSurveys = async () => {
+        try {
+            const response = await fetch('http://localhost:3333/surveys/'); 
+            const data = await response.json();
+            setSurveyList(data);
+            setFilteredSurveyList(data);
+        } catch (error) {
+            console.error('Error fetching surveys:', error);
+        }
+    };
 
     const openSurveyModal = (index: number | null = null) => {
         if (index !== null) {
@@ -58,13 +53,12 @@ export default function SurveyManagementPage() {
         }
         setIsSurveyModalOpen(true);
     };
+
     const closeSurveyModal = () => {
         setIsSurveyModalOpen(false);
         setNewSurvey({ title: '', description: '', level: '', recipient: '' });
         setEditSurveyIndex(null);
     };
-
-    
 
     const handleSurveyChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setNewSurvey({ ...newSurvey, [e.target.name]: e.target.value });
@@ -81,32 +75,56 @@ export default function SurveyManagementPage() {
         setFilteredSurveyList(filtered);
     };
 
-   
-
-    const submitSurvey = () => {
+    const submitSurvey = async () => {
         if (editSurveyIndex !== null) {
             // Edit existing surveys
-            const updatedSurveyList = [...surveyList];
-            updatedSurveyList[editSurveyIndex] = newSurvey;
-            setSurveyList(updatedSurveyList);
-            setFilteredSurveyList(updatedSurveyList)
+            try {
+                const updatedSurvey = await fetch(`http://localhost:3333/surveys/${surveyList[editSurveyIndex].id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newSurvey),
+                });
+                const updatedData = await updatedSurvey.json();
+                const updatedSurveyList = [...surveyList];
+                updatedSurveyList[editSurveyIndex] = updatedData;
+                setSurveyList(updatedSurveyList);
+                setFilteredSurveyList(updatedSurveyList);
+            } catch (error) {
+                console.error('Error updating survey:', error);
+            }
         } else {
             // Add new surveys
-            const updatedSurveyList = [...surveyList, newSurvey];
-            setSurveyList(updatedSurveyList);
-            setFilteredSurveyList(updatedSurveyList);  // Update the filtered list after adding new survey
+            try {
+                const response = await fetch('http://localhost:3333/surveys/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newSurvey),
+                });
+                const createdSurvey = await response.json();
+                const updatedSurveyList = [...surveyList, createdSurvey];
+                setSurveyList(updatedSurveyList);
+                setFilteredSurveyList(updatedSurveyList);
+            } catch (error) {
+                console.error('Error creating survey:', error);
+            }
         }
         closeSurveyModal();
     };
 
-
-    const deleteSurvey = (index: number) => {
-        const updatedSurveyList = surveyList.filter((_, i) => i !== index);
-        setSurveyList(updatedSurveyList);
-        setFilteredSurveyList(updatedSurveyList);  // Update the filtered list after deleting news
+    const deleteSurvey = async (index: number) => {
+        try {
+            const surveyToDelete = surveyList[index];
+            await fetch(`http://localhost:3333/surveys/${surveyToDelete.id}`, {
+                method: 'DELETE',
+            });
+            const updatedSurveyList = surveyList.filter((_, i) => i !== index);
+            setSurveyList(updatedSurveyList);
+            setFilteredSurveyList(updatedSurveyList);
+        } catch (error) {
+            console.error('Error deleting survey:', error);
+        }
     };
 
-   
     return (
         <CssVarsProvider disableTransitionOnChange>
             <CssBaseline />
