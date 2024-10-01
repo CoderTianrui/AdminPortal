@@ -14,17 +14,19 @@ import './NewsNotificationsManagement.css';
 
 // Define the types for News and Notification
 interface News {
+    id?: number; // Allow for optional id during creation
     title: string;
     url: string;
     date: string;
-    recipient: string;
+    recipients: string;
 }
 
 interface Notification {
+    id?: number; // Allow for optional id during creation
     title: string;
     content: string;
     date: string;
-    recipient: string;
+    recipients: string;
 }
 
 export default function NewsNotificationManagementPage() {
@@ -32,50 +34,11 @@ export default function NewsNotificationManagementPage() {
     const [isNewsModalOpen, setIsNewsModalOpen] = React.useState(false);
     const [isNotificationModalOpen, setIsNotificationModalOpen] = React.useState(false);
 
-    // Sample data for News and Notification
-    const [newsList, setNewsList] = React.useState<News[]>([
-        {
-            title: 'News 1',
-            url: 'url of the news 1',
-            date: '2024-09-01',
-            recipient: 'Parents',
-        },
-        {
-            title: 'News 2',
-            url: 'url of the news 2',
-            date: '2024-09-20',
-            recipient: 'Schools',
-        },
-        {
-            title: 'News 3',
-            url: 'url of the news 3',
-            date: '2024-09-25',
-            recipient: 'Parents',
-        }
-    ]);
+    const [newsList, setNewsList] = React.useState<News[]>([]);
+    const [notificationList, setNotificationList] = React.useState<Notification[]>([]);
 
-    const [notificationList, setNotificationList] = React.useState<Notification[]>([
-        {
-            title: 'Notification 1',
-            content: 'This is the content of notification 1',
-            date: '2024-09-01',
-            recipient: 'Students',
-        },
-        {
-            title: 'Notification 2',
-            content: 'This is the content of notification 2',
-            date: '2024-09-02',
-            recipient: 'Parents',
-        }
-    ]);
-
-    const [newNews, setNewNews] = React.useState<News>({ title: '', url: '', date: '', recipient: '' });
-    const [newNotification, setNewNotification] = React.useState<Notification>({
-        title: '',
-        content: '',
-        date: '',
-        recipient: ''
-    });
+    const [newNews, setNewNews] = React.useState<News>({ title: '', url: '', date: '', recipients: '' });
+    const [newNotification, setNewNotification] = React.useState<Notification>({ title: '', content: '', date: '', recipients: '' });
 
     const [editNewsIndex, setEditNewsIndex] = React.useState<number | null>(null);
     const [editNotificationIndex, setEditNotificationIndex] = React.useState<number | null>(null);
@@ -86,6 +49,50 @@ export default function NewsNotificationManagementPage() {
     const [filteredNewsList, setFilteredNewsList] = React.useState<News[]>(newsList);
     const [filteredNotificationList, setFilteredNotificationList] = React.useState<Notification[]>(notificationList);
 
+    React.useEffect(() => {
+        // Fetch the initial news and notification lists when the component mounts
+        fetchNews();
+        fetchNotifications();
+    }, []);
+
+    const fetchNews = async () => {
+        try {
+            const response = await fetch('http://localhost:3333/news');
+            const jsonData = await response.json();
+            // Extract the data from the JSON structure
+            const data: News[] = jsonData.data.map((newsItem: any) => ({
+                id: newsItem.id,
+                title: newsItem.title,
+                url: newsItem.url,
+                date: new Date(newsItem.date).toISOString().split('T')[0], // Format date if necessary
+                recipients: newsItem.recipients,
+            }));
+            setNewsList(data);
+            setFilteredNewsList(data);
+        } catch (error) {
+            console.error('Error fetching news:', error);
+        }
+    };
+
+    const fetchNotifications = async () => {
+        try {
+            const response = await fetch('http://localhost:3333/notifications');
+            const jsonData = await response.json();
+            // Extract the notifications data from the JSON structure
+            const notifications: Notification[] = jsonData.data.map((notificationItem: any) => ({
+                id: notificationItem.id,
+                title: notificationItem.title,
+                content: notificationItem.content,
+                date: new Date(notificationItem.date).toISOString().split('T')[0], // Format date if necessary
+                recipients: notificationItem.recipients,
+            }));
+            setNotificationList(notifications);
+            setFilteredNotificationList(notifications);
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
+        }
+    };
+
     const openNewsModal = (index: number | null = null) => {
         if (index !== null) {
             setNewNews(newsList[index]);
@@ -93,9 +100,10 @@ export default function NewsNotificationManagementPage() {
         }
         setIsNewsModalOpen(true);
     };
+
     const closeNewsModal = () => {
         setIsNewsModalOpen(false);
-        setNewNews({ title: '', url: '', date: '', recipient: '' });
+        setNewNews({ title: '', url: '', date: '', recipients: '' });
         setEditNewsIndex(null);
     };
 
@@ -106,9 +114,10 @@ export default function NewsNotificationManagementPage() {
         }
         setIsNotificationModalOpen(true);
     };
+
     const closeNotificationModal = () => {
         setIsNotificationModalOpen(false);
-        setNewNotification({ title: '', content: '', date: '', recipient: '' });
+        setNewNotification({ title: '', content: '', date: '', recipients: '' });
         setEditNotificationIndex(null);
     };
 
@@ -143,49 +152,103 @@ export default function NewsNotificationManagementPage() {
         setFilteredNotificationList(filtered);
     };
 
-    const submitNews = () => {
+    const submitNews = async () => {
         if (editNewsIndex !== null) {
             // Edit existing news
-            const updatedNewsList = [...newsList];
-            updatedNewsList[editNewsIndex] = newNews; // Update the specific news item
-            setNewsList(updatedNewsList);
-            setFilteredNewsList(updatedNewsList);  // Update the filtered list to reflect changes
+            try {
+                const updatedNews = await fetch(`http://localhost:3333/news/${newsList[editNewsIndex].id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newNews),
+                });
+                const updatedData = await updatedNews.json();
+                const updatedNewsList = [...newsList];
+                updatedNewsList[editNewsIndex] = updatedData;
+                setNewsList(updatedNewsList);
+                setFilteredNewsList(updatedNewsList);
+            } catch (error) {
+                console.error('Error updating news:', error);
+            }
         } else {
             // Add new news
-            const updatedNewsList = [...newsList, newNews];
-            setNewsList(updatedNewsList);
-            setFilteredNewsList(updatedNewsList);  // Update the filtered list after adding new news
+            try {
+                const response = await fetch('http://localhost:3333/news', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newNews),
+                });
+                const createdNews = await response.json();
+                // Refetch the news list to get all news including the newly added one
+                fetchNews();  // Call fetchNews to get the latest data from the server
+            } catch (error) {
+                console.error('Error creating news:', error);
+            }
         }
         closeNewsModal();
     };
-    
-    const submitNotification = () => {
+
+    const submitNotification = async () => {
         if (editNotificationIndex !== null) {
             // Edit existing notification
-            const updatedNotificationList = [...notificationList];
-            updatedNotificationList[editNotificationIndex] = newNotification; // Update the specific notification item
-            setNotificationList(updatedNotificationList);
-            setFilteredNotificationList(updatedNotificationList);  // Update the filtered list to reflect changes
+            try {
+                const updatedNotification = await fetch(`http://localhost:3333/notifications/${notificationList[editNotificationIndex].id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newNotification),
+                });
+                const updatedData = await updatedNotification.json();
+                const updatedNotificationList = [...notificationList];
+                updatedNotificationList[editNotificationIndex] = updatedData;
+                setNotificationList(updatedNotificationList);
+                setFilteredNotificationList(updatedNotificationList);
+            } catch (error) {
+                console.error('Error updating notification:', error);
+            }
         } else {
             // Add new notification
-            const updatedNotificationList = [...notificationList, newNotification];
-            setNotificationList(updatedNotificationList);
-            setFilteredNotificationList(updatedNotificationList);  // Update the filtered list after adding new notification
+            try {
+                const response = await fetch('http://localhost:3333/notifications', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newNotification),
+                });
+                const createdNotification = await response.json();
+                const updatedNotificationList = [...notificationList, createdNotification];
+                setNotificationList(updatedNotificationList);
+                setFilteredNotificationList(updatedNotificationList);
+            } catch (error) {
+                console.error('Error creating notification:', error);
+            }
         }
         closeNotificationModal();
     };
-    
 
-    const deleteNews = (index: number) => {
-        const updatedNewsList = newsList.filter((_, i) => i !== index);
-        setNewsList(updatedNewsList);
-        setFilteredNewsList(updatedNewsList);  // Update the filtered list after deleting news
+    const deleteNews = async (index: number) => {
+        try {
+            const newsToDelete = newsList[index];
+            await fetch(`http://localhost:3333/news/${newsToDelete.id}`, {
+                method: 'DELETE',
+            });
+            const updatedNewsList = newsList.filter((_, i) => i !== index);
+            setNewsList(updatedNewsList);
+            setFilteredNewsList(updatedNewsList);
+        } catch (error) {
+            console.error('Error deleting news:', error);
+        }
     };
 
-    const deleteNotification = (index: number) => {
-        const updatedNotificationList = notificationList.filter((_, i) => i !== index);
-        setNotificationList(updatedNotificationList);
-        setFilteredNotificationList(updatedNotificationList);  // Update the filtered list after deleting notification
+    const deleteNotification = async (index: number) => {
+        try {
+            const notificationToDelete = notificationList[index];
+            await fetch(`http://localhost:3333/notifications/${notificationToDelete.id}`, {
+                method: 'DELETE',
+            });
+            const updatedNotificationList = notificationList.filter((_, i) => i !== index);
+            setNotificationList(updatedNotificationList);
+            setFilteredNotificationList(updatedNotificationList);
+        } catch (error) {
+            console.error('Error deleting notification:', error);
+        }
     };
 
     return (
@@ -229,23 +292,6 @@ export default function NewsNotificationManagementPage() {
                                         sx={{ width: '300px' }}
                                     />
                                 </Box>
-                                <Button
-                                    variant="plain"
-                                    color="neutral"
-                                    size="sm"
-                                    component="a"
-                                    href="/news_notifications/subscribed_news_channels/"
-                                    sx={{
-                                        backgroundColor: 'red',
-                                        color: 'white',
-                                        '&:hover': {
-                                            backgroundColor: 'darkred',
-                                        },
-                                        alignSelf: 'center',
-                                    }}
-                                >
-                                    Manage Subscribed News Channels
-                                </Button>
                             </Box>
                             {/* Modal for Create or Edit News */}
                             {isNewsModalOpen && (
@@ -275,14 +321,14 @@ export default function NewsNotificationManagementPage() {
                                                 type="text"
                                                 className="form-control"
                                                 placeholder="Enter recipient"
-                                                name="recipient"
-                                                value={newNews.recipient}
+                                                name="recipients"
+                                                value={newNews.recipients}
                                                 onChange={handleNewsChange}
                                             />
                                             <label>URL</label>
                                             <textarea
                                                 className="form-control"
-                                                placeholder="Enter url"
+                                                placeholder="Enter URL"
                                                 name="url"
                                                 value={newNews.url}
                                                 onChange={handleNewsChange}
@@ -298,18 +344,18 @@ export default function NewsNotificationManagementPage() {
                                         <tr>
                                             <th>News Title</th>
                                             <th>News URL</th>
-                                            <th>Date created</th>
+                                            <th>Date Created</th>
                                             <th>Recipients</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {filteredNewsList.map((news, index) => (
+                                        {Array.isArray(filteredNewsList) && filteredNewsList.map((news, index) => (
                                             <tr key={index}>
                                                 <td>{news.title}</td>
                                                 <td>{news.url}</td>
                                                 <td>{news.date}</td>
-                                                <td><Button variant="soft" color="neutral" size="sm">{news.recipient}</Button></td>
+                                                <td>{news.recipients}</td>
                                                 <td>
                                                     <Button variant="plain" size="sm" onClick={() => openNewsModal(index)}>✏️</Button>
                                                     <Button variant="plain" size="sm" onClick={() => deleteNews(index)}>❌</Button>
@@ -362,18 +408,17 @@ export default function NewsNotificationManagementPage() {
                                             <textarea
                                                 className="form-control"
                                                 placeholder="Enter content"
-                                                name="content" // Changed from 'description' to 'content'
+                                                name="content"
                                                 value={newNotification.content}
                                                 onChange={handleNotificationChange}
-                                                style={{ border: '1px solid #ccc', borderRadius: '4px' }}
                                             />
                                             <label>Recipient</label>
                                             <input
                                                 type="text"
                                                 className="form-control"
                                                 placeholder="Enter recipient"
-                                                name="recipient"
-                                                value={newNotification.recipient}
+                                                name="recipients"
+                                                value={newNotification.recipients}
                                                 onChange={handleNotificationChange}
                                             />
                                         </div>
@@ -387,18 +432,18 @@ export default function NewsNotificationManagementPage() {
                                         <tr>
                                             <th>Notification Title</th>
                                             <th>Notification Content</th>
-                                            <th>Date created</th>
+                                            <th>Date Created</th>
                                             <th>Recipients</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {filteredNotificationList.map((notification, index) => (
+                                        {Array.isArray(filteredNotificationList) && filteredNotificationList.map((notification, index) => (
                                             <tr key={index}>
                                                 <td>{notification.title}</td>
                                                 <td>{notification.content}</td>
                                                 <td>{notification.date}</td>
-                                                <td><Button variant="soft" color="neutral" size="sm">{notification.recipient}</Button></td>
+                                                <td>{notification.recipients}</td>
                                                 <td>
                                                     <Button variant="plain" size="sm" onClick={() => openNotificationModal(index)}>✏️</Button>
                                                     <Button variant="plain" size="sm" onClick={() => deleteNotification(index)}>❌</Button>
