@@ -17,10 +17,13 @@ export default class Notification extends BaseModel {
   declare title: string
 
   @column()
-  declare description: string
+  declare content: string
 
   //@manyToMany(() => Recipient)
   //declare recipients: ManyToMany<typeof Recipient>
+
+  @column.dateTime()  // Add this line for the date
+  declare date: DateTime;
 
   @column()
   declare recipients: string; // need to change later 
