@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column, manyToMany } from '@adonisjs/lucid/orm'
-import type { ManyToMany } from '@adonisjs/lucid/types/relations'
-import Recipient from './recipient.js'
+//import type { ManyToMany } from '@adonisjs/lucid/types/relations'
+//import Recipient from './recipient.js'
 
 export default class Notification extends BaseModel {
   @column({ isPrimary: true })
@@ -19,6 +19,9 @@ export default class Notification extends BaseModel {
   @column()
   declare description: string
 
-  @manyToMany(() => Recipient)
-  declare recipients: ManyToMany<typeof Recipient>
+  //@manyToMany(() => Recipient)
+  //declare recipients: ManyToMany<typeof Recipient>
+
+  @column()
+  declare recipients: string; // need to change later 
 }
