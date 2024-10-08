@@ -18,17 +18,17 @@ interface Surveys {
     title: string;
     description: string;
     level: string;
-    recipient: string;
+    school: string;
 }
 
 export default function SurveyManagementPage() {
     const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [isSurveyModalOpen, setIsSurveyModalOpen] = React.useState(false);
     const [surveyList, setSurveyList] = React.useState<Surveys[]>([]);
-    const [newSurvey, setNewSurvey] = React.useState<Surveys>({ title: '', description: '', level: '', recipient: '' });
+    const [newSurvey, setNewSurvey] = React.useState<Surveys>({ title: '', description: '', level: '', school: '' });
     const [editSurveyIndex, setEditSurveyIndex] = React.useState<number | null>(null);
     const [surveySearchQuery, setSurveySearchQuery] = React.useState('');
-    const [filteredSurveyList, setFilteredSurveyList] = React.useState<Surveys[]>(surveyList);
+    const [filteredSurveyList, setFilteredSurveyList] = React.useState<Surveys[]>([]); // Initialize as empty array
 
     React.useEffect(() => {
         // Fetch the initial survey list when the component mounts
@@ -39,8 +39,13 @@ export default function SurveyManagementPage() {
         try {
             const response = await fetch('http://localhost:3333/surveys/'); 
             const data = await response.json();
-            setSurveyList(data);
-            setFilteredSurveyList(data);
+            // Ensure data is an array before setting the state
+            if (Array.isArray(data)) {
+                setSurveyList(data);
+                setFilteredSurveyList(data);
+            } else {
+                console.error('Error: Expected an array of surveys');
+            }
         } catch (error) {
             console.error('Error fetching surveys:', error);
         }
@@ -56,7 +61,7 @@ export default function SurveyManagementPage() {
 
     const closeSurveyModal = () => {
         setIsSurveyModalOpen(false);
-        setNewSurvey({ title: '', description: '', level: '', recipient: '' });
+        setNewSurvey({ title: '', description: '', level: '', school: '' });
         setEditSurveyIndex(null);
     };
 
@@ -186,13 +191,13 @@ export default function SurveyManagementPage() {
                                             value={newSurvey.level}
                                             onChange={handleSurveyChange}
                                         />
-                                        <label>Recipient</label>
+                                        <label>Recipients</label>
                                         <input
                                             type="text"
                                             className="form-control"
-                                            placeholder="Enter recipient"
-                                            name="recipient"
-                                            value={newSurvey.recipient}
+                                            placeholder="Enter recipient schools"
+                                            name="school"
+                                            value={newSurvey.school}
                                             onChange={handleSurveyChange}
                                         />
                                         <label>Description</label>
@@ -215,17 +220,17 @@ export default function SurveyManagementPage() {
                                         <th>Survey Title</th>
                                         <th>Survey description</th>
                                         <th>Level</th>
-                                        <th>Recipients</th>
+                                        <th>Recipient Schools</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredSurveyList.map((survey, index) => (
+                                    {Array.isArray(filteredSurveyList) && filteredSurveyList.map((survey, index) => (
                                         <tr key={index}>
                                             <td>{survey.title}</td>
                                             <td>{survey.description}</td>
                                             <td>{survey.level}</td>
-                                            <td><Button variant="soft" color="neutral" size="sm">{survey.recipient}</Button></td>
+                                            <td><Button variant="soft" color="neutral" size="sm">{survey.school}</Button></td>
                                             <td>
                                                 <Button variant="plain" size="sm" onClick={() => openSurveyModal(index)}>✏️</Button>
                                                 <Button variant="plain" size="sm" onClick={() => deleteSurvey(index)}>❌</Button>

@@ -23,5 +23,5 @@ export default class Survey extends BaseModel {
   declare level: number
 
   @manyToMany(() => School)
-  declare recipients: ManyToMany<typeof School>
+  declare school: ManyToMany<typeof School>
 }
