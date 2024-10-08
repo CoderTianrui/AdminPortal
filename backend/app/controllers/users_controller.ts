@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
 import UserPolicy from '#policies/user_policy'
+import Channel from '#models/channel'
 
 export default class UsersController {
   async index({ bouncer, request }: HttpContext) {
@@ -85,5 +86,22 @@ export default class UsersController {
     await bouncer.with(UserPolicy).authorize('delete', user)
     await user.delete()
     return { message: 'User deleted successfully' }
+  }
+
+  async subscribeChannel({ params, auth, response }: HttpContext) {
+    const user = auth.user!  // get current login user
+    const channel = await Channel.findOrFail(params.channel_id)  // find channel
+
+    await user.related('channels').attach([channel.id])  // subscribe channel
+    return response.status(200).send({ message: 'Subscribed to channel successfully' })
+  }
+
+  
+  async unsubscribeChannel({ params, auth, response }: HttpContext) {
+    const user = auth.user!  
+    const channel = await Channel.findOrFail(params.channel_id)  
+
+    await user.related('channels').detach([channel.id])  
+    return response.status(200).send({ message: 'Unsubscribed from channel successfully' })
   }
 }

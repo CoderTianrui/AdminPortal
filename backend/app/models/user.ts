@@ -1,10 +1,11 @@
 import { DateTime } from 'luxon'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
-import { BaseModel, belongsTo, column, computed } from '@adonisjs/lucid/orm'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import { BaseModel, belongsTo, column, computed, manyToMany } from '@adonisjs/lucid/orm'
+import type { BelongsTo, ManyToMany } from '@adonisjs/lucid/types/relations'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import School from './school.js'
+import Channel from './channel.js'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],
@@ -72,4 +73,11 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @belongsTo(() => User)
   declare ownedBy: BelongsTo<typeof User>
+
+  @manyToMany(() => Channel, {
+    pivotTable: 'user_channels',
+    pivotForeignKey: 'user_id',
+    pivotRelatedForeignKey: 'channel_id'
+  })
+  declare channels: ManyToMany<typeof Channel>
 }
