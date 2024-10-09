@@ -75,9 +75,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare ownedBy: BelongsTo<typeof User>
 
   @manyToMany(() => Channel, {
-    pivotTable: 'user_channels',
-    pivotForeignKey: 'user_id',
-    pivotRelatedForeignKey: 'channel_id'
+    pivotTable: 'subscriptions',
+    // pivotForeignKey: 'user_id',
+    // pivotRelatedForeignKey: 'channel_id'
   })
   declare channels: ManyToMany<typeof Channel>
 }

@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
 import UserPolicy from '#policies/user_policy'
 import Channel from '#models/channel'
+import Subscription from '#models/subscriptions';
 
 export default class UsersController {
   async index({ bouncer, request }: HttpContext) {
@@ -88,20 +89,59 @@ export default class UsersController {
     return { message: 'User deleted successfully' }
   }
 
-  async subscribeChannel({ params, auth, response }: HttpContext) {
-    const user = auth.user!  // get current login user
-    const channel = await Channel.findOrFail(params.channel_id)  // find channel
 
-    await user.related('channels').attach([channel.id])  // subscribe channel
-    return response.status(200).send({ message: 'Subscribed to channel successfully' })
-  }
+  // async getSubscriptionsWithAction({ response }: HttpContext) {
+  //   // Get all subscriptions
+  //   const subscriptions = await Subscription.query();
 
-  
-  async unsubscribeChannel({ params, auth, response }: HttpContext) {
-    const user = auth.user!  
-    const channel = await Channel.findOrFail(params.channel_id)  
+  //   const processedSubscriptions = await Promise.all(subscriptions.map(async (subscription) => {
+  //     // Find the user by user_id from the subscription
+  //     const user = await User.find(subscription.user_id);
+  //     const channelId = subscription.channel_id;
 
-    await user.related('channels').detach([channel.id])  
-    return response.status(200).send({ message: 'Unsubscribed from channel successfully' })
+  //     // Determine if the channel_id exists in user's permissionMetadata
+  //     let isBlocked = false;
+  //     if (user && user.permissionMetadata) {
+  //       const permissionMetadataAsNumbers = user.permissionMetadata.map(Number);  // 将每个元素转换为数字
+  //       isBlocked = permissionMetadataAsNumbers.includes(channelId);
+  //     }
+
+  //     // Return subscription data with the determined action
+  //     return {
+  //       id: subscription.id,
+  //       userId: subscription.user_id,
+  //       channelId: channelId,
+  //       action: isBlocked ? 'unblock' : 'block',  // If it's in the list, it's 'unblock', otherwise 'block'
+  //     };
+  //   }));
+
+  //   return response.json(processedSubscriptions);
+  // }
+  async getSubscriptionsWithAction({ response }: HttpContext) {
+    // 获取所有订阅
+    const subscriptions = await Subscription.query();
+
+    const processedSubscriptions = await Promise.all(subscriptions.map(async (subscription) => {
+      // 根据 user_id 获取用户
+      const user = await User.find(subscription.user_id);
+      const channelId = subscription.channel_id;
+
+      // 检查 permissionMetadata 中是否有该 channel_id
+      let isBlocked = false;
+      if (user && user.permissionMetadata) {
+        const permissionMetadataAsNumbers = user.permissionMetadata.map(Number); // 将每个元素转换为数字
+        isBlocked = permissionMetadataAsNumbers.includes(channelId);
+      }
+
+      // 返回订阅数据和 action 状态
+      return {
+        id: subscription.id,
+        userId: subscription.user_id,
+        channelId: channelId,
+        action: isBlocked ? 'unblock' : 'block',  // 如果存在则 unblock，否则 block
+      };
+    }));
+
+    return response.json(processedSubscriptions);
   }
 }

@@ -11,6 +11,7 @@ import router from '@adonisjs/core/services/router'
 
 router.resource('events', '#controllers/events_controller').apiOnly()
 router.resource('channels', '#controllers/channel_controller').apiOnly()
+router.resource('subscriptions', '#controllers/subscription_controller').apiOnly()
 router.resource('news', '#controllers/news_controller').apiOnly()
 router.resource('notifications', '#controllers/notifications_controller').apiOnly()
 router.resource('recipients', '#controllers/recipients_controller').apiOnly()
@@ -19,9 +20,3 @@ router.resource('sos_messages', '#controllers/sos_messages_controller').apiOnly(
 router.resource('surveys', '#controllers/surveys_controller').apiOnly()
 router.resource('users', '#controllers/users_controller').apiOnly()
 router.post('login', '#controllers/login_controller.post')
-
-
-router.post('users/:channel_id/subscribe', '#controllers/users_controller.subscribeChannel')
-router.post('users/:channel_id/unsubscribe', '#controllers/users_controller.unsubscribeChannel')
-
-router.get('channels/:id/subscribers', '#controllers/channel_controller.showSubscribers')

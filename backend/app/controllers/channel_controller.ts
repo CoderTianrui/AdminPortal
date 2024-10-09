@@ -22,12 +22,12 @@ export default class ChannelsController {
     await newItem.delete()
     return newItem
   }
-  async showSubscribers({ params }: HttpContext) {
-    const channel = await Channel.query()
-      .where('id', params.id)
-      .preload('users')
-      .firstOrFail()
+//   async showSubscribers({ params }: HttpContext) {
+//     const channel = await Channel.query()
+//       .where('id', params.id)
+//       .preload('users')
+//       .firstOrFail()
 
-    return channel.users
-  }
+//     return channel.users
+//   }
 }
