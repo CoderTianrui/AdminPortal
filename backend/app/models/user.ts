@@ -2,12 +2,11 @@ import { DateTime } from 'luxon'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
 import type { ManyToMany } from '@adonisjs/lucid/types/relations'
-import { BaseModel, belongsTo, column, manyToMany} from '@adonisjs/lucid/orm'
+import { BaseModel, belongsTo, column, manyToMany, computed} from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import School from './school.js'
 import {Profile, Access} from './profile_access_enums.js'
-
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],
@@ -15,6 +14,8 @@ const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
 })
 
 export default class User extends compose(BaseModel, AuthFinder) {
+  permissionNode = this.constructor.name.toLowerCase()
+
   @column({ isPrimary: true })
   declare id: number
 
@@ -45,6 +46,18 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare userSchoolId: number | null
 
+  @column({
+    prepare: (value) => JSON.stringify(value),
+    consume: (value) => JSON.parse(value),
+    serializeAs: null,
+  })
+  declare permissionMetadata: string[]
+
+  @computed()
+  get permissions(): string[] {
+    return this.permissionMetadata
+  }
+
 
   @belongsTo(() => School, {
     foreignKey: 'userSchoolId', 
@@ -61,9 +74,12 @@ export default class User extends compose(BaseModel, AuthFinder) {
   })
   declare relatedUsers: ManyToMany<typeof User>;
 
-
-
-
   @column()
   declare profileImage: string | null
+
+  @column()
+  declare ownedById: number
+
+  @belongsTo(() => User)
+  declare ownedBy: BelongsTo<typeof User>
 }
