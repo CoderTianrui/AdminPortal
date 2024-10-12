@@ -79,17 +79,26 @@ export default function Header() {
                 spacing={1}
                 sx={{ display: { xs: 'none', sm: 'flex' } }}
             >
-                <IconButton
-                    size="md"
-                    variant="outlined"
-                    color="neutral"
-                    sx={{
-                        display: { xs: 'none', sm: 'inline-flex' },
-                        borderRadius: '50%',
+            <IconButton
+                size="md"
+                variant="outlined"
+                color="neutral"
+                sx={{
+                    display: { xs: 'none', sm: 'inline-flex' },
+                    borderRadius: '50%',
+                    padding: 0, // Remove any default padding for better control of the image
+                }}
+            >
+                <img
+                    src="OIClogo.png"
+                    alt="Language"
+                    style={{
+                        width: '24px', // Adjust width as needed
+                        height: '24px', // Adjust height as needed
+                        borderRadius: '50%', // Make it circular if the image should be circular
                     }}
-                >
-                    <LanguageRoundedIcon />
-                </IconButton>
+                />
+            </IconButton>
                 <Button
                     variant="plain"
                     color="neutral"
@@ -140,6 +149,16 @@ export default function Header() {
                 >
                     DailyMood
                 </Button>
+                <Button
+                    variant="plain"
+                    color="neutral"
+                    component="a"
+                    href="/school/"
+                    size="sm"
+                    sx={{ alignSelf: 'center' }}
+                >
+                    School Management
+                </Button>
             </Stack>
             <Box sx={{ display: { xs: 'inline-flex', sm: 'none' } }}>
                 <IconButton variant="plain" color="neutral" onClick={() => setOpen(true)}>
@@ -166,7 +185,7 @@ export default function Header() {
                     alignItems: 'center',
                 }}
             >
-                <Input
+                {/* <Input
                     size="sm"
                     variant="outlined"
                     placeholder="Search anything…"
@@ -189,7 +208,7 @@ export default function Header() {
                             sm: 'flex',
                         },
                     }}
-                />
+                /> */}
                 <IconButton
                     size="sm"
                     variant="outlined"
@@ -197,14 +216,14 @@ export default function Header() {
                     sx={{ display: { xs: 'inline-flex', sm: 'none' }, alignSelf: 'center' }}
                 >
                     <SearchRoundedIcon />
-                </IconButton>
-                <Tooltip title="Joy UI overview" variant="outlined">
+                                </IconButton>
+                                <Tooltip title="Schools Page" variant="outlined">
                     <IconButton
                         size="sm"
                         variant="plain"
                         color="neutral"
                         component="a"
-                        href="/blog/first-look-at-joy/"
+                        href="/school/"  
                         sx={{ alignSelf: 'center' }}
                     >
                         <BookRoundedIcon />
