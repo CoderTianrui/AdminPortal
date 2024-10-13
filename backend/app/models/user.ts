@@ -1,10 +1,12 @@
 import { DateTime } from 'luxon'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
-import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
+import type { ManyToMany } from '@adonisjs/lucid/types/relations'
+import { BaseModel, belongsTo, column, manyToMany, computed} from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import School from './school.js'
+import {Profile, Access} from './profile_access_enums.js'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],
@@ -12,17 +14,22 @@ const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
 })
 
 export default class User extends compose(BaseModel, AuthFinder) {
+  permissionNode = this.constructor.name.toLowerCase()
+
   @column({ isPrimary: true })
   declare id: number
 
   @column()
-  declare fullName: string | null
+  declare firstName: string | null
+
+  @column()
+  declare lastName: string | null
 
   @column()
   declare email: string
 
   @column({ serializeAs: null })
-  declare password: string
+  declare password: string | null
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -31,23 +38,50 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare updatedAt: DateTime | null
 
   @column()
-  declare profileType: ['admin', 'school', 'teacher', 'student']
+  declare profile: Profile
 
   @column()
-  declare permission: string
+  declare access: Access
 
   @column()
-  declare userSchoolId: number
+  declare userSchoolId: number | null
 
-  @belongsTo(() => School)
-  declare schoolId: BelongsTo<typeof School>
+  @column({
+    prepare: (value) => JSON.stringify(value),
+    consume: (value) => JSON.parse(value),
+    serializeAs: null,
+  })
+  declare permissionMetadata: string[]
 
-  @column()
-  declare relationUserId: number
+  @computed()
+  get permissions(): string[] {
+    return this.permissionMetadata
+  }
 
-  @belongsTo(() => User)
-  declare relationUser: BelongsTo<typeof User>
+
+
+  @belongsTo(() => School, {
+    foreignKey: 'userSchoolId', 
+  })
+  public school!: BelongsTo<typeof School>; 
+
+  @manyToMany(() => User, {
+    pivotTable: 'related_users',
+    localKey: 'id',
+    pivotForeignKey: 'user_id',
+    relatedKey: 'id',
+    pivotRelatedForeignKey: 'related_user_id',
+    pivotTimestamps: true,  
+  })
+  declare relatedUsers: ManyToMany<typeof User>;
 
   @column()
   declare profileImage: string | null
+
+  @column()
+  declare ownedById: number
+
+  @belongsTo(() => User)
+  declare ownedBy: BelongsTo<typeof User>
 }
+
