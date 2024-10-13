@@ -13,7 +13,6 @@ import Layout from '../components/layout';
 import Header from '../components/header';
 import Navigation from '../components/navigation';
 
-
 import './SurveyManagement.css';
 
 interface Surveys {
