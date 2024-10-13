@@ -178,8 +178,8 @@ export default function SurveyManagementPage() {
                                             }
                                             renderValue={(selected) => (
                                                 <Box sx={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
-                                                    {selected.map((selectedOption) => (
-                                                        <Chip variant="soft" color="primary">
+                                                    {selected.map((selectedOption, i) => (
+                                                        <Chip key={i}  variant="soft" color="primary">
                                                             {selectedOption.label}
                                                         </Chip>
                                                     ))}
