@@ -7,7 +7,7 @@ export default class SchoolsController {
   /**
    * Display a list of resource
    */
-  async index({ }: HttpContext) {
+  async index({}: HttpContext) {
     return await School.query().paginate(1)
   }
 
@@ -23,7 +23,9 @@ export default class SchoolsController {
 
       // handle admin users
       if (request.input('adminUser')) {
-        const adminUser = await User.query({ client: trx }).where('id', request.input('adminUser')).firstOrFail()
+        const adminUser = await User.query({ client: trx })
+          .where('id', request.input('adminUser'))
+          .firstOrFail()
         await school.related('adminUser').associate(adminUser)
       }
 
@@ -39,13 +41,6 @@ export default class SchoolsController {
   }
 
   /**
-   * Edit individual record
-   */
-  async edit({ params }: HttpContext) {
-    return await School.findOrFail(params.id)
-  }
-
-  /**
    * Handle form submission for the edit action
    */
   async update({ params, request }: HttpContext) {
@@ -57,7 +52,9 @@ export default class SchoolsController {
 
       // handle admin users
       if (request.input('adminUser')) {
-        const adminUser = await User.query({ client: trx }).where('id', request.input('adminUser')).firstOrFail()
+        const adminUser = await User.query({ client: trx })
+          .where('id', request.input('adminUser'))
+          .firstOrFail()
         await school.related('adminUser').associate(adminUser)
       }
 

@@ -12,6 +12,28 @@ beforeAll(() => {
       };
     };
   });
+  
+test('renders initial subscription list', () => {
+    render(<ManageSubscribedChannels />);
+  
+    // Check that both subscriptions are rendered
+    expect(screen.getByText(/ABC News/i)).toBeInTheDocument();
+    expect(screen.getByText(/Student 1/i)).toBeInTheDocument();
+    expect(screen.getByText(/BBC News/i)).toBeInTheDocument();
+    expect(screen.getByText(/Student 2/i)).toBeInTheDocument();
+});
+
+test('displays no results for non-matching search input', () => {
+  render(<ManageSubscribedChannels />);
+
+  // Simulate searching for a non-existing subscription
+  fireEvent.change(screen.getByPlaceholderText(/Search by channel or subscriber/i), { target: { value: 'Non-Existent News' } });
+
+  // Check that no subscription rows are rendered
+  const rows = screen.queryAllByRole('row');
+  expect(rows.length).toBe(1); // Only the header row should be present
+});
+
 test('filters subscriptions based on search input', () => {
     render(<ManageSubscribedChannels />);
 
