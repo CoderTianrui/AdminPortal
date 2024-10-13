@@ -14,6 +14,7 @@ beforeAll(() => {
       };
     };
   });
+  
 test('renders the SurveyManagementPage and checks for basic elements', () => {
     render(<SurveyManagementPage />);
 
