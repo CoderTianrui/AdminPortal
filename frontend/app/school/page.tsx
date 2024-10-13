@@ -8,14 +8,15 @@ import Box from '@mui/joy/Box';
 import Button from '@mui/joy/Button';
 import Stack from '@mui/joy/Stack';
 import Input from '@mui/joy/Input';
-// import Layout from '@/app/components/layout';
+import Layout from '@/app/components/layout';
 import Header from '@/app/components/header';
 import Navigation from '@/app/components/navigation';
 
 import './School.css';
+import { School } from '@mui/icons-material';
 
 interface User {
-    id?: string;
+    id: string;
     firstName: string;
     lastName: string;
     email: string;
@@ -28,6 +29,7 @@ interface User {
 interface School {
     id?: string;
     name: string;
+    adminUserId?: string | number; 
     adminUser: User | string | null;
 }
 
@@ -42,34 +44,81 @@ export default function SchoolManagementPage() {
     const [search, setSearch] = React.useState('');
     const [users, setUsers] = React.useState<User[]>([]);
 
+
+
+
+    React.useEffect(() => {
+        const fetchData = async () => {
+            // Fetch users first and wait for the state to update
+            await fetchUsers();
+    
+            // Now fetch schools after users are populated
+            fetchSchools();
+        };
+    
+        fetchData();
+    }, []);  // Empty dependency array to ensure it runs once
+    
+
     const fetchUsers = async () => {
         try {
-            const response = await fetch('http://localhost:3333/users');
+            const response = await fetch('http://localhost:3333/users');  
             const data = await response.json();
+            
+            
             setUsers(data.data || []);
         } catch (error) {
             console.error('Failed to fetch users:', error);
         }
     };
     
-    React.useEffect(() => {
-        fetchUsers();
-    }, []);
-
-    // Fetch schools on component mount
-    React.useEffect(() => {
-        fetchSchools();
-    }, []);
 
     const fetchSchools = async () => {
+        console.log('fetchSchools called');
         try {
             const response = await fetch('http://localhost:3333/schools');
             const data = await response.json();
-            setSchools(data.data || []);
+            console.log('Fetched Schools Data:', data);
+    
+            let fetchedSchools: School[] = [];
+    
+            if (Array.isArray(data)) {
+                fetchedSchools = data;
+            } else if (data.data && Array.isArray(data.data)) {
+                fetchedSchools = data.data;
+            } else {
+                console.error('Unexpected response structure:', data);
+            }
+    
+            // Check the fetched users and schools data
+            console.log("Users here:", users);
+            console.log("Schools:", fetchedSchools);
+    
+            // // Map schools to include admin user details using adminUserId
+            // const schoolsWithAdminDetails = fetchedSchools.map((school: School) => {
+            //     // Ensure that adminUserId is defined and not null
+                
+            //     const adminUser = users.find(user => {
+            //         console.log(`Checking user: ${user.firstName} ${user.lastName}, user.id: ${user.id}, adminUserId: ${school.adminUserId}`);
+            //         return String(user.id) === String(school.adminUserId);
+            //     });
+            //     return {
+            //         ...school,
+            //         adminUser: adminUser || null,
+            //     };
+            // });
+    
+            // console.log("Schools with admin details:", schoolsWithAdminDetails);
+    
+            setSchools(fetchedSchools);
         } catch (error) {
             console.error('Failed to fetch schools:', error);
         }
     };
+    
+
+
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -140,14 +189,25 @@ export default function SchoolManagementPage() {
     };
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearch(e.target.value.toLowerCase());
+        setSearch(e.target.value);
     };
 
-    const filteredSchools = schools.filter(school =>
-        school && school.name.toLowerCase().includes(search)
-    );
+    React.useEffect(() => {
+        console.log('Schools state updated:', schools);
+    }, [schools]);
+
+    const filteredSchools = search.trim()
+    ? schools.filter(school =>
+        school?.name?.toLowerCase().includes(search.trim().toLowerCase())
+      )
+    : schools;
+    console.log('Search term:', search);
+    console.log('Filtered schools:', filteredSchools);  
+    console.log('Schools:', schools);
+
 
     const openSchoolModal = (index: number | null = null) => {
+
         if (index !== null) {
             setNewSchool(schools[index]);
             setEditIndex(index);
@@ -163,11 +223,11 @@ export default function SchoolManagementPage() {
 
 return (<CssVarsProvider disableTransitionOnChange>
     <CssBaseline />
-    {/* {drawerOpen && (
+    {drawerOpen && (
         <Layout.SideDrawer onClose={() => setDrawerOpen(false)}>
             <Navigation />
         </Layout.SideDrawer>
-    )} */}
+    )}
     <Stack
         id="tab-bar"
         direction="row"
@@ -217,21 +277,21 @@ return (<CssVarsProvider disableTransitionOnChange>
             Survey Management
         </Button>
     </Stack>
-    {/* <Layout.Root
+    <Layout.Root
         sx={{
             ...(drawerOpen && {
                 height: '100vh',
                 overflow: 'hidden',
             }),
         }}
-    > */}
-        {/* <Layout.Header>
+    >
+        <Layout.Header>
             <Header />
         </Layout.Header>
         <Layout.SideNav>
             <Navigation />
         </Layout.SideNav>
-        <Layout.Main> */}
+        <Layout.Main>
 
     
             <div>
@@ -243,43 +303,43 @@ return (<CssVarsProvider disableTransitionOnChange>
                 </Button>
 
                 {isSchoolModalOpen && (
-                    <div className="modal-overlay">
-                        <div className="modal-content">
-                            <button className="modal-close" onClick={closeSchoolModal}>✖️</button>
-                            <div className="modal-body">
-                                <label>School Name</label>
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    name="name"
-                                    placeholder="School Name"
-                                    value={newSchool.name}
-                                    onChange={handleChange}
-                                />
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <button className="modal-close" onClick={closeSchoolModal}>✖️</button>
+                        <div className="modal-body">
+                            <label>School Name</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                name="name"
+                                placeholder="School Name"
+                                value={newSchool.name}
+                                onChange={handleChange}
+                            />
 
-                                <label>Admin User (optional)</label>
-                                <select
-                                    className="form-select"
-                                    aria-label="Admin User"
-                                    name="adminUser"
-                                    value={newSchool.adminUser ? (typeof newSchool.adminUser === 'object' ? newSchool.adminUser.id : newSchool.adminUser) : ''}
-                                    onChange={(e) => setNewSchool((prevSchool) => ({
-                                        ...prevSchool,
-                                        adminUser: e.target.value || null, // Set to null if no admin selected
-                                    }))}
-                                >
-                                    <option value="">No Admin User</option> {/* Option to not select an admin */}
-                                    {users.map(user => (
-                                        <option key={user.id} value={user.id}>
-                                            {user.firstName} {user.lastName}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <button className="submit-button" type="button" onClick={handleSubmit}>Submit</button>
+                            <label>Admin User (optional)</label>
+                            <select
+                                className="form-select"
+                                aria-label="Admin User"
+                                name="adminUser"
+                                value={newSchool.adminUser ? (typeof newSchool.adminUser === 'object' ? newSchool.adminUser.id : newSchool.adminUser) : ''}
+                                onChange={(e) => setNewSchool((prevSchool) => ({
+                                    ...prevSchool,
+                                    adminUser: e.target.value || null,
+                                }))}
+                            >
+                                <option value="">No Admin User</option> 
+                                {users.map(user => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.firstName} {user.lastName}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
+                        <button className="submit-button" type="button" onClick={handleSubmit}>Submit</button>
                     </div>
-                )}
+                </div>
+            )}
 
                 <div className="mb-3">
                     <Input
@@ -308,14 +368,15 @@ return (<CssVarsProvider disableTransitionOnChange>
                                 <td>{index + 1}</td>
                                 <td>{school.name}</td>
                                 <td>
-                                {school.adminUser && typeof school.adminUser === 'object'
-                                    ? `${school.adminUser.firstName} ${school.adminUser.lastName}`
-                                    : 'No Admin'}
+                                                   
+                                                   {typeof school.adminUser === 'object' && school.adminUser !== null && school.adminUser.lastName
+                                                       ? `${school.adminUser.firstName ? school.adminUser.firstName + ' ' : ''}${school.adminUser.lastName}`
+                                                       : 'No Admin'}       
                                 </td>
                                 <td>
-                                    <button onClick={() => handleEdit(index)}>Edit</button>
-                                    <button onClick={() => handleDelete(index)}>Delete</button>
-                                </td>
+                                                    <Button variant="plain" size="sm" onClick={() => openSchoolModal(index)}>✏️</Button>
+                                                    <Button variant="plain" size="sm" onClick={() => handleDelete(index)}>❌</Button>
+                                                </td>
                             </tr>
                         ))
                     ) : (
@@ -326,8 +387,8 @@ return (<CssVarsProvider disableTransitionOnChange>
                 </tbody>
             </table>
         </div>
-        {/* </Layout.Main>
-    </Layout.Root> */}
+        </Layout.Main>
+    </Layout.Root>
  </CssVarsProvider>
 );
 }
