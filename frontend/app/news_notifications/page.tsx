@@ -371,7 +371,11 @@ export default function NewsNotificationManagementPage() {
                                         {Array.isArray(filteredNewsList) && filteredNewsList.map((news, index) => (
                                             <tr key={index}>
                                                 <td>{news.title}</td>
-                                                <td>{news.url}</td>
+                                                <td>
+                                                    <a href={news.url} target="_blank" rel="noopener noreferrer" style={{ color: 'blue', textDecoration: 'underline' }}>
+                                                        {news.url}
+                                                    </a>
+                                                </td>
                                                 <td>{news.date}</td>
                                                 <td>{news.recipients}</td>
                                                 <td>
