@@ -16,7 +16,7 @@ import Navigation from '@/app/components/navigation';
 
 
 import './UserList.css';
-import '../school/page'
+
 
 interface School {
     id: string;
