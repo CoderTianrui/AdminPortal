@@ -2,8 +2,8 @@ import { render, screen,fireEvent } from '@testing-library/react';
 import SurveyManagementPage from '../app/surveymanagement/page';
 import '@testing-library/jest-dom';
 import React from 'react';
-import fetch from 'node-fetch';
-global.fetch = fetch;
+// import fetch from 'node-fetch';
+// global.fetch = fetch;
 
 beforeAll(() => {
     window.matchMedia = window.matchMedia || function() {
