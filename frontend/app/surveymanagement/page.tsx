@@ -26,9 +26,9 @@ export default function SurveyManagementPage() {
     const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [isSurveyModalOpen, setIsSurveyModalOpen] = React.useState(false);
     const [surveyList, setSurveyList] = React.useState<Surveys[]>([
-        {title: 'Survey 1', description: 'This is a description of survey 1', level: '1', school: ['University Of Sydney', 'University of Melbourne']},
-        {title: 'Survey 2', description: 'This is a description of survey 2', level: '2', school: ['University Of Sydney', 'University of New South Wales']},
-        {title: 'Survey 3', description: 'This is a description of survey 3', level: '3', school: ['University Of Sydney', 'University of Technology Sydney']}
+        // {title: 'Survey 1', description: 'This is a description of survey 1', level: '1', school: ['University Of Sydney', 'University of Melbourne']},
+        // {title: 'Survey 2', description: 'This is a description of survey 2', level: '2', school: ['University Of Sydney', 'University of New South Wales']},
+        // {title: 'Survey 3', description: 'This is a description of survey 3', level: '3', school: ['University Of Sydney', 'University of Technology Sydney']}
     ]);
     const [newSurvey, setNewSurvey] = React.useState<Surveys>({ title: '', description: '', level: '', school: [] });
     const [editSurveyIndex, setEditSurveyIndex] = React.useState<number | null>(null);
@@ -39,6 +39,20 @@ export default function SurveyManagementPage() {
         // Initialize the survey list and filtered list on mount
         setFilteredSurveyList(surveyList);
     }, [surveyList]);
+
+    React.useEffect(()  => {
+        fetchSurveys()
+    }, []);
+
+    const fetchSurveys = async ()  => {
+        try {
+            const res = await fetch('http://localhost:3333/surveys')
+            const surveys = await res.json()
+            setSurveyList(surveys.data)
+        } catch (err) {
+            console.log('ERROR HERE: ', err)
+        }
+    }
 
     const openSurveyModal = (index: number | null = null) => {
         if (index !== null) {
@@ -212,13 +226,13 @@ export default function SurveyManagementPage() {
                                             <td>{survey.title}</td>
                                             <td>{survey.description}</td>
                                             <td>{survey.level}</td>
-                                            <td>
+                                            {/* <td>
                                                 {survey.school.map((school) => (
                                                     <Chip key={school} variant="soft" color="primary">
                                                         {school}
                                                     </Chip>
                                                 ))}
-                                            </td>
+                                            </td> */}
                                             <td>
                                                 <Button variant="plain" size="sm" onClick={() => openSurveyModal(index)}>
                                                     ✏️
