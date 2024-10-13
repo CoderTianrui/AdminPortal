@@ -6,43 +6,53 @@ import CssBaseline from '@mui/joy/CssBaseline';
 import Button from '@mui/joy/Button';
 import Input from '@mui/joy/Input';
 import Box from '@mui/joy/Box';
+import Select from '@mui/joy/Select'; 
+import Option from '@mui/joy/Option'; 
+import Chip from '@mui/joy/Chip';     
 import Layout from '../components/layout';
 import Header from '../components/header';
 import Navigation from '../components/navigation';
 
 import './SurveyManagement.css';
 
-// Define the types for News and Notification
 interface Surveys {
     title: string;
     description: string;
     level: string;
-    recipient: string;
+    school: string[];
 }
-
 
 export default function SurveyManagementPage() {
     const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [isSurveyModalOpen, setIsSurveyModalOpen] = React.useState(false);
-
-    // Add a sample row for News and Notification
     const [surveyList, setSurveyList] = React.useState<Surveys[]>([
-        {
-            title: 'Survey 1',
-            description: 'This is a description of survey 1',
-            level: 'one',
-            recipient: 'students',
-        },
+        // {title: 'Survey 1', description: 'This is a description of survey 1', level: '1', school: ['University Of Sydney', 'University of Melbourne']},
+        // {title: 'Survey 2', description: 'This is a description of survey 2', level: '2', school: ['University Of Sydney', 'University of New South Wales']},
+        // {title: 'Survey 3', description: 'This is a description of survey 3', level: '3', school: ['University Of Sydney', 'University of Technology Sydney']}
     ]);
-
-
-    const [newSurvey, setNewSurvey] = React.useState<Surveys>({ title: '', description: '', level: '', recipient: '' });
-
+    const [newSurvey, setNewSurvey] = React.useState<Surveys>({ title: '', description: '', level: '', school: [] });
     const [editSurveyIndex, setEditSurveyIndex] = React.useState<number | null>(null);
-
     const [surveySearchQuery, setSurveySearchQuery] = React.useState('');
+    const [filteredSurveyList, setFilteredSurveyList] = React.useState<Surveys[]>([]);
 
-    const [filteredSurveyList, setFilteredSurveyList] = React.useState<Surveys[]>(surveyList);
+    React.useEffect(() => {
+        // Initialize the survey list and filtered list on mount
+        setFilteredSurveyList(surveyList);
+    }, [surveyList]);
+
+    React.useEffect(()  => {
+        fetchSurveys()
+    }, []);
+
+    const fetchSurveys = async ()  => {
+        try {
+            const res = await fetch('http://localhost:3333/surveys')
+            const surveys = await res.json()
+            setSurveyList(surveys.data)
+        } catch (err) {
+            console.log('ERROR HERE: ', err)
+        }
+    }
 
     const openSurveyModal = (index: number | null = null) => {
         if (index !== null) {
@@ -51,13 +61,12 @@ export default function SurveyManagementPage() {
         }
         setIsSurveyModalOpen(true);
     };
+
     const closeSurveyModal = () => {
         setIsSurveyModalOpen(false);
-        setNewSurvey({ title: '', description: '', level: '', recipient: '' });
+        setNewSurvey({ title: '', description: '', level: '', school: [] });
         setEditSurveyIndex(null);
     };
-
-    
 
     const handleSurveyChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setNewSurvey({ ...newSurvey, [e.target.name]: e.target.value });
@@ -74,32 +83,30 @@ export default function SurveyManagementPage() {
         setFilteredSurveyList(filtered);
     };
 
-   
+    const submitSurvey = async () => {
+        const surveyToSubmit = { ...newSurvey };
 
-    const submitSurvey = () => {
         if (editSurveyIndex !== null) {
-            // Edit existing surveys
+            // Update existing survey
             const updatedSurveyList = [...surveyList];
-            updatedSurveyList[editSurveyIndex] = newSurvey;
+            updatedSurveyList[editSurveyIndex] = surveyToSubmit;
             setSurveyList(updatedSurveyList);
-            setFilteredSurveyList(updatedSurveyList)
+            setFilteredSurveyList(updatedSurveyList);
         } else {
-            // Add new surveys
-            const updatedSurveyList = [...surveyList, newSurvey];
+            // Add new survey
+            const updatedSurveyList = [...surveyList, surveyToSubmit];
             setSurveyList(updatedSurveyList);
-            setFilteredSurveyList(updatedSurveyList);  // Update the filtered list after adding new survey
+            setFilteredSurveyList(updatedSurveyList);
         }
         closeSurveyModal();
     };
 
-
     const deleteSurvey = (index: number) => {
         const updatedSurveyList = surveyList.filter((_, i) => i !== index);
         setSurveyList(updatedSurveyList);
-        setFilteredSurveyList(updatedSurveyList);  // Update the filtered list after deleting news
+        setFilteredSurveyList(updatedSurveyList);
     };
 
-   
     return (
         <CssVarsProvider disableTransitionOnChange>
             <CssBaseline />
@@ -136,8 +143,8 @@ export default function SurveyManagementPage() {
                                 endDecorator={<Button variant="outlined" onClick={filterSurvey}>Search</Button>}
                                 sx={{ width: '300px' }}
                             />
-                            <Button variant="solid" color="danger" sx={{ ml: 'auto' }}>Manage Surveys</Button>
                         </Box>
+
                         {/* Modal for Create or Edit Surveys */}
                         {isSurveyModalOpen && (
                             <div className="modal-overlay">
@@ -161,15 +168,33 @@ export default function SurveyManagementPage() {
                                             value={newSurvey.level}
                                             onChange={handleSurveyChange}
                                         />
-                                        <label>Recipient</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            placeholder="Enter recipient"
-                                            name="recipient"
-                                            value={newSurvey.recipient}
-                                            onChange={handleSurveyChange}
-                                        />
+
+                                        <label>Recipients</label>
+                                        <Select
+                                            multiple
+                                            value={newSurvey.school}
+                                            onChange={(event, newValue) =>
+                                                setNewSurvey({ ...newSurvey, school: newValue })
+                                            }
+                                            renderValue={(selected) => (
+                                                <Box sx={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                                                    {selected.map((selectedOption, i) => (
+                                                        <Chip key={i}  variant="soft" color="primary">
+                                                            {selectedOption.label}
+                                                        </Chip>
+                                                    ))}
+                                                </Box>
+                                            )}
+                                            sx={{ minWidth: '15rem' }}
+                                        >
+                                            <Option value="University of Sydney">University of Sydney</Option>
+                                            <Option value="University of Melbourne">University of Melbourne</Option>
+                                            <Option value="University of New South Wales">University of New South Wales</Option>
+                                            <Option value="University of Technology Sydney">University of Technology Sydney</Option>
+                                            <Option value="Monte Sant' Angelo">Monte Sant&apos; Angelo</Option>
+                                            <Option value="Willoughby High School">Willoughby High School</Option>
+                                        </Select>
+
                                         <label>Description</label>
                                         <textarea
                                             className="form-control"
@@ -183,6 +208,7 @@ export default function SurveyManagementPage() {
                                 </div>
                             </div>
                         )}
+
                         <Box sx={{ overflowX: 'auto', marginBottom: '40px' }}>
                             <table className="table">
                                 <thead>
@@ -190,20 +216,30 @@ export default function SurveyManagementPage() {
                                         <th>Survey Title</th>
                                         <th>Survey description</th>
                                         <th>Level</th>
-                                        <th>Recipients</th>
+                                        <th>Recipient Schools</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredSurveyList.map((survey, index) => (
+                                    {Array.isArray(filteredSurveyList) && filteredSurveyList.map((survey, index) => (
                                         <tr key={index}>
                                             <td>{survey.title}</td>
                                             <td>{survey.description}</td>
                                             <td>{survey.level}</td>
-                                            <td><Button variant="soft" color="neutral" size="sm">{survey.recipient}</Button></td>
                                             <td>
-                                                <Button variant="plain" size="sm" onClick={() => openSurveyModal(index)}>✏️</Button>
-                                                <Button variant="plain" size="sm" onClick={() => deleteSurvey(index)}>❌</Button>
+                                                {survey.school?.map((school) => (
+                                                    <Chip key={school} variant="soft" color="primary">
+                                                        {school}
+                                                    </Chip>
+                                                ))}
+                                            </td>
+                                            <td>
+                                                <Button variant="plain" size="sm" onClick={() => openSurveyModal(index)}>
+                                                    ✏️
+                                                </Button>
+                                                <Button variant="plain" size="sm" onClick={() => deleteSurvey(index)}>
+                                                    ❌
+                                                </Button>
                                             </td>
                                         </tr>
                                     ))}
