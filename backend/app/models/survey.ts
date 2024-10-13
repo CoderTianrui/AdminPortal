@@ -24,9 +24,6 @@ export default class Survey extends ManagedModel {
   @column()
   declare level: number
 
-  @manyToMany(() => Recipient)
-  declare recipients: ManyToMany<typeof Recipient>
-
   @manyToMany(() => School)
   declare school: ManyToMany<typeof School>
 }
