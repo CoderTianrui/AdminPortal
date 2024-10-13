@@ -15,7 +15,8 @@ import Navigation from '../components/navigation';
 
 import './SurveyManagement.css';
 
-interface Surveys {
+interface Survey {
+    id: string;
     title: string;
     description: string;
     level: string;
@@ -25,15 +26,15 @@ interface Surveys {
 export default function SurveyManagementPage() {
     const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [isSurveyModalOpen, setIsSurveyModalOpen] = React.useState(false);
-    const [surveyList, setSurveyList] = React.useState<Surveys[]>([
+    const [surveyList, setSurveyList] = React.useState<Survey[]>([
         // {title: 'Survey 1', description: 'This is a description of survey 1', level: '1', school: ['University Of Sydney', 'University of Melbourne']},
         // {title: 'Survey 2', description: 'This is a description of survey 2', level: '2', school: ['University Of Sydney', 'University of New South Wales']},
         // {title: 'Survey 3', description: 'This is a description of survey 3', level: '3', school: ['University Of Sydney', 'University of Technology Sydney']}
     ]);
-    const [newSurvey, setNewSurvey] = React.useState<Surveys>({ title: '', description: '', level: '', school: [] });
+    const [newSurvey, setNewSurvey] = React.useState<Survey>({ id: '', title: '', description: '', level: '', school: [] });
     const [editSurveyIndex, setEditSurveyIndex] = React.useState<number | null>(null);
     const [surveySearchQuery, setSurveySearchQuery] = React.useState('');
-    const [filteredSurveyList, setFilteredSurveyList] = React.useState<Surveys[]>([]);
+    const [filteredSurveyList, setFilteredSurveyList] = React.useState<Survey[]>([]);
 
     React.useEffect(() => {
         // Initialize the survey list and filtered list on mount
@@ -64,7 +65,7 @@ export default function SurveyManagementPage() {
 
     const closeSurveyModal = () => {
         setIsSurveyModalOpen(false);
-        setNewSurvey({ title: '', description: '', level: '', school: [] });
+        setNewSurvey({ id:'', title: '', description: '', level: '', school: [] });
         setEditSurveyIndex(null);
     };
 
@@ -101,10 +102,18 @@ export default function SurveyManagementPage() {
         closeSurveyModal();
     };
 
-    const deleteSurvey = (index: number) => {
-        const updatedSurveyList = surveyList.filter((_, i) => i !== index);
-        setSurveyList(updatedSurveyList);
-        setFilteredSurveyList(updatedSurveyList);
+    const deleteSurvey = async (id: string) => {
+        try {
+            await fetch(`http://localhost:3333/surveys/${id}`, {
+                method: 'DELETE'
+            })
+            const updatedSurveyList = surveyList.filter((survey, i) => survey.id !== id);
+            setSurveyList(updatedSurveyList);
+            setFilteredSurveyList(updatedSurveyList);
+        } catch (err) {
+            console.log('ERROR DELETING SURVEY: ', err)
+        }
+        
     };
 
     return (
@@ -222,7 +231,7 @@ export default function SurveyManagementPage() {
                                 </thead>
                                 <tbody>
                                     {Array.isArray(filteredSurveyList) && filteredSurveyList.map((survey, index) => (
-                                        <tr key={index}>
+                                        <tr key={survey.id}>
                                             <td>{survey.title}</td>
                                             <td>{survey.description}</td>
                                             <td>{survey.level}</td>
@@ -237,7 +246,7 @@ export default function SurveyManagementPage() {
                                                 <Button variant="plain" size="sm" onClick={() => openSurveyModal(index)}>
                                                     ✏️
                                                 </Button>
-                                                <Button variant="plain" size="sm" onClick={() => deleteSurvey(index)}>
+                                                <Button variant="plain" size="sm" onClick={() => deleteSurvey(survey.id)}>
                                                     ❌
                                                 </Button>
                                             </td>
