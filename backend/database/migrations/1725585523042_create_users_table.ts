@@ -9,11 +9,12 @@ export default class extends BaseSchema {
       table.string('first_name').nullable()
       table.string('last_name').nullable()
       table.string('email', 254).notNullable().unique()
-      table.string('password').notNullable()
+      table.string('password').nullable()
 
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
-      table.enum('profile', ['admin', 'school', 'teacher', 'student']).notNullable()
+      table.enum('profile', ['Admin', 'Parent', 'Teacher', 'Student']).notNullable()
+      table.enum('access', ['Full', 'High', 'Medium', 'Low']).notNullable()
       table.json('permission_metadata').notNullable().defaultTo(JSON.stringify([]))
       table.string('profile_image').nullable()
 
