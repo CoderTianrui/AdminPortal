@@ -90,7 +90,7 @@ export default function Header() {
                 }}
             >
                 <img
-                    src="OIClogo.png"
+                    src="logo_oic.png"
                     alt="Language"
                     style={{
                         width: '24px', // Adjust width as needed
@@ -157,10 +157,12 @@ export default function Header() {
                     size="sm"
                     sx={{ alignSelf: 'center' }}
                 >
+
                     School Management
+
                 </Button>
             </Stack>
-            <Box sx={{ display: { xs: 'inline-flex', sm: 'none' } }}>
+            {/* <Box sx={{ display: { xs: 'inline-flex', sm: 'none' } }}>
                 <IconButton variant="plain" color="neutral" onClick={() => setOpen(true)}>
                     <MenuRoundedIcon />
                 </IconButton>
@@ -175,7 +177,7 @@ export default function Header() {
                         <TeamNav />
                     </Box>
                 </Drawer>
-            </Box>
+            </Box> */}
 
             <Box
                 sx={{
