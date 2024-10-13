@@ -59,6 +59,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
   }
 
 
+
   @belongsTo(() => School, {
     foreignKey: 'userSchoolId', 
   })
@@ -83,3 +84,4 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @belongsTo(() => User)
   declare ownedBy: BelongsTo<typeof User>
 }
+
