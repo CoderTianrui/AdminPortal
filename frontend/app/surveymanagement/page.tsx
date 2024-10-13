@@ -226,13 +226,13 @@ export default function SurveyManagementPage() {
                                             <td>{survey.title}</td>
                                             <td>{survey.description}</td>
                                             <td>{survey.level}</td>
-                                            {/* <td>
-                                                {survey.school.map((school) => (
+                                            <td>
+                                                {survey.school?.map((school) => (
                                                     <Chip key={school} variant="soft" color="primary">
                                                         {school}
                                                     </Chip>
                                                 ))}
-                                            </td> */}
+                                            </td>
                                             <td>
                                                 <Button variant="plain" size="sm" onClick={() => openSurveyModal(index)}>
                                                     ✏️

@@ -14,15 +14,15 @@ beforeAll(() => {
       };
     };
   });
-// test('renders the SurveyManagementPage and checks for basic elements', () => {
-//     render(<SurveyManagementPage />);
+test('renders the SurveyManagementPage and checks for basic elements', () => {
+    render(<SurveyManagementPage />);
 
-//     // Verify that "Survey Management" is present in the document
-//     const surveyManagementElements = screen.queryAllByText((content, element) => {
-//         return content.includes('Survey Management');
-//     });
-//     expect(surveyManagementElements.length).toBeGreaterThan(0);
-// });
+    // Verify that "Survey Management" is present in the document
+    const surveyManagementElements = screen.queryAllByText((content, element) => {
+        return content.includes('Survey Management');
+    });
+    expect(surveyManagementElements.length).toBeGreaterThan(0);
+});
 
 // test('submits a new survey and displays it in the list', () => {
 //     render(<SurveyManagementPage />);
