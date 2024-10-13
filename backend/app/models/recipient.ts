@@ -1,8 +1,7 @@
 import { DateTime } from 'luxon'
-import { column } from '@adonisjs/lucid/orm'
-import ManagedModel from './managed_model.js'
+import { BaseModel, column } from '@adonisjs/lucid/orm'
 
-export default class Recipient extends ManagedModel {
+export default class Recipient extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
 
