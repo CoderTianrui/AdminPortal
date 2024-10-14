@@ -1,8 +1,8 @@
 import User from '#models/user'
 import Group from '#models/group'
-import fs from 'fs'
+import fs from 'node:fs'
+import path from 'node:path'
 import yaml from 'js-yaml'
-import path from 'path'
 
 export default class PermissionService {
   private static permissionNodes: Record<string, string[]>
@@ -56,8 +56,7 @@ export default class PermissionService {
 
     // Then, apply user-specific permissions, overriding group permissions if necessary
     for (const perm of userPermissions) {
-      const [_, permString] = perm.startsWith('+') || perm.startsWith('-') ? [perm[0], perm.slice(1)] : ['', perm]
-      effectivePermissions[permString] = perm
+      effectivePermissions[perm.startsWith('+') || perm.startsWith('-') ? perm.slice(1) : perm] = perm
     }
 
     return Object.values(effectivePermissions)
