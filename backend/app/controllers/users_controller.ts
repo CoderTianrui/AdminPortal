@@ -15,8 +15,9 @@ export default class UsersController {
     const usersQuery = User.query().preload('school')
 
     if (search) {
-      // Search by first name or last name, optimized
-      usersQuery.whereILike('firstName', `%${search}%`).orWhereILike('lastName', `%${search}%`)
+      usersQuery.whereLike('firstName', `%${search}%`)
+        .orWhereLike('lastName', `%${search}%`)
+        .orWhereLike('email', `%${search}%`)
     }
 
     const users = await usersQuery.paginate(page)
