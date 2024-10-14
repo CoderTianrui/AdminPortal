@@ -161,7 +161,14 @@ interface Subscription {
 
 interface User {
     id: number;
+    first_name: string;
+    last_name: string;
     permissionMetadata: string[]; // 用户权限元数据，保存频道的订阅状态
+}
+
+interface Channel {
+    id: number;
+    title: string;
 }
 
 
@@ -174,6 +181,7 @@ export default function ManageSubscribedChannels() {
     
     
     const [userCache, setUserCache] = React.useState<{ [key: number]: User | null }>({}); // 缓存用户数据
+    const [channelCache, setChannelCache] = React.useState<{ [key: number]: Channel | null }>({});
 
 
     React.useEffect(() => {
@@ -184,7 +192,6 @@ export default function ManageSubscribedChannels() {
     const fetchSubscriptions = async () => {
         try {
             const response = await fetch('http://localhost:3333/subscriptions');
-            // const data = await response.json();
             const result = await response.json();
             const data = result.data;
 
@@ -193,28 +200,43 @@ export default function ManageSubscribedChannels() {
             // console.log(data);
 
     
-            // const subscriptions: Subscription[] = data.map((item: any) => ({
-            //     id: item.id,
-            //     user_id: item.userId,
-            //     channel_id: item.channelId,
-            //     action: item.action , // 'block' or 'unblock' based on user's permission_metadata
-            // }));
+            const subscriptions: Subscription[] = data.map((item: any) => ({
+                id: item.id,
+                user_id: item.userId,
+                channel_id: item.channelId,
+                action: item.action , // 'block' or 'unblock' based on user's permission_metadata
+            }));
 
-            const subscriptions: Subscription[] = await Promise.all(
-                data.map(async (item: any) => {
-                    const user = await fetchUserById(item.userId); // 根据 user_id 获取用户信息
-                    const action = determineAction(item.channelId, user); // 根据 permissionMetadata 确定 block/unblock
+            await Promise.all(subscriptions.map(async (subscription) => {
+                if (!channelCache[subscription.channel_id]) {
+                    const channel = await fetchChannelById(subscription.channel_id);
+                    setChannelCache((prev) => ({ ...prev, [subscription.channel_id]: channel }));
+                }
 
-                    return {
-                        id: item.id,
-                        user_id: item.userId,
-                        channel_id: item.channelId,
-                        action: action, // 'block' or 'unblock' based on user's permission_metadata
-                    };
-                })
-            );
+                if (!userCache[subscription.user_id]) {
+                    const user = await fetchUserById(subscription.user_id);
+                    setUserCache((prev) => ({ ...prev, [subscription.user_id]: user }));
+                }
+            }));
+
+            // const subscriptions: Subscription[] = await Promise.all(
+            //     data.map(async (item: any) => {
+            //         const user = await fetchUserById(item.userId); // 根据 user_id 获取用户信息
+            //         alert(JSON.stringify(user));
+            //         console.log('Fetched user:', user);
+            //         const action = determineAction(item.channelId, user); // 根据 permissionMetadata 确定 block/unblock
+
+            //         return {
+            //             id: item.id,
+            //             user_id: item.userId,
+            //             channel_id: item.channelId,
+            //             action: action, // 'block' or 'unblock' based on user's permission_metadata
+            //         };
+            //     })
+            // );
 
             alert(JSON.stringify(subscriptions));
+            console.log(subscriptions);
 
     
             setSubscriptionList(subscriptions);
@@ -223,18 +245,45 @@ export default function ManageSubscribedChannels() {
             console.error('Error fetching subscriptions:', error);
         }
     };
+    // const fetchUserById = async (userId: number): Promise<User | null> => {
+    //     if (userCache[userId]) {
+    //         return userCache[userId]; // 如果缓存中已有用户信息，直接返回
+    //     }
+
+    //     try {
+    //         const response = await fetch(`http://localhost:3333/users/${userId}`);
+    //         const user = await response.json();
+    //         setUserCache((prevCache) => ({ ...prevCache, [userId]: user })); // 将用户信息存入缓存
+    //         return user;
+    //     } catch (error) {
+    //         console.error(`Error fetching user with ID ${userId}:`, error);
+    //         return null;
+    //     }
+    // };
+
     const fetchUserById = async (userId: number): Promise<User | null> => {
         if (userCache[userId]) {
-            return userCache[userId]; // 如果缓存中已有用户信息，直接返回
+            return userCache[userId]; // 缓存中已有
         }
-
         try {
             const response = await fetch(`http://localhost:3333/users/${userId}`);
             const user = await response.json();
-            setUserCache((prevCache) => ({ ...prevCache, [userId]: user })); // 将用户信息存入缓存
             return user;
         } catch (error) {
             console.error(`Error fetching user with ID ${userId}:`, error);
+            return null;
+        }
+    };
+    const fetchChannelById = async (channelId: number): Promise<Channel | null> => {
+        if (channelCache[channelId]) {
+            return channelCache[channelId]; // 缓存中已有
+        }
+        try {
+            const response = await fetch(`http://localhost:3333/channels/${channelId}`);
+            const channel = await response.json();
+            return channel;
+        } catch (error) {
+            console.error(`Error fetching channel with ID ${channelId}:`, error);
             return null;
         }
     };
@@ -344,30 +393,32 @@ export default function ManageSubscribedChannels() {
                             <table className="table">
                                 <thead>
                                     <tr>
-                                        <th>Channel ID</th>
-                                        <th>Subscriber ID</th>
+                                        <th>Channel Name</th>
+                                        <th>Subscriber Name</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    
-                                    {filteredSubscriptionList.map((subscription, index) => (
-                                        <tr key={index}>
-                                            
-                                            <td>{subscription.channel_id}</td>
-                                            <td>{subscription.user_id}</td>
-                                            <td>
-                                                <Button
-                                                    variant="soft"
-                                                    color={subscription.action === 'block' ? 'danger' : 'success'}
-                                                    size="sm"
-                                                    onClick={() => toggleAction(index)}
-                                                >
-                                                    {subscription.action}
-                                                </Button>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    {filteredSubscriptionList.map((subscription, index) => {
+                                        const channel = channelCache[subscription.channel_id];
+                                        const user = userCache[subscription.user_id];
+                                        return (
+                                            <tr key={index}>
+                                                <td>{channel ? channel.title : 'Loading...'}</td>
+                                                <td>{user ? `${user.first_name} ${user.last_name}` : 'Loading...'}</td>
+                                                <td>
+                                                    <Button
+                                                        variant="soft"
+                                                        color={subscription.action === 'block' ? 'danger' : 'success'}
+                                                        size="sm"
+                                                        onClick={() => toggleAction(index)}
+                                                    >
+                                                        {subscription.action}
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </Box>

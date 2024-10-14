@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column, manyToMany } from '@adonisjs/lucid/orm'
-// import Channel from './channel.js'
-// import User from './user.js'
+import Channel from './channel.js'
+import User from './user.js'
 // import type { ManyToMany } from '@adonisjs/lucid/types/relations'
 
 export default class Subscriptions extends BaseModel {
