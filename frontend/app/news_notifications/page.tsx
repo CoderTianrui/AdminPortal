@@ -276,7 +276,7 @@ export default function NewsNotificationManagementPage() {
                 <Layout.Main>
                     <Box sx={{ width: '100%', padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
                         <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>News and Notification Management</h1>
-                        
+
                         {/* News Section */}
                         <Box className="section-container">
                             <Box sx={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', gap: 1 }}>
@@ -292,7 +292,25 @@ export default function NewsNotificationManagementPage() {
                                         sx={{ width: '300px' }}
                                     />
                                 </Box>
+                                <Button
+                                    variant="plain"
+                                    color="neutral"
+                                    size="sm"
+                                    component="a"
+                                    href="/news_notifications/subscribed_news_channels/"
+                                    sx={{
+                                        backgroundColor: 'red',
+                                        color: 'white',
+                                        '&:hover': {
+                                            backgroundColor: 'darkred',
+                                        },
+                                        alignSelf: 'center',
+                                    }}
+                                >
+                                    Manage Subscribed News Channels
+                                </Button>
                             </Box>
+                            
                             {/* Modal for Create or Edit News */}
                             {isNewsModalOpen && (
                                 <div className="modal-overlay">
@@ -353,7 +371,11 @@ export default function NewsNotificationManagementPage() {
                                         {Array.isArray(filteredNewsList) && filteredNewsList.map((news, index) => (
                                             <tr key={index}>
                                                 <td>{news.title}</td>
-                                                <td>{news.url}</td>
+                                                <td>
+                                                    <a href={news.url} target="_blank" rel="noopener noreferrer" style={{ color: 'blue', textDecoration: 'underline' }}>
+                                                        {news.url}
+                                                    </a>
+                                                </td>
                                                 <td>{news.date}</td>
                                                 <td>{news.recipients}</td>
                                                 <td>

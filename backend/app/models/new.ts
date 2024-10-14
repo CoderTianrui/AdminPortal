@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, manyToMany } from '@adonisjs/lucid/orm'
+import { BaseModel, column } from '@adonisjs/lucid/orm'
 //import type { ManyToMany } from '@adonisjs/lucid/types/relations'
 //import Recipient from './recipient.js'
 import Channel from './channel.js'
