@@ -29,12 +29,13 @@ export default function DailyMoodPage() {
     const [moodList, setMoodList] = React.useState<Mood[]>([
         {
             name: 'Excitement',
-            image: 'https://via.placeholder.com/50', 
+            image: 'https://via.placeholder.com/50',
         },
     ]);
 
     const [newMood, setNewMood] = React.useState<Mood>({ name: '', image: '' });
     const [isModalOpen, setIsModalOpen] = React.useState(false);
+    const [editIndex, setEditIndex] = React.useState<number | null>(null);
 
     const [sosNotifications, setSosNotifications] = React.useState<SOSNotification[]>([
         {
@@ -47,25 +48,60 @@ export default function DailyMoodPage() {
         },
     ]);
 
+    const [searchTerm, setSearchTerm] = React.useState('');
+
     const handleMoodChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setNewMood({ ...newMood, [e.target.name]: e.target.value });
     };
 
     const submitMood = () => {
-        setMoodList([...moodList, newMood]);
+        if (!newMood.name || !newMood.image) {
+            alert('Please fill in both the name and the image URL.');
+            return;
+        }
+
+        if (editIndex !== null) {
+            const updatedMoodList = moodList.map((mood, i) =>
+                i === editIndex ? newMood : mood
+            );
+            setMoodList(updatedMoodList);
+        } else {
+            setMoodList([...moodList, newMood]);
+        }
+
         setNewMood({ name: '', image: '' });
         setIsModalOpen(false);
+        setEditIndex(null);
+    };
+
+    const editMood = (index: number) => {
+        const moodToEdit = moodList[index];
+        setNewMood(moodToEdit);
+        setIsModalOpen(true);
+        setEditIndex(index);
     };
 
     const deleteMood = (index: number) => {
-        const updatedMoodList = moodList.filter((_, i) => i !== index);
-        setMoodList(updatedMoodList);
+        if (window.confirm('Are you sure you want to delete this mood?')) {
+            const updatedMoodList = moodList.filter((_, i) => i !== index);
+            setMoodList(updatedMoodList);
+        }
     };
 
     const deleteNotification = (index: number) => {
-        const updatedNotifications = sosNotifications.filter((_, i) => i !== index);
-        setSosNotifications(updatedNotifications);
+        if (window.confirm('Are you sure you want to delete this notification?')) {
+            const updatedNotifications = sosNotifications.filter((_, i) => i !== index);
+            setSosNotifications(updatedNotifications);
+        }
     };
+
+    const sendNotification = (index: number) => {
+        alert(`Notification sent to ${sosNotifications[index].contact}`);
+    };
+
+    const filteredMoods = moodList.filter((mood) =>
+        mood.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <CssVarsProvider disableTransitionOnChange>
@@ -86,6 +122,8 @@ export default function DailyMoodPage() {
                             </Button>
                             <Input
                                 placeholder="Search Moods"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
                                 endDecorator={<Button variant="outlined">Filter</Button>}
                                 sx={{ width: '300px' }}
                             />
@@ -101,13 +139,14 @@ export default function DailyMoodPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {moodList.map((mood, index) => (
+                                    {filteredMoods.map((mood, index) => (
                                         <tr key={index}>
                                             <td>{mood.name}</td>
                                             <td>
-                                                <img src={mood.image} alt="Mood" style={{ width: '50px', height: '50px' }} />
+                                                <img src={mood.image || 'https://via.placeholder.com/50'} alt="Mood" style={{ width: '50px', height: '50px' }} />
                                             </td>
                                             <td>
+                                                <Button variant="plain" size="sm" onClick={() => editMood(index)}>✏️</Button>
                                                 <Button variant="plain" size="sm" onClick={() => deleteMood(index)}>❌</Button>
                                             </td>
                                         </tr>
@@ -133,7 +172,7 @@ export default function DailyMoodPage() {
                                     {sosNotifications.map((notification, index) => (
                                         <tr key={index}>
                                             <td>
-                                                <img src={notification.profileImage} alt="Profile" className="profile-image" />
+                                                <img src={notification.profileImage || 'https://via.placeholder.com/50'} alt="Profile" className="profile-image" />
                                                 {notification.name}
                                                 <br />
                                                 {notification.email}
@@ -142,7 +181,9 @@ export default function DailyMoodPage() {
                                             <td>{notification.school}</td>
                                             <td>{notification.contact}</td>
                                             <td>
-                                                <Button variant="solid" size="sm" color="primary">Send</Button>
+                                                <Button variant="solid" size="sm" color="primary" onClick={() => sendNotification(index)}>
+                                                    Send
+                                                </Button>
                                                 <Button variant="plain" size="sm">✏️</Button>
                                                 <Button variant="plain" size="sm" onClick={() => deleteNotification(index)}>❌</Button>
                                             </td>
@@ -158,7 +199,7 @@ export default function DailyMoodPage() {
                             <div className="modal-content">
                                 <button className="modal-close" onClick={() => setIsModalOpen(false)}>✖️</button>
                                 <div className="modal-body">
-                                <label htmlFor="moodName">Mood Name</label>
+                                    <label htmlFor="moodName">Mood Name</label>
                                     <input
                                         id="moodName"
                                         type="text"

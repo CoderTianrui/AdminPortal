@@ -1,8 +1,6 @@
-
 .daily-mood-container {
     padding: 20px;
 }
-
 
 .page-title {
     font-size: 2.0rem;
@@ -26,6 +24,14 @@
     margin-right: 10px;
 }
 
+.add-mood-button:hover {
+    background-color: #0056b3;
+}
+
+.add-mood-button:active {
+    background-color: #004080;
+}
+
 .search-input {
     flex-grow: 1;
     padding: 8px;
@@ -33,11 +39,11 @@
     border: 1px solid #ccc;
 }
 
-
 .table {
     width: 100%;
     border-collapse: collapse; 
     margin-bottom: 20px;
+    overflow-x: auto;
 }
 
 .table th, .table td {
@@ -62,6 +68,11 @@
     object-fit: cover;
     margin-right: 10px;
     vertical-align: middle;
+    border: 2px solid #ddd;
+}
+
+.mood-image:hover, .profile-image:hover {
+    border-color: #007bff;
 }
 
 .action-button {
@@ -80,6 +91,73 @@
     cursor: pointer;
 }
 
+.status-button:hover {
+    background-color: #0056b3;
+}
+
+.status-button:active {
+    background-color: #004080;
+}
+
+
+.status-button.loading {
+    background-color: #ccc;
+    cursor: not-allowed;
+    pointer-events: none;
+    position: relative;
+}
+
+.status-button.loading::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border: 2px solid white;
+    border-radius: 50%;
+    border-right-color: transparent;
+    animation: spin 0.8s linear infinite;
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.table tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+.table tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+@media (max-width: 768px) {
+    .table thead {
+        display: none; 
+    }
+
+    .table, .table tbody, .table tr, .table td {
+        display: block;
+        width: 100%;
+    }
+
+    .table td {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        text-align: right;
+    }
+
+    .table td::before {
+        content: attr(data-label);
+        float: left;
+        font-weight: bold;
+    }
+}
+
 /* SOS Notifications */
 .sos-title {
     font-size: 1.5rem;
@@ -93,7 +171,6 @@
     margin-top: 40px;
     margin-bottom: 20px;
 }
-
 
 .modal-overlay {
     position: fixed;
@@ -138,6 +215,19 @@
     flex-direction: column;
     gap: 15px;
     margin-top: 10px;
+}
+
+.modal-body input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.modal-body label {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 5px;
 }
 
 .submit-button {
