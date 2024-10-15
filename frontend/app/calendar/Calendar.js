@@ -1,12 +1,10 @@
-// Calendar.js
-
 import React, { useState, useEffect } from 'react';
 import './Calendar.css';
 
-const Calendar = ({ sx }) => {
+const Calendar = ({ sx, initialEvents }) => {
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-    const [events, setEvents] = useState([]);
+    const [events, setEvents] = useState(initialEvents || []); // 使用 initialEvents 作为初始事件
     const [selectedDate, setSelectedDate] = useState(null);
     const [newEvent, setNewEvent] = useState({ title: '', startTime: '', endTime: '', memo: '' });
     const [showForm, setShowForm] = useState(false);
@@ -241,7 +239,7 @@ const Calendar = ({ sx }) => {
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <input
                                 type="text"
-                                value={selectedDate}
+                                value={selectedDate || ''}
                                 readOnly
                                 className="modal-input"
                             />
@@ -256,7 +254,7 @@ const Calendar = ({ sx }) => {
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <input
                                 type="text"
-                                value={selectedDate}
+                                value={selectedDate || ''}
                                 readOnly
                                 className="modal-input"
                             />
