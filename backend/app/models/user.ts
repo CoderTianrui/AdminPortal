@@ -1,11 +1,13 @@
 import { DateTime } from 'luxon'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
-import { BaseModel, belongsTo, column, computed } from '@adonisjs/lucid/orm'
+import type { ManyToMany } from '@adonisjs/lucid/types/relations'
+import { BaseModel, belongsTo, column, manyToMany, computed} from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import School from './school.js'
 import PermissionService from '#services/permission_service'
+import {Profile, Access} from './profile_access_enums.js'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],
@@ -28,7 +30,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare email: string
 
   @column({ serializeAs: null })
-  declare password: string
+  declare password: string | null
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -37,7 +39,13 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare updatedAt: DateTime | null
 
   @column()
-  declare profile: string
+  declare profile: Profile
+
+  @column()
+  declare access: Access
+
+  @column()
+  declare userSchoolId: number | null
 
   @column({
     prepare: (value) => JSON.stringify(value),
@@ -56,11 +64,11 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
     // match case-insensitive
     const exactMatch = effectivePermissions.find(p => p.toLowerCase().endsWith(permission.toLowerCase()))
-    
+
     if (exactMatch) {
       return exactMatch.startsWith('+') || !exactMatch.startsWith('-')
     }
-    
+
     return false
   }
 
@@ -68,17 +76,20 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare userSchoolId: number
 
   @belongsTo(() => School, {
-    foreignKey: 'userSchoolId', // Points to the foreign key column
+    foreignKey: 'userSchoolId',
   })
   declare school: BelongsTo<typeof School>
 
-  @column()
-  declare relationUserId: number
 
-  @belongsTo(() => User, {
-    foreignKey: 'relationUserId',
+  @manyToMany(() => User, {
+    pivotTable: 'related_users',
+    localKey: 'id',
+    pivotForeignKey: 'user_id',
+    relatedKey: 'id',
+    pivotRelatedForeignKey: 'related_user_id',
+    pivotTimestamps: true,
   })
-  declare relationUser: BelongsTo<typeof User>
+  declare relatedUsers: ManyToMany<typeof User>;
 
   @column()
   declare profileImage: string | null

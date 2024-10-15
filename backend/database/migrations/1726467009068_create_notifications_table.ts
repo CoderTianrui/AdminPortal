@@ -13,7 +13,9 @@ export default class extends BaseSchema {
       table.integer('owned_by_id').unsigned().references('users.id').onDelete('CASCADE')
 
       table.string('title').notNullable()
-      table.string('description', 254).notNullable()
+      table.string('content', 254).notNullable()
+      table.dateTime('date').notNullable()
+      table.string('recipients').notNullable()
     })
   }
 
