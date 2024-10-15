@@ -13,8 +13,8 @@ export default class MoodController {
    * Handle form submission for the create action
    */
   async store({ request, response }: HttpContext) {
-    const data = request.only(['name', 'imageUrl']);  // 只接收这两个字段
-    console.log('Received data:', data); // 日志输出，检查收到的数据
+    const data = request.only(['name', 'imageUrl']);  
+    console.log('Received data:', data); 
 
     try {
         const mood = await Mood.create(data);
