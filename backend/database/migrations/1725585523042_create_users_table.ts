@@ -1,6 +1,7 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
 // generate default data for the application
-import User from '../../app/models/user.js'
+import User from '#models/user'
+import { Profile, Access } from '#models/profile_access_enums'
 
 export default class extends BaseSchema {
   protected tableName = 'users'
@@ -31,7 +32,8 @@ export default class extends BaseSchema {
         "firstName": "admin",
         "email": "admin@test.gg",
         "password": "password",
-        "profile": "admin",
+        "profile": Profile.Admin,
+        "access": Access.Full,
         "permissionMetadata": ["User.admin"]
       }
     )
