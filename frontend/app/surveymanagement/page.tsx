@@ -32,11 +32,7 @@ interface Survey {
 export default function SurveyManagementPage() {
     const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [isSurveyModalOpen, setIsSurveyModalOpen] = React.useState(false);
-    const [surveyList, setSurveyList] = React.useState<Survey[]>([
-        // {title: 'Survey 1', description: 'This is a description of survey 1', level: '1', school: ['University Of Sydney', 'University of Melbourne']},
-        // {title: 'Survey 2', description: 'This is a description of survey 2', level: '2', school: ['University Of Sydney', 'University of New South Wales']},
-        // {title: 'Survey 3', description: 'This is a description of survey 3', level: '3', school: ['University Of Sydney', 'University of Technology Sydney']}
-    ]);
+    const [surveyList, setSurveyList] = React.useState<Survey[]>([]);
     const [schools, setSchools] = React.useState<School[]>([]);
     const [newSurvey, setNewSurvey] = React.useState<Survey>({ id: '', title: '', description: '', level: '', school: [] });
     const [editSurveyIndex, setEditSurveyIndex] = React.useState<number | null>(null);
@@ -110,10 +106,6 @@ export default function SurveyManagementPage() {
         }));
     };
 
-
-    // const handleSurveyChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    //     setNewSurvey({ ...newSurvey, [e.target.name]: e.target.value });
-    // };
 
     const handleSurveySearchQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSurveySearchQuery(e.target.value);
