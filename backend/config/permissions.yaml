@@ -1,0 +1,55 @@
+User:
+  - create
+  - read
+  - update
+  - delete
+  - list
+
+Event:
+  - create
+  - read
+  - update
+  - delete
+  - list
+
+News:
+  - create
+  - read
+  - update
+  - delete
+  - list
+
+Notification:
+  - create
+  - read
+  - update
+  - delete
+  - list
+
+Recipient:
+  - create
+  - read
+  - update
+  - delete
+  - list
+
+School:
+  - create
+  - read
+  - update
+  - delete
+  - list
+
+SosMessage:
+  - create
+  - read
+  - update
+  - delete
+  - list
+
+Survey:
+  - create
+  - read
+  - update
+  - delete
+  - list
