@@ -6,27 +6,34 @@ import CssBaseline from '@mui/joy/CssBaseline';
 import Button from '@mui/joy/Button';
 import Input from '@mui/joy/Input';
 import Box from '@mui/joy/Box';
+import Select from '@mui/joy/Select'; 
+import Option from '@mui/joy/Option'; 
+import Chip from '@mui/joy/Chip';     
 import Layout from '../components/layout';
 import Header from '../components/header';
 import Navigation from '../components/navigation';
 
 import './NewsNotificationsManagement.css';
 
-// Define the types for News and Notification
+interface School {
+    id: string;
+    name: string;
+}
+
 interface News {
-    id?: number; // Allow for optional id during creation
+    id?: number;
     title: string;
     url: string;
     date: string;
-    recipients: string;
+    recipients: School[];
 }
 
 interface Notification {
-    id?: number; // Allow for optional id during creation
+    id?: number;
     title: string;
     content: string;
     date: string;
-    recipients: string;
+    recipients: School[];
 }
 
 export default function NewsNotificationManagementPage() {
@@ -36,9 +43,10 @@ export default function NewsNotificationManagementPage() {
 
     const [newsList, setNewsList] = React.useState<News[]>([]);
     const [notificationList, setNotificationList] = React.useState<Notification[]>([]);
+    const [schools, setSchools] = React.useState<School[]>([]);
 
-    const [newNews, setNewNews] = React.useState<News>({ title: '', url: '', date: '', recipients: '' });
-    const [newNotification, setNewNotification] = React.useState<Notification>({ title: '', content: '', date: '', recipients: '' });
+    const [newNews, setNewNews] = React.useState<News>({ title: '', url: '', date: '', recipients: [] });
+    const [newNotification, setNewNotification] = React.useState<Notification>({ title: '', content: '', date: '', recipients: [] });
 
     const [editNewsIndex, setEditNewsIndex] = React.useState<number | null>(null);
     const [editNotificationIndex, setEditNotificationIndex] = React.useState<number | null>(null);
@@ -50,25 +58,27 @@ export default function NewsNotificationManagementPage() {
     const [filteredNotificationList, setFilteredNotificationList] = React.useState<Notification[]>(notificationList);
 
     React.useEffect(() => {
-        // Fetch the initial news and notification lists when the component mounts
         fetchNews();
         fetchNotifications();
+        fetchSchools();  // Fetch schools for the dropdown
     }, []);
+
+    const fetchSchools = async () => {
+        try {
+            const response = await fetch('http://localhost:3333/schools');
+            const data = await response.json();
+            setSchools(data.data || []);
+        } catch (error) {
+            console.error('Error fetching schools:', error);
+        }
+    };
 
     const fetchNews = async () => {
         try {
             const response = await fetch('http://localhost:3333/news');
             const jsonData = await response.json();
-            // Extract the data from the JSON structure
-            const data: News[] = jsonData.data.map((newsItem: any) => ({
-                id: newsItem.id,
-                title: newsItem.title,
-                url: newsItem.url,
-                date: new Date(newsItem.date).toISOString().split('T')[0], // Format date if necessary
-                recipients: newsItem.recipients,
-            }));
-            setNewsList(data);
-            setFilteredNewsList(data);
+            setNewsList(jsonData.data);
+            setFilteredNewsList(jsonData.data);
         } catch (error) {
             console.error('Error fetching news:', error);
         }
@@ -78,16 +88,8 @@ export default function NewsNotificationManagementPage() {
         try {
             const response = await fetch('http://localhost:3333/notifications');
             const jsonData = await response.json();
-            // Extract the notifications data from the JSON structure
-            const notifications: Notification[] = jsonData.data.map((notificationItem: any) => ({
-                id: notificationItem.id,
-                title: notificationItem.title,
-                content: notificationItem.content,
-                date: new Date(notificationItem.date).toISOString().split('T')[0], // Format date if necessary
-                recipients: notificationItem.recipients,
-            }));
-            setNotificationList(notifications);
-            setFilteredNotificationList(notifications);
+            setNotificationList(jsonData.data);
+            setFilteredNotificationList(jsonData.data);
         } catch (error) {
             console.error('Error fetching notifications:', error);
         }
@@ -103,7 +105,7 @@ export default function NewsNotificationManagementPage() {
 
     const closeNewsModal = () => {
         setIsNewsModalOpen(false);
-        setNewNews({ title: '', url: '', date: '', recipients: '' });
+        setNewNews({ title: '', url: '', date: '', recipients: [] });
         setEditNewsIndex(null);
     };
 
@@ -117,7 +119,7 @@ export default function NewsNotificationManagementPage() {
 
     const closeNotificationModal = () => {
         setIsNotificationModalOpen(false);
-        setNewNotification({ title: '', content: '', date: '', recipients: '' });
+        setNewNotification({ title: '', content: '', date: '', recipients: [] });
         setEditNotificationIndex(null);
     };
 
@@ -153,33 +155,29 @@ export default function NewsNotificationManagementPage() {
     };
 
     const submitNews = async () => {
+        const recipients = newNews.recipients;
+
         if (editNewsIndex !== null) {
             // Edit existing news
             try {
-                const updatedNews = await fetch(`http://localhost:3333/news/${newsList[editNewsIndex].id}`, {
+                await fetch(`http://localhost:3333/news/${newsList[editNewsIndex].id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newNews),
+                    body: JSON.stringify({ ...newNews, recipients }),
                 });
-                const updatedData = await updatedNews.json();
-                const updatedNewsList = [...newsList];
-                updatedNewsList[editNewsIndex] = updatedData;
-                setNewsList(updatedNewsList);
-                setFilteredNewsList(updatedNewsList);
+                fetchNews();
             } catch (error) {
                 console.error('Error updating news:', error);
             }
         } else {
             // Add new news
             try {
-                const response = await fetch('http://localhost:3333/news', {
+                await fetch('http://localhost:3333/news', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newNews),
+                    body: JSON.stringify({ ...newNews, recipients }),
                 });
-                const createdNews = await response.json();
-                // Refetch the news list to get all news including the newly added one
-                fetchNews();  // Call fetchNews to get the latest data from the server
+                fetchNews();
             } catch (error) {
                 console.error('Error creating news:', error);
             }
@@ -188,34 +186,27 @@ export default function NewsNotificationManagementPage() {
     };
 
     const submitNotification = async () => {
+        const recipients = newNotification.recipients;
+
         if (editNotificationIndex !== null) {
-            // Edit existing notification
             try {
-                const updatedNotification = await fetch(`http://localhost:3333/notifications/${notificationList[editNotificationIndex].id}`, {
+                await fetch(`http://localhost:3333/notifications/${notificationList[editNotificationIndex].id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newNotification),
+                    body: JSON.stringify({ ...newNotification, recipients }),
                 });
-                const updatedData = await updatedNotification.json();
-                const updatedNotificationList = [...notificationList];
-                updatedNotificationList[editNotificationIndex] = updatedData;
-                setNotificationList(updatedNotificationList);
-                setFilteredNotificationList(updatedNotificationList);
+                fetchNotifications();
             } catch (error) {
                 console.error('Error updating notification:', error);
             }
         } else {
-            // Add new notification
             try {
-                const response = await fetch('http://localhost:3333/notifications', {
+                await fetch('http://localhost:3333/notifications', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newNotification),
+                    body: JSON.stringify({ ...newNotification, recipients }),
                 });
-                const createdNotification = await response.json();
-                const updatedNotificationList = [...notificationList, createdNotification];
-                setNotificationList(updatedNotificationList);
-                setFilteredNotificationList(updatedNotificationList);
+                fetchNotifications();
             } catch (error) {
                 console.error('Error creating notification:', error);
             }
@@ -229,9 +220,7 @@ export default function NewsNotificationManagementPage() {
             await fetch(`http://localhost:3333/news/${newsToDelete.id}`, {
                 method: 'DELETE',
             });
-            const updatedNewsList = newsList.filter((_, i) => i !== index);
-            setNewsList(updatedNewsList);
-            setFilteredNewsList(updatedNewsList);
+            fetchNews();
         } catch (error) {
             console.error('Error deleting news:', error);
         }
@@ -243,9 +232,7 @@ export default function NewsNotificationManagementPage() {
             await fetch(`http://localhost:3333/notifications/${notificationToDelete.id}`, {
                 method: 'DELETE',
             });
-            const updatedNotificationList = notificationList.filter((_, i) => i !== index);
-            setNotificationList(updatedNotificationList);
-            setFilteredNotificationList(updatedNotificationList);
+            fetchNotifications();
         } catch (error) {
             console.error('Error deleting notification:', error);
         }
@@ -292,6 +279,7 @@ export default function NewsNotificationManagementPage() {
                                         sx={{ width: '300px' }}
                                     />
                                 </Box>
+
                                 <Button
                                     variant="plain"
                                     color="neutral"
@@ -311,7 +299,6 @@ export default function NewsNotificationManagementPage() {
                                 </Button>
                             </Box>
                             
-                            {/* Modal for Create or Edit News */}
                             {isNewsModalOpen && (
                                 <div className="modal-overlay">
                                     <div className="modal-content">
@@ -334,15 +321,43 @@ export default function NewsNotificationManagementPage() {
                                                 value={newNews.date}
                                                 onChange={handleNewsChange}
                                             />
-                                            <label>Recipient</label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                placeholder="Enter recipient"
-                                                name="recipients"
-                                                value={newNews.recipients}
-                                                onChange={handleNewsChange}
-                                            />
+
+                                            <label>Recipients</label>
+                                            <Select
+                                                multiple
+                                                value={newNews.recipients.length > 0 ? newNews.recipients.map((recipients) => recipients.id) : []} // Handle no selected schools (empty array)
+                                                onChange={(event, newValue) => {
+                                                    const selectedSchools = newValue.length > 0
+                                                        ? newValue.map((schoolId) => schools.find((recipients) => recipients.id === schoolId))
+                                                        .filter((recipients) => recipients !== undefined)
+                                                        : [];
+                                                    setNewNews((prevNews) => ({
+                                                        ...prevNews,
+                                                        recipients: selectedSchools as School[]
+                                                    }));
+                                                }}
+                                                renderValue={(selected) => (
+                                                    <Box sx={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                                                        {selected.map((option, i) => {
+                                                            const schoolId = option.value;
+                                                            const recipients = schools.find((s) => s.id === schoolId);
+                                                            return (
+                                                                <Chip key={i} variant="soft" color="primary">
+                                                                    {recipients?.name}
+                                                                </Chip>
+                                                            );
+                                                        })}
+                                                    </Box>
+                                                )}
+                                                sx={{ minWidth: '15rem' }}
+                                            >
+                                                {schools.map((recipients) => (
+                                                    <Option key={recipients.id} value={recipients.id}>
+                                                        {recipients.name}
+                                                    </Option>
+                                                ))}
+                                            </Select>
+
                                             <label>URL</label>
                                             <textarea
                                                 className="form-control"
@@ -362,7 +377,7 @@ export default function NewsNotificationManagementPage() {
                                         <tr>
                                             <th>News Title</th>
                                             <th>News URL</th>
-                                            <th>Date Created</th>
+                                            <th>Date</th>
                                             <th>Recipients</th>
                                             <th>Actions</th>
                                         </tr>
@@ -377,7 +392,24 @@ export default function NewsNotificationManagementPage() {
                                                     </a>
                                                 </td>
                                                 <td>{news.date}</td>
-                                                <td>{news.recipients}</td>
+                                                <td>
+                                                {Array.isArray(news.recipients) && news.recipients.length > 0
+                                                    ? news.recipients.map((s, i) => (
+                                                        <span key={i}>
+                                                        {s?.name}{i < news.recipients.length - 1 ? ', ' : ''}
+                                                        </span>
+                                                    ))
+                                                    // : survey.school && typeof survey.school === 'object'
+                                                    // ? survey.school.name
+                                                    : 'No School'
+                                                }
+                                                
+                                                {/* {survey.school?.map((school) => (
+                                                    <Chip key={school} variant="soft" color="primary">
+                                                        {school}
+                                                    </Chip> */}
+                                                
+                                                </td>
                                                 <td>
                                                     <Button variant="plain" size="sm" onClick={() => openNewsModal(index)}>✏️</Button>
                                                     <Button variant="plain" size="sm" onClick={() => deleteNews(index)}>❌</Button>
@@ -403,7 +435,7 @@ export default function NewsNotificationManagementPage() {
                                     sx={{ width: '300px' }}
                                 />
                             </Box>
-                            {/* Modal for Create or Edit Notification */}
+
                             {isNotificationModalOpen && (
                                 <div className="modal-overlay">
                                     <div className="modal-content">
@@ -426,21 +458,49 @@ export default function NewsNotificationManagementPage() {
                                                 value={newNotification.date}
                                                 onChange={handleNotificationChange}
                                             />
+
+                                            <label>Recipients</label>
+                                            <Select
+                                                multiple
+                                                value={newNotification.recipients.length > 0 ? newNotification.recipients.map((school) => school.id) : []} // Handle no selected schools (empty array)
+                                                onChange={(event, newValue) => {
+                                                    const selectedSchools = newValue.length > 0
+                                                        ? newValue.map((schoolId) => schools.find((school) => school.id === schoolId))
+                                                        .filter((school) => school !== undefined)
+                                                        : [];
+                                                    setNewNotification((prevNews) => ({
+                                                        ...prevNews,
+                                                        recipients: selectedSchools as School[]
+                                                    }));
+                                                }}
+                                                renderValue={(selected) => (
+                                                    <Box sx={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                                                        {selected.map((option, i) => {
+                                                            const schoolId = option.value;
+                                                            const school = schools.find((s) => s.id === schoolId);
+                                                            return (
+                                                                <Chip key={i} variant="soft" color="primary">
+                                                                    {school?.name}
+                                                                </Chip>
+                                                            );
+                                                        })}
+                                                    </Box>
+                                                )}
+                                                sx={{ minWidth: '15rem' }}
+                                            >
+                                                {schools.map((school) => (
+                                                    <Option key={school.id} value={school.id}>
+                                                        {school.name}
+                                                    </Option>
+                                                ))}
+                                            </Select>
+
                                             <label>Content</label>
                                             <textarea
                                                 className="form-control"
                                                 placeholder="Enter content"
                                                 name="content"
                                                 value={newNotification.content}
-                                                onChange={handleNotificationChange}
-                                            />
-                                            <label>Recipient</label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                placeholder="Enter recipient"
-                                                name="recipients"
-                                                value={newNotification.recipients}
                                                 onChange={handleNotificationChange}
                                             />
                                         </div>
@@ -454,7 +514,7 @@ export default function NewsNotificationManagementPage() {
                                         <tr>
                                             <th>Notification Title</th>
                                             <th>Notification Content</th>
-                                            <th>Date Created</th>
+                                            <th>Date</th>
                                             <th>Recipients</th>
                                             <th>Actions</th>
                                         </tr>
@@ -465,7 +525,24 @@ export default function NewsNotificationManagementPage() {
                                                 <td>{notification.title}</td>
                                                 <td>{notification.content}</td>
                                                 <td>{notification.date}</td>
-                                                <td>{notification.recipients}</td>
+                                                <td>
+                                                {Array.isArray(notification.recipients) && notification.recipients.length > 0
+                                                    ? notification.recipients.map((s, i) => (
+                                                        <span key={i}>
+                                                        {s?.name}{i < notification.recipients.length - 1 ? ', ' : ''}
+                                                        </span>
+                                                    ))
+                                                    // : survey.school && typeof survey.school === 'object'
+                                                    // ? survey.school.name
+                                                    : 'No School'
+                                                }
+                                                
+                                                {/* {survey.school?.map((school) => (
+                                                    <Chip key={school} variant="soft" color="primary">
+                                                        {school}
+                                                    </Chip> */}
+                                                
+                                                </td>
                                                 <td>
                                                     <Button variant="plain" size="sm" onClick={() => openNotificationModal(index)}>✏️</Button>
                                                     <Button variant="plain" size="sm" onClick={() => deleteNotification(index)}>❌</Button>
