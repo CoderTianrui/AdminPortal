@@ -20,20 +20,26 @@ import Typography from '@mui/joy/Typography';
 import * as React from 'react';
 
 import { CalendarMonthRounded, MoodRounded, NewspaperRounded, SchoolRounded, SupervisedUserCircleRounded } from '@mui/icons-material';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import ColorSchemeToggle from './ColorSchemeToggle';
 import { closeSidebar } from './utils';
 
-function Toggler(props: {
+function Toggler({
+    defaultExpanded = false,
+    renderToggle,
+    children,
+    defaultOpen = false
+}: {
     defaultExpanded?: boolean;
     children: React.ReactNode;
     renderToggle: (params: {
         open: boolean;
         setOpen: React.Dispatch<React.SetStateAction<boolean>>;
     }) => React.ReactNode;
+    defaultOpen?: boolean;
 }) {
-    const { defaultExpanded = false, renderToggle, children } = props;
-    const [open, setOpen] = React.useState(defaultExpanded);
+    const [open, setOpen] = React.useState(defaultOpen || defaultExpanded);
     return (
         <React.Fragment>
             {renderToggle({ open, setOpen })}
@@ -56,6 +62,7 @@ function Toggler(props: {
 }
 
 export default function Sidebar() {
+    const pathname = usePathname();
     return (
         <Sheet
             className="Sidebar"
@@ -140,7 +147,7 @@ export default function Sidebar() {
                     }}
                 >
                     <ListItem>
-                        <ListItemButton component={Link} href="/homepage" selected>
+                        <ListItemButton component={Link} href="/homepage" selected={pathname === '/homepage'}>
                             <HomeRoundedIcon />
                             <ListItemContent>
                                 <Typography level="title-sm">Home</Typography>
@@ -148,7 +155,7 @@ export default function Sidebar() {
                         </ListItemButton>
                     </ListItem>
                     <ListItem>
-                        <ListItemButton component={Link} href="/school">
+                        <ListItemButton component={Link} href="/school" selected={pathname === '/school'}>
                             <SchoolRounded />
                             <ListItemContent>
                                 <Typography level="title-sm">Schools</Typography>
@@ -156,7 +163,7 @@ export default function Sidebar() {
                         </ListItemButton>
                     </ListItem>
                     <ListItem>
-                        <ListItemButton component={Link} href="/surveymanagement">
+                        <ListItemButton component={Link} href="/surveymanagement" selected={pathname === '/surveymanagement'}>
                             <AssignmentRoundedIcon />
                             <ListItemContent>
                                 <Typography level="title-sm">Surveys</Typography>
@@ -164,7 +171,7 @@ export default function Sidebar() {
                         </ListItemButton>
                     </ListItem>
                     <ListItem>
-                        <ListItemButton component={Link} href="/news_notifications">
+                        <ListItemButton component={Link} href="/news_notifications" selected={pathname === '/news_notifications'}>
                             <NewspaperRounded />
                             <ListItemContent>
                                 <Typography level="title-sm">News Notifications</Typography>
@@ -172,7 +179,7 @@ export default function Sidebar() {
                         </ListItemButton>
                     </ListItem>
                     <ListItem>
-                        <ListItemButton component={Link} href="/calendar">
+                        <ListItemButton component={Link} href="/calendar" selected={pathname === '/calendar'}>
                             <CalendarMonthRounded />
                             <ListItemContent>
                                 <Typography level="title-sm">Calender</Typography>
@@ -180,7 +187,7 @@ export default function Sidebar() {
                         </ListItemButton>
                     </ListItem>
                     <ListItem>
-                        <ListItemButton component={Link} href="/Daily_mood">
+                        <ListItemButton component={Link} href="/Daily_mood" selected={pathname === '/Daily_mood'}>
                             <MoodRounded />
                             <ListItemContent>
                                 <Typography level="title-sm">Daily Mood</Typography>
@@ -190,6 +197,7 @@ export default function Sidebar() {
                     <Divider />
                     <ListItem nested>
                         <Toggler
+                            defaultOpen={pathname === '/usermanagement' || pathname === '/permissions'}
                             renderToggle={({ open, setOpen }) => (
                                 <ListItemButton onClick={() => setOpen(!open)}>
                                     <GroupRoundedIcon />
@@ -197,15 +205,7 @@ export default function Sidebar() {
                                         <Typography level="title-sm">Users</Typography>
                                     </ListItemContent>
                                     <KeyboardArrowDownIcon
-                                        sx={[
-                                            open
-                                                ? {
-                                                    transform: 'rotate(180deg)',
-                                                }
-                                                : {
-                                                    transform: 'none',
-                                                },
-                                        ]}
+                                        sx={{ transform: open ? 'rotate(180deg)' : 'none' }}
                                     />
                                 </ListItemButton>
                             )}
@@ -216,6 +216,7 @@ export default function Sidebar() {
                                         role="menuitem"
                                         component={Link}
                                         href="/usermanagement"
+                                        selected={pathname === '/usermanagement'}
                                     >
                                         All users
                                     </ListItemButton>
@@ -225,6 +226,7 @@ export default function Sidebar() {
                                         role="menuitem"
                                         component={Link}
                                         href="/permissions"
+                                        selected={pathname === '/permissions'}
                                     >
                                         Permissions
                                     </ListItemButton>
@@ -233,7 +235,7 @@ export default function Sidebar() {
                         </Toggler>
                     </ListItem>
                     <ListItem>
-                        <ListItemButton component={Link} href="/groups">
+                        <ListItemButton component={Link} href="/groups" selected={pathname === '/groups'}>
                             <SupervisedUserCircleRounded />
                             <ListItemContent>
                                 <Typography level="title-sm">Groups</Typography>
