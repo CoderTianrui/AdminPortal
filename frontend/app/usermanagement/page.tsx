@@ -442,33 +442,21 @@ export default function UserManagementPage() {
                                             <tr key={index}>
                                                 <th scope="row">{index + 1}</th>
                                                 <td>
-                                                <Button href={`/userprofile/${user.id}`} 
-                                                style={{
-                                                    backgroundColor: 'transparent',
-                                                    border: 'none',
-                                                    padding: 0,
-                                                    textAlign: 'left', 
-                                                    fontWeight: 'normal',
-                                                    color: 'inherit',
-                                                    cursor: 'pointer'
-                                                }}>
-                                                {user.firstName} {user.lastName} <br />{user.email}
-                                                </Button>
-                                                    {/* <Button variant="plain"
-                                                    color="neutral"
-                                                    component="a"
-                                                    sx={{ fontWeight: 400 }} 
-                                                    size="lg"
-                                                    // href={`/userprofile/${user.id}`} >
-                                                    // onClick={() => {
-                                                    //     router.push({
-                                                    //       pathname: '/userprofile/[uid]',
-                                                    //       query: { uid: user.id },
-                                                    //     })
-                                                    // }}
-                                                    >
-                                                    {user.firstName} {user.lastName}<br />{user.email}
-                                                    </Button> */}
+                                                    <a href={`/userprofile/${user.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                                        <Button
+                                                            style={{
+                                                                backgroundColor: 'transparent',
+                                                                border: 'none',
+                                                                padding: 0,
+                                                                textAlign: 'left', 
+                                                                fontWeight: 'normal',
+                                                                color: 'inherit',
+                                                                cursor: 'pointer'
+                                                            }}
+                                                        >
+                                                            {user.firstName} {user.lastName} <br />{user.email}
+                                                        </Button>
+                                                    </a>
                                                 </td>
                                                 <td>{user.profile}</td>
                                                 <td>

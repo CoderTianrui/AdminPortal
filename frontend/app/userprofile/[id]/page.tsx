@@ -145,14 +145,23 @@ export default function UserProfilePage() {
         <Navigation />
       </Layout.SideNav>
       <Layout.Main>
-        <IconButton
-          component="a"
-          href="/usermanagement/"
-          aria-label="Go back"
-        >
-          <ArrowBackIcon />
-        </IconButton>
-        <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>
+      <Button
+        variant="solid"
+        color="primary"
+        component="a"
+        href="/usermanagement/"
+        sx={{
+          backgroundColor: '#007BFF', // Primary blue
+          color: 'white',
+          '&:hover': {
+            backgroundColor: '#0056b3', // Darker blue on hover
+          },
+        }}
+      >
+        ← Back to User Management
+      </Button>
+
+      <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>
           User Profile
         </h1>
 
@@ -215,6 +224,7 @@ export default function UserProfilePage() {
           </div>
           <CardOverflow sx={{ borderTop: '1px solid', borderColor: 'divider' }} />
         </Card>
+
         <Card>
           <Box sx={{ mb: 1 }}>
             <h2>Relationship Information</h2>
@@ -282,7 +292,9 @@ export default function UserProfilePage() {
               </Button>
             </CardActions>
           </CardOverflow>
-        </Card>
+        </Card> 
+
+    
       </Layout.Main>
     </Layout.Root>
   </CssVarsProvider>
