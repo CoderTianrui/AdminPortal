@@ -23,6 +23,18 @@ export default class Survey extends ManagedModel {
   @column()
   declare level: number
 
-  @manyToMany(() => School)
-  declare school: ManyToMany<typeof School>
+  // @manyToMany(() => School)
+  // declare school: ManyToMany<typeof School>
+
+  // Define the many-to-many relationship with School
+
+  @manyToMany(() => School, {
+    pivotTable: 'survey_schools', // Define the pivot table
+    localKey: 'id', // Survey's local key
+    pivotForeignKey: 'survey_id', // The foreign key for Survey in the pivot table
+    relatedKey: 'id', // School's local key
+    pivotRelatedForeignKey: 'school_id', // The foreign key for School in the pivot table
+    pivotTimestamps: true, // Store timestamps in the pivot table
+  })
+  public schools!: ManyToMany<typeof School>
 }
