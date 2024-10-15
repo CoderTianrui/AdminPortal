@@ -30,7 +30,6 @@ interface Notification {
 }
 
 export default function NewsNotificationManagementPage() {
-    const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [isNewsModalOpen, setIsNewsModalOpen] = React.useState(false);
     const [isNotificationModalOpen, setIsNotificationModalOpen] = React.useState(false);
 
@@ -254,25 +253,9 @@ export default function NewsNotificationManagementPage() {
     return (
         <CssVarsProvider disableTransitionOnChange>
             <CssBaseline />
-            {drawerOpen && (
-                <Layout.SideDrawer onClose={() => setDrawerOpen(false)}>
-                    <Navigation />
-                </Layout.SideDrawer>
-            )}
-            <Layout.Root
-                sx={{
-                    ...(drawerOpen && {
-                        height: '100vh',
-                        overflow: 'hidden',
-                    }),
-                }}
-            >
-                <Layout.Header>
-                    <Header />
-                </Layout.Header>
-                <Layout.SideNav>
-                    <Navigation />
-                </Layout.SideNav>
+            <Layout.Root>
+                <Navigation />
+                <Header />
                 <Layout.Main>
                     <Box sx={{ width: '100%', padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
                         <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>News and Notification Management</h1>
@@ -310,7 +293,7 @@ export default function NewsNotificationManagementPage() {
                                     Manage Subscribed News Channels
                                 </Button>
                             </Box>
-                            
+
                             {/* Modal for Create or Edit News */}
                             {isNewsModalOpen && (
                                 <div className="modal-overlay">

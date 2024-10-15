@@ -32,7 +32,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import Layout from '@/app/components/layout';
 import Header from '@/app/components/header';
 import Navigation from '@/app/components/navigation';
-import Pagination, { PaginationSkeleton } from '@/app/components/pagination';
+import Pagination from '@/app/components/pagination';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -77,7 +77,6 @@ interface ApiResponse {
 }
 
 export default function PermissionsPage() {
-  const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<User | null>(null);
   const [users, setUsers] = React.useState<User[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -157,19 +156,10 @@ export default function PermissionsPage() {
   return (
     <CssVarsProvider disableTransitionOnChange>
       <CssBaseline />
-      {drawerOpen && (
-        <Layout.SideDrawer onClose={() => setDrawerOpen(false)}>
-          <Navigation />
-        </Layout.SideDrawer>
-      )}
       <Layout.Root sx={{ height: '100vh', overflow: 'hidden' }}>
-        <Layout.Header>
-          <Header />
-        </Layout.Header>
-        <Layout.SideNav>
-          <Navigation />
-        </Layout.SideNav>
-        <Layout.Main sx={{ height: 'calc(100vh - 64px)', overflow: 'hidden', position: 'relative' }}>
+        <Navigation />
+        <Header />
+        <Layout.Main sx={{ height: '100vh', overflow: 'hidden', position: 'relative' }}>
           <Box sx={{ p: '2vh', height: '100%', boxSizing: 'border-box', position: 'relative' }}>
             <Sheet
               sx={{
@@ -177,8 +167,8 @@ export default function PermissionsPage() {
                 p: '2vh',
                 boxShadow: 'sm',
                 transition: 'all 0.2s ease-in-out',
-                '&:hover': { boxShadow: 'md', transform: 'translateY(-2px)' },
-                height: isPortalVisible ? 'calc(100% - 60px)' : '100%',
+                '&:hover': { boxShadow: 'md' },
+                height: isPortalVisible ? 'calc(100% - 8vh)' : '100%',
                 display: 'flex',
                 flexDirection: 'column',
                 position: 'relative',
@@ -256,7 +246,11 @@ function UserListSection({
             <List>
               {[...Array(10)].map((_, index) => (
                 <ListItem key={index}>
-                  <ListItemButton disabled>
+                  <ListItemButton disabled
+                    sx={{
+                      height: { xs: 'auto', md: '7vh' },
+                    }}
+                  >
                     <ListItemContent>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <Skeleton variant="circular" width={40} height={40} animation="wave" />
@@ -300,7 +294,8 @@ function UserList({ users, onSelectUser }: { users: User[], onSelectUser: (user:
             sx={{
               borderRadius: 'sm',
               transition: 'all 0.2s',
-              '&:hover': { bgcolor: 'background.level1', transform: 'translateX(4px)' },
+              '&:hover': { bgcolor: 'background.level1' },
+              height: { xs: 'auto', md: '7vh' },
             }}
           >
             <ListItemContent>
@@ -453,7 +448,7 @@ function UserPermissions({
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ permissions: userSpecificPermissions }),
-      // credentials: 'include',
+      credentials: 'include',
     })
       .then(response => {
         if (!response.ok) throw new Error('Failed to save permissions');
