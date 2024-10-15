@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@adonisjs/lucid/orm'
-//import type { ManyToMany } from '@adonisjs/lucid/types/relations'
-//import Recipient from './recipient.js'
+import { column, manyToMany } from '@adonisjs/lucid/orm'
+import type { ManyToMany } from '@adonisjs/lucid/types/relations'
+import School from './school.js'
+import ManagedModel from './managed_model.js'
 
-export default class New extends BaseModel {
+export default class New extends ManagedModel {
   @column({ isPrimary: true })
   declare id: number
 
@@ -19,12 +20,9 @@ export default class New extends BaseModel {
   @column()
   declare url: string
 
-  @column.dateTime() 
-  declare date: DateTime; 
+  @column() 
+  declare date: string; 
 
-  //@manyToMany(() => Recipient)
-  //declare recipients: ManyToMany<typeof Recipient>
-
-  @column()
-  declare recipients: string; //need to change it later
+  @manyToMany(() => School)
+  declare recipients: ManyToMany<typeof School>
 }
