@@ -12,11 +12,13 @@ import Navigation from '../components/navigation';
 import './DailyMood.css';
 
 interface Mood {
+    id?: number;
     name: string;
     image: string;
 }
 
 interface SOSNotification {
+    id?: number;
     profileImage: string;
     name: string;
     email: string;
@@ -26,72 +28,139 @@ interface SOSNotification {
 }
 
 export default function DailyMoodPage() {
-    const [moodList, setMoodList] = React.useState<Mood[]>([
-        {
-            name: 'Excitement',
-            image: 'https://via.placeholder.com/50',
-        },
-    ]);
-
+    const [moodList, setMoodList] = React.useState<Mood[]>([]);
     const [newMood, setNewMood] = React.useState<Mood>({ name: '', image: '' });
     const [isModalOpen, setIsModalOpen] = React.useState(false);
     const [editIndex, setEditIndex] = React.useState<number | null>(null);
 
-    const [sosNotifications, setSosNotifications] = React.useState<SOSNotification[]>([
-        {
-            profileImage: 'https://via.placeholder.com/50',
-            name: 'Mia Cuvello',
-            email: 'mia@sydney.com',
-            alertDate: '14/02/2024',
-            school: 'University of Sydney',
-            contact: 'craig45@sydney.com',
-        },
-    ]);
-
+    const [sosNotifications, setSosNotifications] = React.useState<SOSNotification[]>([]);
     const [searchTerm, setSearchTerm] = React.useState('');
+
+    React.useEffect(() => {
+        fetchMoods();
+        fetchSOSNotifications();
+    }, []);
+
+    const fetchMoods = async () => {
+        try {
+            const response = await fetch('http://localhost:3333/moods');
+            if (!response.ok) {
+                throw new Error('Failed to fetch moods');
+            }
+            const jsonData = await response.json();
+            console.log('Fetched Moods:', jsonData); // 输出日志，确认数据
+            setMoodList(jsonData.data);
+        } catch (error) {
+            console.error('Error fetching moods:', error);
+            setMoodList([]);
+        }
+    };
+    
+
+    const fetchSOSNotifications = async () => {
+        try {
+            const response = await fetch('http://localhost:3333/sos_messages');
+            const jsonData = await response.json();
+            setSosNotifications(jsonData.data); // 修改：根据返回数据结构使用 jsonData.data
+        } catch (error) {
+            console.error('Error fetching SOS notifications:', error);
+        }
+    };
 
     const handleMoodChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setNewMood({ ...newMood, [e.target.name]: e.target.value });
     };
 
-    const submitMood = () => {
+    const submitMood = async () => {
+        console.log('Submitting mood:', newMood);
         if (!newMood.name || !newMood.image) {
             alert('Please fill in both the name and the image URL.');
             return;
         }
-
-        if (editIndex !== null) {
-            const updatedMoodList = moodList.map((mood, i) =>
-                i === editIndex ? newMood : mood
-            );
-            setMoodList(updatedMoodList);
-        } else {
-            setMoodList([...moodList, newMood]);
+    
+        try {
+            // 格式化要提交的 mood 数据，将 `image` 字段映射为 `imageUrl`
+            const formattedMood = {
+                name: newMood.name,
+                imageUrl: newMood.image  // 这里做字段映射，确保后端能够接收到正确的字段
+            };
+    
+            if (editIndex !== null) {
+                // 编辑已有的 mood
+                const response = await fetch(`http://localhost:3333/moods/${moodList[editIndex].id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formattedMood),
+                });
+    
+                if (!response.ok) {
+                    throw new Error(`HTTP error while updating mood! Status: ${response.status}`);
+                }
+    
+                const data = await response.json();
+                console.log('Updated mood:', data);
+            } else {
+                // 添加新的 mood
+                const response = await fetch('http://localhost:3333/moods', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formattedMood),
+                });
+    
+                if (!response.ok) {
+                    throw new Error(`HTTP error while creating mood! Status: ${response.status}`);
+                }
+    
+                const data = await response.json();
+                console.log('Created mood:', data);
+            }
+    
+            // 重新获取 mood 列表
+            fetchMoods();
+            setNewMood({ name: '', image: '' }); // 清空表单
+            setIsModalOpen(false); // 关闭模态框
+            setEditIndex(null); // 重置编辑状态
+        } catch (error) {
+            console.error('Error submitting mood:', error);
+            alert('Failed to submit mood. Please try again.');
         }
-
-        setNewMood({ name: '', image: '' });
-        setIsModalOpen(false);
-        setEditIndex(null);
     };
+    
+    
 
     const editMood = (index: number) => {
         const moodToEdit = moodList[index];
-        setNewMood(moodToEdit);
-        setIsModalOpen(true);
-        setEditIndex(index);
+        setNewMood(moodToEdit); // 设置要编辑的 mood 信息到 state
+        setIsModalOpen(true);    // 打开编辑的模态框
+        setEditIndex(index);     // 设置当前编辑的 index
     };
-
-    const deleteMood = (index: number) => {
+    
+    const deleteMood = async (index: number) => {
         if (window.confirm('Are you sure you want to delete this mood?')) {
-            const updatedMoodList = moodList.filter((_, i) => i !== index);
-            setMoodList(updatedMoodList);
+            try {
+                const moodToDelete = moodList[index];
+                await fetch(`http://localhost:3333/moods/${moodToDelete.id}`, {
+                    method: 'DELETE',
+                });
+                fetchMoods(); // 重新获取 mood 列表
+            } catch (error) {
+                console.error('Error deleting mood:', error);
+            }
         }
     };
+    
 
-    const deleteNotification = (index: number) => {
+    const deleteNotification = async (index: number) => {
         if (window.confirm('Are you sure you want to delete this notification?')) {
-            const updatedNotifications = sosNotifications.filter((_, i) => i !== index);
-            setSosNotifications(updatedNotifications);
+            try {
+                const notificationToDelete = sosNotifications[index];
+                await fetch(`http://localhost:3333/sos_messages/${notificationToDelete.id}`, {
+                    method: 'DELETE',
+                });
+                fetchSOSNotifications();
+            } catch (error) {
+                console.error('Error deleting notification:', error);
+            }
         }
     };
 
@@ -99,9 +168,12 @@ export default function DailyMoodPage() {
         alert(`Notification sent to ${sosNotifications[index].contact}`);
     };
 
+    // const filteredMoods = moodList
     const filteredMoods = moodList.filter((mood) =>
         mood.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+
 
     return (
         <CssVarsProvider disableTransitionOnChange>
@@ -123,8 +195,8 @@ export default function DailyMoodPage() {
                             <Input
                                 placeholder="Search Moods"
                                 value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                endDecorator={<Button variant="outlined">Filter</Button>}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}  // 这里就是 onChange 函数
+                                // endDecorator={<Button variant="outlined">Filter</Button>}
                                 sx={{ width: '300px' }}
                             />
                         </Box>
