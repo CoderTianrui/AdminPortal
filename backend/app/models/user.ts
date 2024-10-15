@@ -6,6 +6,7 @@ import { BaseModel, belongsTo, column, manyToMany, computed} from '@adonisjs/luc
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import School from './school.js'
+import PermissionService from '#services/permission_service'
 import {Profile, Access} from './profile_access_enums.js'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
@@ -58,12 +59,24 @@ export default class User extends compose(BaseModel, AuthFinder) {
     return this.permissionMetadata
   }
 
+  async hasPermission(permission: string): Promise<boolean> {
+    const effectivePermissions = await PermissionService.getUserEffectivePermissions(this)
 
+    // match case-insensitive
+    const exactMatch = effectivePermissions.find(p => p.toLowerCase().endsWith(permission.toLowerCase()))
+
+    if (exactMatch) {
+      return exactMatch.startsWith('+') || !exactMatch.startsWith('-')
+    }
+
+    return false
+  }
 
   @belongsTo(() => School, {
-    foreignKey: 'userSchoolId', 
+    foreignKey: 'userSchoolId',
   })
-  public school!: BelongsTo<typeof School>; 
+  declare school: BelongsTo<typeof School>
+
 
   @manyToMany(() => User, {
     pivotTable: 'related_users',
@@ -71,7 +84,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
     pivotForeignKey: 'user_id',
     relatedKey: 'id',
     pivotRelatedForeignKey: 'related_user_id',
-    pivotTimestamps: true,  
+    pivotTimestamps: true,
   })
   declare relatedUsers: ManyToMany<typeof User>;
 
@@ -81,7 +94,8 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare ownedById: number
 
-  @belongsTo(() => User)
+  @belongsTo(() => User, {
+    foreignKey: 'ownedById',
+  })
   declare ownedBy: BelongsTo<typeof User>
 }
-

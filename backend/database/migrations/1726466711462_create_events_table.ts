@@ -5,17 +5,17 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
+      table.increments('id')  
 
-      table.timestamp('created_at')
-      table.timestamp('updated_at')
+      table.timestamp('created_at')  
+      table.timestamp('updated_at') 
       table.json('permission_metadata').notNullable().defaultTo(JSON.stringify([]))
-      table.integer('owned_by_id').unsigned().references('users.id').onDelete('CASCADE')
+      table.integer('owned_by_id').unsigned().references('users.id').onDelete('CASCADE') 
 
-      table.string('title').notNullable()
-      table.string('description', 254).notNullable()
-      table.dateTime('start_date').notNullable()
-      table.dateTime('end_date').notNullable()
+      table.string('title').notNullable()  
+      table.string('description', 254).notNullable()  
+      table.dateTime('start_date').notNullable()  
+      table.dateTime('end_date').notNullable() 
     })
   }
 
