@@ -235,8 +235,8 @@ export default function ManageSubscribedChannels() {
             //     })
             // );
 
-            alert(JSON.stringify(subscriptions));
-            console.log(subscriptions);
+            // alert(JSON.stringify(subscriptions));
+            // console.log(subscriptions);
 
     
             setSubscriptionList(subscriptions);
@@ -268,6 +268,8 @@ export default function ManageSubscribedChannels() {
         try {
             const response = await fetch(`http://localhost:3333/users/${userId}`);
             const user = await response.json();
+            alert(JSON.stringify(user));
+            console.log(user);
             return user;
         } catch (error) {
             console.error(`Error fetching user with ID ${userId}:`, error);
