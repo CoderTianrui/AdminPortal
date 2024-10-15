@@ -99,7 +99,7 @@ export default class UsersController {
     const user = await User.findOrFail(params.id);
     // Check if the user can edit the user
     await bouncer.with(UserPolicy).authorize('edit', user)
-    const userData = request.only(['firstName', 'lastName', 'email', 'profile', 'school', 'access', 'relatedNames']);
+    const userData = request.only(['firstName', 'lastName', 'email', 'profile', 'school', 'access', 'relatedNames','permissionMetadata']);
     user.merge(userData);
     await user.save();
     return user;
@@ -113,90 +113,35 @@ export default class UsersController {
     await user.delete();
     return { message: 'User deleted successfully' };
   }
+  // Update user's channel action (block/unblock)
+  // 更新用户的 channel action（block/unblock）
+  async updateChannelAction({ params, request, response }: HttpContext) {
+    try {
+      const user = await User.findOrFail(params.id);
 
+      // 获取 channelId 和 action
+      const { channelId, action } = request.only(['channelId', 'action']);
 
-  // async getSubscriptionsWithAction({ response }: HttpContext) {
-  //   // Get all subscriptions
-  //   const subscriptions = await Subscription.query();
-
-  //   const processedSubscriptions = await Promise.all(subscriptions.map(async (subscription) => {
-  //     // Find the user by user_id from the subscription
-  //     const user = await User.find(subscription.user_id);
-  //     const channelId = subscription.channel_id;
-
-  //     // Determine if the channel_id exists in user's permissionMetadata
-  //     let isBlocked = false;
-  //     if (user && user.permissionMetadata) {
-  //       const permissionMetadataAsNumbers = user.permissionMetadata.map(Number);  // 将每个元素转换为数字
-  //       isBlocked = permissionMetadataAsNumbers.includes(channelId);
-  //     }
-
-  //     // Return subscription data with the determined action
-  //     return {
-  //       id: subscription.id,
-  //       userId: subscription.user_id,
-  //       channelId: channelId,
-  //       action: isBlocked ? 'unblock' : 'block',  // If it's in the list, it's 'unblock', otherwise 'block'
-  //     };
-  //   }));
-
-  //   return response.json(processedSubscriptions);
-  // }
-  async getSubscriptionsWithAction({ response }: HttpContext) {
-    // 获取所有订阅
-    const subscriptions = await Subscription.query();
-
-    const processedSubscriptions = await Promise.all(subscriptions.map(async (subscription) => {
-      // 根据 user_id 获取用户
-      const user = await User.find(subscription.user_id);
-      const channelId = subscription.channel_id;
-
-      // 检查 permissionMetadata 中是否有该 channel_id
-      let isBlocked = false;
-      if (user && user.permissionMetadata) {
-        const permissionMetadataAsNumbers = user.permissionMetadata.map(Number); // 将每个元素转换为数字
-        isBlocked = permissionMetadataAsNumbers.includes(channelId);
+      if (!channelId || !['block', 'unblock'].includes(action)) {
+        return response.status(400).json({ message: 'Invalid channel action data' });
       }
 
-      // 返回订阅数据和 action 状态
-      return {
-        id: subscription.id,
-        userId: subscription.user_id,
-        channelId: channelId,
-        action: isBlocked ? 'unblock' : 'block',  // 如果存在则 unblock，否则 block
-      };
-    }));
+      // 更新 channelActionMetadata
+      const channelActionMetadata = user.channelActionMetadata || {};
+      channelActionMetadata[channelId] = action;
+      user.channelActionMetadata = channelActionMetadata;
 
-    return response.json(processedSubscriptions);
+      // 保存用户数据
+      console.log('Updated channelActionMetadata:', user.channelActionMetadata);
+      await user.save();
+
+      await user.save();
+
+      return response.status(200).json(user);
+    } catch (error) {
+      return response.status(500).json({ message: 'Failed to update channel action', error: error.message });
+    }
   }
 
-
-  // async getSubscriptionsWithAction({ response }: HttpContext) {
-  //   // Get all subscriptions
-  //   const subscriptions = await Subscription.query();
-
-  //   const processedSubscriptions = await Promise.all(subscriptions.map(async (subscription) => {
-  //     // Find the user by user_id from the subscription
-  //     const user = await User.find(subscription.user_id);
-  //     const channelId = subscription.channel_id;
-
-  //     // Determine if the channel_id exists in user's permissionMetadata
-  //     let isBlocked = false;
-  //     if (user && user.permissionMetadata) {
-  //       const permissionMetadataAsNumbers = user.permissionMetadata.map(Number);  // 将每个元素转换为数字
-  //       isBlocked = permissionMetadataAsNumbers.includes(channelId);
-  //     }
-
-  //     // Return subscription data with the determined action
-  //     return {
-  //       id: subscription.id,
-  //       userId: subscription.user_id,
-  //       channelId: channelId,
-  //       action: isBlocked ? 'unblock' : 'block',  // If it's in the list, it's 'unblock', otherwise 'block'
-  //     };
-  //   }));
-
-  //   return response.json(processedSubscriptions);
-  // }
   
 }

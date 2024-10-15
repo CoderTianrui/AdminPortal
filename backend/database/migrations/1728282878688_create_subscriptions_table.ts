@@ -1,4 +1,5 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
+import Subscription from '#models/subscriptions'
 
 export default class extends BaseSchema {
   protected tableName = 'subscriptions'
@@ -11,6 +12,20 @@ export default class extends BaseSchema {
       table.timestamp('created_at').defaultTo(this.now())
       table.timestamp('updated_at').defaultTo(this.now())
     })
+    Subscription.create(
+      {
+        "id": 1,
+        "user_id" : 2,
+        "channel_id": 1
+      }
+    )
+    Subscription.create(
+      {
+        "id": 2,
+        "user_id" : 2,
+        "channel_id": 2
+      }
+    )
   }
 
   async down() {

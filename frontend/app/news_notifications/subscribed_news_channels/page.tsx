@@ -1,144 +1,3 @@
-// 'use client';
-
-// import * as React from 'react';
-// import { CssVarsProvider } from '@mui/joy/styles';
-// import CssBaseline from '@mui/joy/CssBaseline';
-// import Button from '@mui/joy/Button';
-// import Box from '@mui/joy/Box';
-// import Input from '@mui/joy/Input';
-// import Layout from '../../components/layout';
-// import Header from '../../components/header';
-// import Navigation from '../../components/navigation';
-// import '../NewsNotificationsManagement.css';
-
-// interface Subscriptions {
-//     channel: string;
-//     subscriber: string;
-//     action: string;
-// }
-
-// export default function ManageSubscribedChannels() {
-//     const [drawerOpen, setDrawerOpen] = React.useState(false);
-//     const [subscriptionSearchQuery, setSubscriptionSearchQuery] = React.useState('');
-
-//     const [subscriptionList, setSubscriptionList] = React.useState<Subscriptions[]>([
-//         {
-//             channel: 'ABC News',
-//             subscriber: 'Student 1',
-//             action: 'block'
-//         },
-//         {
-//             channel: 'BBC News',
-//             subscriber: 'Student 2',
-//             action: 'block'
-//         },
-//     ]);
-//     const [filteredSubscriptionList, setFilteredSubscriptionList] = React.useState<Subscriptions[]>(subscriptionList);
-
-//     const handleSubscriptionSearchQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//         setSubscriptionSearchQuery(e.target.value);
-//         filterSubscriptions(e.target.value);
-//     };
-
-//     const filterSubscriptions = (query: string) => {
-//         const filtered = subscriptionList.filter(subscription =>
-//             subscription.channel.toLowerCase().includes(query.toLowerCase()) ||
-//             subscription.subscriber.toLowerCase().includes(query.toLowerCase())
-//         );
-//         setFilteredSubscriptionList(filtered);
-//     };
-
-//     const toggleAction = (index: number) => {
-//         const updatedList = [...filteredSubscriptionList];
-//         updatedList[index].action = updatedList[index].action === 'block' ? 'unblock' : 'block';
-//         setFilteredSubscriptionList(updatedList);
-//     };
-
-//     return (
-//         <CssVarsProvider disableTransitionOnChange>
-//             <CssBaseline />
-//             {drawerOpen && (
-//                 <Layout.SideDrawer onClose={() => setDrawerOpen(false)}>
-//                     <Navigation />
-//                 </Layout.SideDrawer>
-//             )}
-//             <Layout.Root
-//                 sx={{
-//                     ...(drawerOpen && {
-//                         height: '100vh',
-//                         overflow: 'hidden',
-//                     }),
-//                 }}
-//             >
-//                 <Layout.Header>
-//                     <Header />
-//                 </Layout.Header>
-//                 <Layout.SideNav>
-//                     <Navigation />
-//                 </Layout.SideNav>
-//                 <Layout.Main>
-//                     <Box sx={{ width: '100%', padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-//                         <Button
-//                             variant="solid"
-//                             color="primary"
-//                             component="a"
-//                             href="/news_notifications/"
-//                             sx={{
-//                                 backgroundColor: 'grey',
-//                                 color: 'white',
-//                                 '&:hover': {
-//                                     backgroundColor: 'darkgrey', 
-//                                 },
-//                             }}
-//                         >
-//                             ← back to previous page
-//                         </Button>
-//                         <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>Subscribed News Channels Management</h1>
-//                         <Input
-//                             placeholder="Search by channel or subscriber..."
-//                             value={subscriptionSearchQuery}
-//                             onChange={handleSubscriptionSearchQueryChange}
-//                             sx={{ width: '300px', marginBottom: '20px' }}
-//                         />
-//                         <Box sx={{ overflowX: 'auto', marginBottom: '40px' }}>
-//                             <table className="table">
-//                                 <thead>
-//                                     <tr>
-//                                         <th>Channel Name</th>
-//                                         <th>Subscribed by</th>
-//                                         <th>Action</th>
-//                                     </tr>
-//                                 </thead>
-//                                 <tbody>
-//                                     {filteredSubscriptionList.map((subscription, index) => (
-//                                         <tr key={index}>
-//                                             <td>{subscription.channel}</td>
-//                                             <td>{subscription.subscriber}</td>
-//                                             <td>
-//                                                 <Button
-//                                                     variant="soft"
-//                                                     color={subscription.action === 'block' ? 'danger' : 'success'}
-//                                                     size="sm"
-//                                                     onClick={() => toggleAction(index)}
-//                                                 >
-//                                                     {subscription.action}
-//                                                 </Button>
-//                                             </td>
-//                                         </tr>
-//                                     ))}
-//                                 </tbody>
-//                             </table>
-//                         </Box>
-//                     </Box>
-//                 </Layout.Main>
-//             </Layout.Root>
-//         </CssVarsProvider>
-//     );
-// }
-
-
-
-
 'use client';
 
 import * as React from 'react';
@@ -161,9 +20,9 @@ interface Subscription {
 
 interface User {
     id: number;
-    first_name: string;
-    last_name: string;
-    permissionMetadata: string[]; // 用户权限元数据，保存频道的订阅状态
+    firstName: string;
+    lastName: string;
+    channelActionMetadata: string[]; // 用户权限元数据，保存频道的订阅状态
 }
 
 interface Channel {
@@ -200,12 +59,23 @@ export default function ManageSubscribedChannels() {
             // console.log(data);
 
     
-            const subscriptions: Subscription[] = data.map((item: any) => ({
-                id: item.id,
-                user_id: item.userId,
-                channel_id: item.channelId,
-                action: item.action , // 'block' or 'unblock' based on user's permission_metadata
-            }));
+            // const subscriptions: Subscription[] = data.map((item: any) => ({
+            //     id: item.id,
+            //     user_id: item.userId,
+            //     channel_id: item.channelId,
+            //     action: item.action , // 'block' or 'unblock' based on user's permission_metadata
+            // }));
+            const subscriptions: Subscription[] = await Promise.all(
+                data.map(async (item: any) => {
+                    const user = await fetchUserById(item.userId);
+                    return {
+                        id: item.id,
+                        user_id: item.userId,
+                        channel_id: item.channelId,
+                        action: determineAction(item.channelId, user) // 根据 permissionMetadata 决定 block/unblock
+                    };
+                })
+            );
 
             await Promise.all(subscriptions.map(async (subscription) => {
                 if (!channelCache[subscription.channel_id]) {
@@ -266,10 +136,10 @@ export default function ManageSubscribedChannels() {
             return userCache[userId]; // 缓存中已有
         }
         try {
-            const response = await fetch(`http://localhost:3333/users/${userId}`);
+            const response = await fetch(`http://localhost:3333/users/${userId}`, {
+                credentials: 'include',
+            });
             const user = await response.json();
-            alert(JSON.stringify(user));
-            console.log(user);
             return user;
         } catch (error) {
             console.error(`Error fetching user with ID ${userId}:`, error);
@@ -290,12 +160,48 @@ export default function ManageSubscribedChannels() {
         }
     };
     const determineAction = (channelId: number, user: User | null) => {
-        if (user && user.permissionMetadata.includes(channelId.toString())) {
+        if (user && user.channelActionMetadata[channelId] === 'block') {
             return 'block';
         } else {
             return 'unblock';
         }
     };
+
+    const toggleAction = async (index: number) => {
+        const updatedList = [...filteredSubscriptionList];
+        const subscription = updatedList[index];
+    
+        // 获取用户信息
+        const user = await fetchUserById(subscription.user_id);
+        if (!user) return;
+    
+        // 判断当前状态并切换
+        if (subscription.action === 'block') {
+            // 如果当前是 block，则从 channelActionMetadata 中移除 channel_id
+            delete user.channelActionMetadata[subscription.channel_id];
+            subscription.action = 'unblock';
+        } else {
+            // 如果当前是 unblock，则将 channel_id 添加到 channelActionMetadata 中并设置为 block
+            user.channelActionMetadata[subscription.channel_id] = 'block';
+            subscription.action = 'block';
+        }
+    
+        // 更新后端的 channelActionMetadata
+        try {
+            await fetch(`http://localhost:3333/users/${subscription.user_id}/channel-action`, {
+                credentials: 'include',
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ channelId: subscription.channel_id, action: subscription.action }),
+            });
+    
+            // 同步更新 UI 状态
+            setFilteredSubscriptionList(updatedList);
+        } catch (error) {
+            console.error('Error updating subscription:', error);
+        }
+    };
+    
 
     const handleSubscriptionSearchQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSubscriptionSearchQuery(e.target.value);
@@ -310,38 +216,7 @@ export default function ManageSubscribedChannels() {
         setFilteredSubscriptionList(filtered);
     };
 
-    const toggleAction = async (index: number) => {
-        const updatedList = [...filteredSubscriptionList];
-        const subscription = updatedList[index];
-
-        // 获取用户信息
-        const user = await fetchUserById(subscription.user_id);
-        if (!user) return;
-
-        // 根据当前 action 来决定新的状态
-        if (subscription.action === 'block') {
-            // 如果当前是 block，则需要从 permissionMetadata 中移除 channel_id
-            user.permissionMetadata.splice(user.permissionMetadata.indexOf(subscription.channel_id.toString()), 1);
-        } else {
-            // 如果当前是 unblock，则需要添加 channel_id 到 permissionMetadata 中
-            user.permissionMetadata.push(subscription.channel_id.toString());
-        }
-
-        // 更新订阅状态
-        subscription.action = subscription.action === 'block' ? 'unblock' : 'block';
-
-        // 更新后端的 permissionMetadata
-        try {
-            await fetch(`http://localhost:3333/users/${subscription.user_id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ permissionMetadata: user.permissionMetadata }),
-            });
-            setFilteredSubscriptionList(updatedList);
-        } catch (error) {
-            console.error('Error updating subscription:', error);
-        }
-    };
+    
 
     return (
         <CssVarsProvider disableTransitionOnChange>
@@ -407,7 +282,7 @@ export default function ManageSubscribedChannels() {
                                         return (
                                             <tr key={index}>
                                                 <td>{channel ? channel.title : 'Loading...'}</td>
-                                                <td>{user ? `${user.first_name} ${user.last_name}` : 'Loading...'}</td>
+                                                <td>{user ? `${user.firstName||''} ${user.lastName||''}` : 'Loading...'}</td>
                                                 <td>
                                                     <Button
                                                         variant="soft"

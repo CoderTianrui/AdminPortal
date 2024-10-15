@@ -20,6 +20,8 @@ router.resource('schools', '#controllers/schools_controller').apiOnly()
 router.resource('sos_messages', '#controllers/sos_messages_controller').apiOnly()
 router.resource('surveys', '#controllers/surveys_controller').apiOnly()
 router.resource('users', '#controllers/users_controller').apiOnly().middleware('*', middleware.auth())
+router.put('/users/:id/channel-action', '#controllers/users_controller.updateChannelAction');
+
 router.post('/groups/nodes', '#controllers/groups_controller.updatePermissionNodes')
 router.resource('groups', '#controllers/groups_controller').apiOnly().middleware('*', middleware.auth())
 router.get('permissions', '#controllers/permissions_controller.getPermissionNodes')

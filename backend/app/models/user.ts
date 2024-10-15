@@ -60,6 +60,13 @@ export default class User extends compose(BaseModel, AuthFinder) {
     return this.permissionMetadata
   }
 
+  @column({
+    prepare: (value) => JSON.stringify(value),
+    consume: (value) => JSON.parse(value || '{}'),
+  })
+  declare channelActionMetadata: Record<number, string>; // channelId -> 'block' 或 'unblock'
+
+
   async hasPermission(permission: string): Promise<boolean> {
     const effectivePermissions = await PermissionService.getUserEffectivePermissions(this)
 
