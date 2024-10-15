@@ -3,12 +3,7 @@ import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import User from './user.js'
 
 export default class ManagedModel extends BaseModel {
-  permissionNode: string
-
-  constructor() {
-    super()
-    this.permissionNode = this.constructor.name.toLowerCase()
-  }
+  permissionNode = this.constructor.name.toLowerCase()
 
   @column({
     prepare: (value) => JSON.stringify(value),
