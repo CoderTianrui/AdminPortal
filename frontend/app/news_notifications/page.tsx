@@ -325,7 +325,7 @@ export default function NewsNotificationManagementPage() {
                                             <label>Recipients</label>
                                             <Select
                                                 multiple
-                                                value={newNews.recipients.length > 0 ? newNews.recipients.map((recipients) => recipients.id) : []} // Handle no selected schools (empty array)
+                                                value={newNews.recipients?.length > 0 ? newNews.recipients.map((recipients) => recipients.id) : []} // Handle no selected schools (empty array)
                                                 onChange={(event, newValue) => {
                                                     const selectedSchools = newValue.length > 0
                                                         ? newValue.map((schoolId) => schools.find((recipients) => recipients.id === schoolId))
