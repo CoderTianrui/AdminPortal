@@ -72,9 +72,6 @@ export default class User extends compose(BaseModel, AuthFinder) {
     return false
   }
 
-  @column()
-  declare userSchoolId: number
-
   @belongsTo(() => School, {
     foreignKey: 'userSchoolId',
   })
