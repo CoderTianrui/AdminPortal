@@ -26,19 +26,15 @@ interface Survey {
     description: string;
     level: string;
     // school: School | string | null;
-    school: School[];
+    schools: School[];
 }
 
 export default function SurveyManagementPage() {
     const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [isSurveyModalOpen, setIsSurveyModalOpen] = React.useState(false);
-    const [surveyList, setSurveyList] = React.useState<Survey[]>([
-        // {title: 'Survey 1', description: 'This is a description of survey 1', level: '1', school: ['University Of Sydney', 'University of Melbourne']},
-        // {title: 'Survey 2', description: 'This is a description of survey 2', level: '2', school: ['University Of Sydney', 'University of New South Wales']},
-        // {title: 'Survey 3', description: 'This is a description of survey 3', level: '3', school: ['University Of Sydney', 'University of Technology Sydney']}
-    ]);
+    const [surveyList, setSurveyList] = React.useState<Survey[]>([]);
     const [schools, setSchools] = React.useState<School[]>([]);
-    const [newSurvey, setNewSurvey] = React.useState<Survey>({ id: '', title: '', description: '', level: '', school: [] });
+    const [newSurvey, setNewSurvey] = React.useState<Survey>({ id: '', title: '', description: '', level: '', schools: [] });
     const [editSurveyIndex, setEditSurveyIndex] = React.useState<number | null>(null);
     const [surveySearchQuery, setSurveySearchQuery] = React.useState('');
     const [filteredSurveyList, setFilteredSurveyList] = React.useState<Survey[]>([]);
@@ -98,7 +94,7 @@ export default function SurveyManagementPage() {
 
     const closeSurveyModal = () => {
         setIsSurveyModalOpen(false);
-        setNewSurvey({ id:'', title: '', description: '', level: '', school: [] });
+        setNewSurvey({ id:'', title: '', description: '', level: '', schools: [] });
         setEditSurveyIndex(null);
     };
 
@@ -111,10 +107,6 @@ export default function SurveyManagementPage() {
     };
 
 
-    // const handleSurveyChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    //     setNewSurvey({ ...newSurvey, [e.target.name]: e.target.value });
-    // };
-
     const handleSurveySearchQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSurveySearchQuery(e.target.value);
     };
@@ -126,23 +118,88 @@ export default function SurveyManagementPage() {
         setFilteredSurveyList(filtered);
     };
 
-    const submitSurvey = async () => {
-        const surveyToSubmit = { ...newSurvey };
+    // const submitSurvey = async () => {
+    //     const surveyToSubmit = { ...newSurvey };
 
-        if (editSurveyIndex !== null) {
-            // Update existing survey
-            const updatedSurveyList = [...surveyList];
-            updatedSurveyList[editSurveyIndex] = surveyToSubmit;
-            setSurveyList(updatedSurveyList);
-            setFilteredSurveyList(updatedSurveyList);
-        } else {
-            // Add new survey
-            const updatedSurveyList = [...surveyList, surveyToSubmit];
-            setSurveyList(updatedSurveyList);
-            setFilteredSurveyList(updatedSurveyList);
+    //     if (editSurveyIndex !== null) {
+    //         // Update existing survey
+    //         const updatedSurveyList = [...surveyList];
+    //         updatedSurveyList[editSurveyIndex] = surveyToSubmit;
+    //         setSurveyList(updatedSurveyList);
+    //         setFilteredSurveyList(updatedSurveyList);
+    //     } else {
+    //         // Add new survey
+    //         const updatedSurveyList = [...surveyList, surveyToSubmit];
+    //         setSurveyList(updatedSurveyList);
+    //         setFilteredSurveyList(updatedSurveyList);
+    //     }
+    //     closeSurveyModal();
+    // };
+
+    const handleSubmit = async () => {
+        console.log('consoleSubmit called');
+        console.log('newSurvey:', newSurvey);
+    
+        if (!newSurvey.title || !newSurvey.description || !newSurvey.level) {
+            console.error('All fields are required');
+            return;
         }
-        closeSurveyModal();
+    
+        let response;
+    
+        try {
+            const { schools, ...restOfNewSurvey } = newSurvey; // Destructure to separate out schools
+    
+            const payload = {
+                ...restOfNewSurvey,
+                schools: schools && schools.length > 0 
+                    ? schools.map((school) => school.id) // Map selected schools to their IDs
+                    : [], // Empty array if no schools are selected
+            };
+    
+            console.log("School IDs:", payload);
+    
+            if (editSurveyIndex !== null) {
+                // Update existing survey
+                response = await fetch(`http://localhost:3333/surveys/${surveyList[editSurveyIndex].id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+            } else {
+                // Create new survey
+                console.log('Payload:', payload);
+    
+                response = await fetch('http://localhost:3333/surveys', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+    
+                console.log("Response Status: ", response.status);
+                console.log("Response Object: ", response);
+    
+                if (!response.ok) {
+                    throw new Error('Failed to save');
+                }
+    
+                const createdSurvey = await response.json();
+                console.log('New Survey Saved: ', createdSurvey);
+    
+                setSurveyList((prevSurveys) => [...prevSurveys, createdSurvey]);
+            }
+    
+            fetchSurveys(); // Refresh surveys after submission
+            closeSurveyModal(); // Close the modal after success
+        } catch (error) {
+            console.error('Failed to save survey:', error);
+        }
     };
+
 
     const deleteSurvey = async (id: string) => {
         try {
@@ -223,20 +280,7 @@ export default function SurveyManagementPage() {
                                         <label>School</label>
                                         <Select
                                         multiple
-                                        // value={newSurvey.school.map((school) => school.id)} // Map selected school IDs
-                                        // onChange={(event, newValue) => {
-                                        //     // Find the selected schools based on the IDs from `newValue`
-                                        //     const selectedSchools = newValue
-                                        //     .map((schoolId) => schools.find((school) => school.id === schoolId))
-                                        //     .filter((school) => school !== undefined); // Filter out any undefined values
-
-                                        //     // Update the state with selected schools
-                                        //     setNewSurvey((prevSurvey) => ({
-                                        //     ...prevSurvey,
-                                        //     school: selectedSchools as School[], // Cast to School[]
-                                        //     }));
-                                        // }}
-                                        value={newSurvey.school.length > 0 ? newSurvey.school.map((school) => school.id) : []} // Handle no selected schools (empty array)
+                                        value={newSurvey.schools.length > 0 ? newSurvey.schools.map((schools) => schools.id) : []} // Handle no selected schools (empty array)
                                         onChange={(event, newValue) => {
                                             // If no schools are selected, `newValue` will be an empty array
                                             const selectedSchools = newValue.length > 0
@@ -248,7 +292,7 @@ export default function SurveyManagementPage() {
                                             // Update the state with selected schools (or an empty array if none selected)
                                             setNewSurvey((prevSurvey) => ({
                                             ...prevSurvey,
-                                            school: selectedSchools as School[] // Store the array of selected schools, or empty
+                                            schools: selectedSchools as School[] // Store the array of selected schools, or empty
                                             }));
                                         }}
                                         renderValue={(selected) => (
@@ -276,7 +320,7 @@ export default function SurveyManagementPage() {
 
                                         {/* Display selected schools below */}
                                         <Box sx={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', marginTop: '1rem' }}>
-                                        {newSurvey.school.map((selectedSchool, i) => (
+                                        {newSurvey.schools.map((selectedSchool, i) => (
                                             <Chip key={i} variant="soft" color="primary">
                                             {selectedSchool.name}
                                             </Chip>
@@ -292,7 +336,7 @@ export default function SurveyManagementPage() {
                                             onChange={handleSurveyChange}
                                         />
                                     </div>
-                                    <button className="submit-button" onClick={submitSurvey}>Submit</button>
+                                    <button className="submit-button" onClick={handleSubmit}>Submit</button>
                                 </div>
                             </div>
                         )}
@@ -315,10 +359,10 @@ export default function SurveyManagementPage() {
                                             <td>{survey.description}</td>
                                             <td>{survey.level}</td>
                                             <td>
-                                                {Array.isArray(survey.school) && survey.school.length > 0
-                                                    ? survey.school.map((s, i) => (
+                                                {Array.isArray(survey.schools) && survey.schools.length > 0
+                                                    ? survey.schools.map((s, i) => (
                                                         <span key={i}>
-                                                        {s?.name}{i < survey.school.length - 1 ? ', ' : ''}
+                                                        {s?.name}{i < survey.schools.length - 1 ? ', ' : ''}
                                                         </span>
                                                     ))
                                                     // : survey.school && typeof survey.school === 'object'
