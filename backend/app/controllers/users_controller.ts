@@ -2,9 +2,6 @@ import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
 import UserPolicy from '#policies/user_policy'
 import {Profile, Access} from '../models/profile_access_enums.js'
-import Channel from '#models/channel'
-import Subscription from '#models/subscriptions';
-
 export default class UsersController {
   async index({ bouncer, request }: HttpContext) {
     // Check if the user can list users
