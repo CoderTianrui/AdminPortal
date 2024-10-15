@@ -6,9 +6,9 @@ import CssBaseline from '@mui/joy/CssBaseline';
 import Button from '@mui/joy/Button';
 import Input from '@mui/joy/Input';
 import Box from '@mui/joy/Box';
-import Select from '@mui/joy/Select'; 
-import Option from '@mui/joy/Option'; 
-import Chip from '@mui/joy/Chip';     
+import Select from '@mui/joy/Select';
+import Option from '@mui/joy/Option';
+import Chip from '@mui/joy/Chip';
 import Layout from '../components/layout';
 import Header from '../components/header';
 import Navigation from '../components/navigation';
@@ -30,7 +30,6 @@ interface Survey {
 }
 
 export default function SurveyManagementPage() {
-    const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [isSurveyModalOpen, setIsSurveyModalOpen] = React.useState(false);
     const [surveyList, setSurveyList] = React.useState<Survey[]>([]);
     const [schools, setSchools] = React.useState<School[]>([]);
@@ -48,14 +47,14 @@ export default function SurveyManagementPage() {
         const fetchData = async () => {
 
             await fetchSchools();
-    
+
             fetchSurveys();
         };
-    
+
         fetchData();
     }, []);  // Empty dependency array to ensure it runs once
 
-    const fetchSurveys = async ()  => {
+    const fetchSurveys = async () => {
         try {
             const res = await fetch('http://localhost:3333/surveys')
             const surveys = await res.json()
@@ -71,11 +70,11 @@ export default function SurveyManagementPage() {
             const response = await fetch('http://localhost:3333/schools');
             const data = await response.json();
             console.log('Fetched Data:', data);
-    
+
             if (Array.isArray(data)) {
-                setSchools(data);  
+                setSchools(data);
             } else if (data.data && Array.isArray(data.data)) {
-                setSchools(data.data); 
+                setSchools(data.data);
             } else {
                 console.error('Unexpected response structure:', data);
             }
@@ -94,7 +93,7 @@ export default function SurveyManagementPage() {
 
     const closeSurveyModal = () => {
         setIsSurveyModalOpen(false);
-        setNewSurvey({ id:'', title: '', description: '', level: '', schools: [] });
+        setNewSurvey({ id: '', title: '', description: '', level: '', schools: [] });
         setEditSurveyIndex(null);
     };
 
@@ -139,26 +138,26 @@ export default function SurveyManagementPage() {
     const handleSubmit = async () => {
         console.log('consoleSubmit called');
         console.log('newSurvey:', newSurvey);
-    
+
         if (!newSurvey.title || !newSurvey.description || !newSurvey.level) {
             console.error('All fields are required');
             return;
         }
-    
+
         let response;
-    
+
         try {
             const { schools, ...restOfNewSurvey } = newSurvey; // Destructure to separate out schools
-    
+
             const payload = {
                 ...restOfNewSurvey,
-                schools: schools && schools.length > 0 
+                schools: schools && schools.length > 0
                     ? schools.map((school) => school.id) // Map selected schools to their IDs
                     : [], // Empty array if no schools are selected
             };
-    
+
             console.log("School IDs:", payload);
-    
+
             if (editSurveyIndex !== null) {
                 // Update existing survey
                 response = await fetch(`http://localhost:3333/surveys/${surveyList[editSurveyIndex].id}`, {
@@ -171,7 +170,7 @@ export default function SurveyManagementPage() {
             } else {
                 // Create new survey
                 console.log('Payload:', payload);
-    
+
                 response = await fetch('http://localhost:3333/surveys', {
                     method: 'POST',
                     headers: {
@@ -179,20 +178,20 @@ export default function SurveyManagementPage() {
                     },
                     body: JSON.stringify(payload),
                 });
-    
+
                 console.log("Response Status: ", response.status);
                 console.log("Response Object: ", response);
-    
+
                 if (!response.ok) {
                     throw new Error('Failed to save');
                 }
-    
+
                 const createdSurvey = await response.json();
                 console.log('New Survey Saved: ', createdSurvey);
-    
+
                 setSurveyList((prevSurveys) => [...prevSurveys, createdSurvey]);
             }
-    
+
             fetchSurveys(); // Refresh surveys after submission
             closeSurveyModal(); // Close the modal after success
         } catch (error) {
@@ -212,31 +211,15 @@ export default function SurveyManagementPage() {
         } catch (err) {
             console.log('ERROR DELETING SURVEY: ', err)
         }
-        
+
     };
 
     return (
         <CssVarsProvider disableTransitionOnChange>
             <CssBaseline />
-            {drawerOpen && (
-                <Layout.SideDrawer onClose={() => setDrawerOpen(false)}>
-                    <Navigation />
-                </Layout.SideDrawer>
-            )}
-            <Layout.Root
-                sx={{
-                    ...(drawerOpen && {
-                        height: '100vh',
-                        overflow: 'hidden',
-                    }),
-                }}
-            >
-                <Layout.Header>
-                    <Header />
-                </Layout.Header>
-                <Layout.SideNav>
-                    <Navigation />
-                </Layout.SideNav>
+            <Layout.Root>
+                <Navigation />
+                <Header />
                 <Layout.Main>
                     <Box sx={{ width: '100%', padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
                         <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>Survey Management</h1>
@@ -279,52 +262,52 @@ export default function SurveyManagementPage() {
 
                                         <label>School</label>
                                         <Select
-                                        multiple
-                                        value={newSurvey.schools.length > 0 ? newSurvey.schools.map((schools) => schools.id) : []} // Handle no selected schools (empty array)
-                                        onChange={(event, newValue) => {
-                                            // If no schools are selected, `newValue` will be an empty array
-                                            const selectedSchools = newValue.length > 0
-                                            ? newValue
-                                                .map((schoolId) => schools.find((school) => school.id === schoolId))
-                                                .filter((school) => school !== undefined) // Filter out any undefined values
-                                            : []; // Set to an empty array if no schools are selected
+                                            multiple
+                                            value={newSurvey.schools.length > 0 ? newSurvey.schools.map((schools) => schools.id) : []} // Handle no selected schools (empty array)
+                                            onChange={(event, newValue) => {
+                                                // If no schools are selected, `newValue` will be an empty array
+                                                const selectedSchools = newValue.length > 0
+                                                    ? newValue
+                                                        .map((schoolId) => schools.find((school) => school.id === schoolId))
+                                                        .filter((school) => school !== undefined) // Filter out any undefined values
+                                                    : []; // Set to an empty array if no schools are selected
 
-                                            // Update the state with selected schools (or an empty array if none selected)
-                                            setNewSurvey((prevSurvey) => ({
-                                            ...prevSurvey,
-                                            schools: selectedSchools as School[] // Store the array of selected schools, or empty
-                                            }));
-                                        }}
-                                        renderValue={(selected) => (
-                                            <Box sx={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
-                                            {selected.map((option, i) => {
-                                                const schoolId = option.value;
-                                                const school = schools.find((s) => s.id === schoolId);
-                                                return (
-                                                <Chip key={i} variant="soft" color="primary">
-                                                    {school?.name}
-                                                </Chip>
-                                                );
-                                            })}
-                                            </Box>
-                                        )}
-                                        sx={{ minWidth: '15rem' }}
+                                                // Update the state with selected schools (or an empty array if none selected)
+                                                setNewSurvey((prevSurvey) => ({
+                                                    ...prevSurvey,
+                                                    schools: selectedSchools as School[] // Store the array of selected schools, or empty
+                                                }));
+                                            }}
+                                            renderValue={(selected) => (
+                                                <Box sx={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                                                    {selected.map((option, i) => {
+                                                        const schoolId = option.value;
+                                                        const school = schools.find((s) => s.id === schoolId);
+                                                        return (
+                                                            <Chip key={i} variant="soft" color="primary">
+                                                                {school?.name}
+                                                            </Chip>
+                                                        );
+                                                    })}
+                                                </Box>
+                                            )}
+                                            sx={{ minWidth: '15rem' }}
                                         >
-                                        {/* Render the school options */}
-                                        {schools.map((school) => (
-                                            <Option key={school.id} value={school.id}>
-                                            {school.name}
-                                            </Option>
-                                        ))}
+                                            {/* Render the school options */}
+                                            {schools.map((school) => (
+                                                <Option key={school.id} value={school.id}>
+                                                    {school.name}
+                                                </Option>
+                                            ))}
                                         </Select>
 
                                         {/* Display selected schools below */}
                                         <Box sx={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', marginTop: '1rem' }}>
-                                        {newSurvey.schools.map((selectedSchool, i) => (
-                                            <Chip key={i} variant="soft" color="primary">
-                                            {selectedSchool.name}
-                                            </Chip>
-                                        ))}
+                                            {newSurvey.schools.map((selectedSchool, i) => (
+                                                <Chip key={i} variant="soft" color="primary">
+                                                    {selectedSchool.name}
+                                                </Chip>
+                                            ))}
                                         </Box>
 
                                         <label>Description</label>
@@ -362,19 +345,19 @@ export default function SurveyManagementPage() {
                                                 {Array.isArray(survey.schools) && survey.schools.length > 0
                                                     ? survey.schools.map((s, i) => (
                                                         <span key={i}>
-                                                        {s?.name}{i < survey.schools.length - 1 ? ', ' : ''}
+                                                            {s?.name}{i < survey.schools.length - 1 ? ', ' : ''}
                                                         </span>
                                                     ))
                                                     // : survey.school && typeof survey.school === 'object'
                                                     // ? survey.school.name
                                                     : 'No School'
                                                 }
-                                                
+
                                                 {/* {survey.school?.map((school) => (
                                                     <Chip key={school} variant="soft" color="primary">
                                                         {school}
                                                     </Chip> */}
-                                                
+
                                             </td>
                                             <td>
                                                 <Button variant="plain" size="sm" onClick={() => openSurveyModal(index)}>

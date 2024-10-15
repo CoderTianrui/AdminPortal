@@ -106,9 +106,17 @@ export default function JoySignInSideTemplate() {
                     >
                         <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
                             <IconButton variant="soft" color="primary" size="sm">
-                                <BadgeRoundedIcon />
+                                <img
+                                    src="logo_oic.png"
+                                    alt="Language"
+                                    style={{
+                                        width: '24px', // Adjust width as needed
+                                        height: '24px', // Adjust height as needed
+                                        borderRadius: '50%', // Make it circular if the image should be circular
+                                    }}
+                                />
                             </IconButton>
-                            <Typography level="title-lg">Company logo</Typography>
+                            <Typography level="title-lg">OIC Education</Typography>
                         </Box>
                         <ColorSchemeToggle />
                     </Box>
@@ -139,12 +147,6 @@ export default function JoySignInSideTemplate() {
                             <Stack gap={1}>
                                 <Typography component="h1" level="h3">
                                     Sign in
-                                </Typography>
-                                <Typography level="body-sm">
-                                    New to company?{' '}
-                                    <Link href="#replace-with-a-link" level="title-sm">
-                                        Sign up!
-                                    </Link>
                                 </Typography>
                             </Stack>
                         </Stack>
@@ -194,7 +196,7 @@ export default function JoySignInSideTemplate() {
                     </Box>
                     <Box component="footer" sx={{ py: 3 }}>
                         <Typography level="body-xs" textAlign="center">
-                            © Your company {new Date().getFullYear()}
+                            © OIC Education {new Date().getFullYear()}
                         </Typography>
                     </Box>
                 </Box>
