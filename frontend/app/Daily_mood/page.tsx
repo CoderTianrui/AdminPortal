@@ -48,7 +48,7 @@ export default function DailyMoodPage() {
                 throw new Error('Failed to fetch moods');
             }
             const jsonData = await response.json();
-            console.log('Fetched Moods:', jsonData); // 输出日志，确认数据
+            console.log('Fetched Moods:', jsonData); // output log
             setMoodList(jsonData.data);
         } catch (error) {
             console.error('Error fetching moods:', error);
@@ -61,7 +61,7 @@ export default function DailyMoodPage() {
         try {
             const response = await fetch('http://localhost:3333/sos_messages');
             const jsonData = await response.json();
-            setSosNotifications(jsonData.data); // 修改：根据返回数据结构使用 jsonData.data
+            setSosNotifications(jsonData.data); 
         } catch (error) {
             console.error('Error fetching SOS notifications:', error);
         }
@@ -79,14 +79,13 @@ export default function DailyMoodPage() {
         }
     
         try {
-            // 格式化要提交的 mood 数据，将 `image` 字段映射为 `imageUrl`
             const formattedMood = {
                 name: newMood.name,
-                imageUrl: newMood.image  // 这里做字段映射，确保后端能够接收到正确的字段
+                imageUrl: newMood.image  
             };
     
             if (editIndex !== null) {
-                // 编辑已有的 mood
+                // edit mood
                 const response = await fetch(`http://localhost:3333/moods/${moodList[editIndex].id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -100,7 +99,7 @@ export default function DailyMoodPage() {
                 const data = await response.json();
                 console.log('Updated mood:', data);
             } else {
-                // 添加新的 mood
+                // add new mood
                 const response = await fetch('http://localhost:3333/moods', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -115,11 +114,10 @@ export default function DailyMoodPage() {
                 console.log('Created mood:', data);
             }
     
-            // 重新获取 mood 列表
             fetchMoods();
-            setNewMood({ name: '', image: '' }); // 清空表单
-            setIsModalOpen(false); // 关闭模态框
-            setEditIndex(null); // 重置编辑状态
+            setNewMood({ name: '', image: '' }); 
+            setIsModalOpen(false); 
+            setEditIndex(null); 
         } catch (error) {
             console.error('Error submitting mood:', error);
             alert('Failed to submit mood. Please try again.');
@@ -130,9 +128,9 @@ export default function DailyMoodPage() {
 
     const editMood = (index: number) => {
         const moodToEdit = moodList[index];
-        setNewMood(moodToEdit); // 设置要编辑的 mood 信息到 state
-        setIsModalOpen(true);    // 打开编辑的模态框
-        setEditIndex(index);     // 设置当前编辑的 index
+        setNewMood(moodToEdit); 
+        setIsModalOpen(true);  
+        setEditIndex(index);     
     };
     
     const deleteMood = async (index: number) => {
@@ -142,7 +140,7 @@ export default function DailyMoodPage() {
                 await fetch(`http://localhost:3333/moods/${moodToDelete.id}`, {
                     method: 'DELETE',
                 });
-                fetchMoods(); // 重新获取 mood 列表
+                fetchMoods(); // re get mood list
             } catch (error) {
                 console.error('Error deleting mood:', error);
             }
@@ -195,7 +193,7 @@ export default function DailyMoodPage() {
                             <Input
                                 placeholder="Search Moods"
                                 value={searchTerm}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}  // 这里就是 onChange 函数
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}  //onChange
                                 // endDecorator={<Button variant="outlined">Filter</Button>}
                                 sx={{ width: '300px' }}
                             />
