@@ -8,8 +8,7 @@ export default class UserPolicy extends BasePolicy {
     if (!user) return false
 
     // if the user is an admin, they can do anything
-    if (user.permissions.includes(`${user.permissionNode}.admin`)) return true
-
+    if (await user.hasPermission(`${user.permissionNode}.admin`)) return true
     // loads the user's ownedBy relationship
     if (user) await user.load('ownedBy')
 
@@ -18,29 +17,29 @@ export default class UserPolicy extends BasePolicy {
 
   /* single user policies */
   create(user: User): AuthorizerResponse {
-    return user.permissions.includes(`${user.permissionNode}.create`)
+    return user.hasPermission(`${user.permissionNode}.create`)
   }
 
   view(user: User, target: User): AuthorizerResponse {
-    return user.permissions.includes(`${user.permissionNode}.view`)
+    return user.hasPermission(`${user.permissionNode}.read`)
       || user.id === target.id
       || user.ownedBy.id === target.id
   }
 
   edit(user: User, target: User): AuthorizerResponse {
-    return user.permissions.includes(`${user.permissionNode}.edit`)
+    return user.hasPermission(`${user.permissionNode}.update`)
       || user.id === target.id
       || user.ownedBy.id === target.id
   }
 
   delete(user: User, target: User): AuthorizerResponse {
-    return user.permissions.includes(`${user.permissionNode}.delete`)
+    return user.hasPermission(`${user.permissionNode}.delete`)
       || user.id === target.id
       || user.ownedBy.id === target.id
   }
 
   /* multiple user policies */
   list(user: User): AuthorizerResponse {
-    return user.permissions.includes(`${user.permissionNode}.list`)
+    return user.hasPermission(`${user.permissionNode}.list`)
   }
 }

@@ -1,4 +1,7 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
+// generate default data for the application
+import User from '#models/user'
+import { Profile, Access } from '#models/profile_access_enums'
 
 export default class extends BaseSchema {
   protected tableName = 'users'
@@ -9,11 +12,12 @@ export default class extends BaseSchema {
       table.string('first_name').nullable()
       table.string('last_name').nullable()
       table.string('email', 254).notNullable().unique()
-      table.string('password').notNullable()
+      table.string('password').nullable()
 
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
-      table.enum('profile', ['admin', 'school', 'teacher', 'student']).notNullable()
+      table.enum('profile', ['Admin', 'Parent', 'Teacher', 'Student']).notNullable()
+      table.enum('access', ['Full', 'High', 'Medium', 'Low']).notNullable()
       table.json('permission_metadata').notNullable().defaultTo(JSON.stringify([]))
       table.string('profile_image').nullable()
 
@@ -21,6 +25,18 @@ export default class extends BaseSchema {
       table.integer('related_user_id').unsigned().references('users.id').onDelete('CASCADE')
       table.integer('owned_by_id').unsigned().references('users.id').onDelete('CASCADE')
     })
+
+    // Create the default admin user
+    User.create(
+      {
+        "firstName": "admin",
+        "email": "admin@test.gg",
+        "password": "password",
+        "profile": Profile.Admin,
+        "access": Access.Full,
+        "permissionMetadata": ["User.admin"]
+      }
+    )
   }
 
   async down() {

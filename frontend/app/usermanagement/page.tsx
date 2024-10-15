@@ -1,5 +1,6 @@
 'use client';
 
+
 import * as React from 'react';
 import { CssVarsProvider } from '@mui/joy/styles';
 import CssBaseline from '@mui/joy/CssBaseline';
@@ -10,8 +11,17 @@ import Input from '@mui/joy/Input';
 import Layout from '@/app/components/layout';
 import Header from '@/app/components/header';
 import Navigation from '@/app/components/navigation';
+// import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+// import Link from 'next/Link';
+
 
 import './UserList.css';
+
+
+interface School {
+    id: string;
+    name: string;
+}
 
 interface User {
     id?: string;
@@ -19,39 +29,80 @@ interface User {
     lastName: string;
     email: string;
     profile: string;
-    school: string;
+    school: School | string | null;
     access: string;
-    relatedNames: string[];
+    relatedUsers: string[] | null;
 }
 
 export default function UserManagementPage() {
+
     const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [isUserModalOpen, setIsUserModalOpen] = React.useState(false);
     const [users, setUsers] = React.useState<User[]>([]);
+    const [schools, setSchools] = React.useState<School[]>([]);
     const [newUser, setNewUser] = React.useState<User>({
-        firstName: '', lastName: '', email: '', profile: '', school: '', access: '', relatedNames: []
+        firstName: '', lastName: '', email: '', profile: '', school: null, access: '', relatedUsers: []
     });
     const [editIndex, setEditIndex] = React.useState<number | null>(null);
     const [search, setSearch] = React.useState('');
     const [selectedProfile, setSelectedProfile] = React.useState<string | ''>('');
+    // const router = useRouter();
 
-    // This useEffect fetches all users when the component is mounted
+    // Fetch users on component mount
     React.useEffect(() => {
-        fetchUsers();
-    }, []);
+        const fetchData = async () => {
+            // Fetch users first and wait for the state to update
+            await fetchSchools();
 
-    // Function to fetch all users from the back-end
+            // Now fetch schools after users are populated
+            fetchUsers();
+        };
+
+        fetchData();
+    }, []);  // Empty dependency array to ensure it runs once
+
+
+    const fetchSchools = async () => {
+        console.log('fetchSchools called');
+        try {
+            const response = await fetch('http://localhost:3333/schools', {
+                credentials: 'include',
+            });
+            const data = await response.json();
+            console.log('Fetched Data:', data);
+
+            if (Array.isArray(data)) {
+                setSchools(data);
+            } else if (data.data && Array.isArray(data.data)) {
+                setSchools(data.data);
+            } else {
+                console.error('Unexpected response structure:', data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch schools:', error);
+        }
+    };
+
+
+
+    // Fetch users from the back-end
     const fetchUsers = async () => {
         try {
-            const response = await fetch('http://localhost:3333/users');  
+            const response = await fetch('http://localhost:3333/users', {
+                credentials: 'include',
+            });
             const data = await response.json();
-            setUsers(data); // Set the users state with the fetched data
+
+
+            setUsers(data.data || []);
         } catch (error) {
             console.error('Failed to fetch users:', error);
         }
     };
 
-    // Function to handle form changes for creating/editing a user
+
+
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setNewUser((prevUser) => ({
@@ -60,71 +111,119 @@ export default function UserManagementPage() {
         }));
     };
 
-    // Handle submission for creating or updating a user
+
     const handleSubmit = async () => {
-        if (editIndex !== null) {
-            // Update existing user
-            try {
-                await fetch(`http://localhost:3333/users/${users[editIndex].id}`, {
+        console.log('consoleSubmit called');
+        console.log('newUser:', newUser);
+
+        if (!newUser.firstName || !newUser.lastName || !newUser.email || !newUser.profile || !newUser.access) {
+            console.error('All fields are required');
+            return;
+        }
+
+        let response;
+
+        try {
+            const { school, relatedUsers, ...restOfNewUser } = newUser;
+
+
+            const payload = {
+                ...restOfNewUser,
+                userSchoolId: school && typeof school === 'object'
+                    ? school.id
+                    : school
+                        ? parseInt(school, 10)
+                        : null,
+                relatedUsers: relatedUsers && relatedUsers.length > 0
+                    ? relatedUsers.map((id) => Number(id))
+                    : null
+
+            };
+
+            console.log("users", relatedUsers);
+
+            if (editIndex !== null) {
+                response = await fetch(`http://localhost:3333/users/${users[editIndex].id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(newUser),
+                    body: JSON.stringify(payload),
+                    credentials: 'include',
                 });
-                fetchUsers();  
-            } catch (error) {
-                console.error('Failed to update user:', error);
-            }
-            setEditIndex(null);
-        } else {
-            // Create new user
-            try {
-                await fetch('http://localhost:3333/users', {
+            } else {
+                // Create new user
+                console.log('Payload:', payload);
+
+                response = await fetch('http://localhost:3333/users', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(newUser),
+                    body: JSON.stringify(payload),
+                    credentials: 'include',
                 });
-                fetchUsers();  
-            } catch (error) {
-                console.error('Failed to create user:', error);
+
+                console.log("Response Status: ", response.status);
+                console.log("Response Object: ", response);
+
+                if (!response.ok) {
+                    throw new Error('Failed to save');
+                    // const errorMessage = await response.text();  // Get detailed error message
+                    // throw new Error(`Failed to create user: ${errorMessage}`);
+                }
+
+
+                const createdUser = await response.json();
+                console.log(createdUser);
+                console.log('New User Saved: ', createdUser);
+
+                setUsers((prevUsers) => {
+                    const updatedUsers = [...prevUsers, createdUser];
+                    console.log('Updated Users:', updatedUsers);
+                    return updatedUsers;
+                });
             }
+            fetchUsers();
+            closeUserModal();
+        } catch (error) {
+            console.error('Failed to save user:', error);
         }
-        closeUserModal();
     };
 
-    // Handle user edit action
+    // Handle user edit
     const handleEdit = (index: number) => {
         setEditIndex(index);
         setNewUser(users[index]);
         setIsUserModalOpen(true);
     };
 
-    // Handle user delete action
+    // Handle user delete
     const handleDelete = async (index: number) => {
         try {
             await fetch(`http://localhost:3333/users/${users[index].id}`, {
                 method: 'DELETE',
+                credentials: 'include',
             });
-            fetchUsers();  
+            fetchUsers();
         } catch (error) {
             console.error('Failed to delete user:', error);
         }
     };
 
-    // Update the search value and filter users based on the search term
+
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value.toLowerCase());
     };
 
-    // Filter users based on the search term
-    const filteredUsers = users.filter(user =>
-        `${user.firstName.toLowerCase()} ${user.lastName.toLowerCase()}`.includes(search)
-    );
 
-    // Open modal for creating or editing a user
+    const filteredUsers = Array.isArray(users)
+        ? users.filter(user =>
+            user && user.firstName &&
+            `${user.firstName.toLowerCase()}${user.lastName ? ` ${user.lastName.toLowerCase()}` : ''}`.includes(search)
+        )
+        : [];
+
     const openUserModal = (index: number | null = null) => {
         if (index !== null) {
             setNewUser(users[index]);
@@ -133,14 +232,22 @@ export default function UserManagementPage() {
         setIsUserModalOpen(true);
     };
 
-    // Close the user creation/edit modal
     const closeUserModal = () => {
         setIsUserModalOpen(false);
-        setNewUser({ firstName: '', lastName: '', email: '', profile: '', school: '', access: '', relatedNames: [] });
+        setNewUser({ firstName: '', lastName: '', email: '', profile: '', school: null, access: '', relatedUsers: [] });
         setEditIndex(null);
     };
 
+    // const handleNavigate = (userId: number) => {
+    //     if (router) {
+    //         router.push(`/userprofile/[userId].tsx`);
+    //       }
+    //   };
+
+
+
     return (
+
         <CssVarsProvider disableTransitionOnChange>
             <CssBaseline />
             {drawerOpen && (
@@ -252,56 +359,65 @@ export default function UserManagementPage() {
                                                 onChange={handleChange}
                                             />
                                             <label>Profile</label>
-                                            <select 
-                                                className="form-select" 
-                                                aria-label="Profile" 
+                                            <select
+                                                className="form-select"
+                                                aria-label="Profile"
                                                 name="profile"
                                                 value={newUser.profile}
                                                 onChange={handleChange}>
+                                                <option value="">Select a Profile</option>
                                                 <option value="Student">Student</option>
                                                 <option value="Parent">Parent</option>
                                                 <option value="Teacher">Teacher</option>
+                                                <option value="Admin">Admin</option>
                                             </select>
                                             <label>School</label>
-                                            <select 
-                                                className="form-select" 
-                                                aria-label="School" 
+                                            <select
+                                                className="form-select"
+                                                aria-label="School"
                                                 name="school"
-                                                value={newUser.school}
-                                                onChange={handleChange}>
-                                                <option value="University of Sydney">University of Sydney</option>
-                                                <option value="University of Melbourne">University of Melbourne</option>
-                                                <option value="Monte Sant' Angelo">Monte Sant&apos; Angelo</option>
-                                                <option value="Willoughby High School">Willoughby High School</option>
+                                                value={newUser.school ? (typeof newUser.school === 'object' ? newUser.school.id : newUser.school) : ''}
+                                                onChange={(e) => {
+                                                    const selectedSchool = schools.find(school => school.id === e.target.value); // Find selected school by ID
+                                                    setNewUser((prevUser) => ({
+                                                        ...prevUser,
+                                                        school: selectedSchool || e.target.value // Store the full school object for display
+                                                    }));
+                                                }}
+                                            >
+                                                <option value="">Select a School</option>
+                                                {schools.map((school) => (
+                                                    <option key={school.id} value={school.id}>
+                                                        {school.name}
+                                                    </option>
+                                                ))}
                                             </select>
                                             <label>Access</label>
-                                            <select 
-                                                className="form-select" 
-                                                aria-label="Access" 
+                                            <select
+                                                className="form-select"
+                                                aria-label="Access"
                                                 name="access"
                                                 value={newUser.access}
                                                 onChange={handleChange}>
+                                                <option value="">Select an Access</option>
                                                 <option value="Low">Low</option>
                                                 <option value="Medium">Medium</option>
                                                 <option value="High">High</option>
                                                 <option value="Full">Full</option>
                                             </select>
-                                            <label>Related Names (comma-separated)</label>
+                                            <label>Related Users (comma-separated user IDs)</label>
                                             <input
                                                 type="text"
-                                                className="form-control"
-                                                name="relatedNames"
-                                                placeholder="e.g., John Doe, Jane Smith"
-                                                value={newUser.relatedNames.join(', ')}  
-                                                onChange={(e) => {
-                                                    setNewUser((prevUser) => ({
-                                                        ...prevUser,
-                                                        relatedNames: e.target.value.split(',').map(name => name.trim())  
-                                                    }));
-                                                }}
+                                                name="relatedUsers"
+                                                placeholder="e.g., 1, 2, 3"
+                                                value={newUser.relatedUsers ? newUser.relatedUsers.join(', ') : ''}  // Show as a comma-separated string
+                                                onChange={(e) => setNewUser((prevUser) => ({
+                                                    ...prevUser,
+                                                    relatedUsers: e.target.value.trim() === '' ? null : e.target.value.split(',').map(id => id.trim())  // Convert to array or set null if empty
+                                                }))}
                                             />
                                         </div>
-                                        <button className="submit-button" onClick={handleSubmit}>Submit</button>
+                                        <button className="submit-button" type="button" onClick={handleSubmit}>Submit</button>
                                     </div>
                                 </div>
                             )}
@@ -332,11 +448,42 @@ export default function UserManagementPage() {
                                     filteredUsers.map((user, index) => (
                                         <tr key={index}>
                                             <th scope="row">{index + 1}</th>
-                                            <td>{user.firstName} {user.lastName}<br />{user.email}</td>
+                                            <td>
+                                                <a href={`/userprofile/${user.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                                    <Button
+                                                        style={{
+                                                            backgroundColor: 'transparent',
+                                                            border: 'none',
+                                                            padding: 0,
+                                                            textAlign: 'left',
+                                                            fontWeight: 'normal',
+                                                            color: 'inherit',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                    >
+                                                        {user.firstName} {user.lastName} <br />{user.email}
+                                                    </Button>
+                                                </a>
+                                            </td>
                                             <td>{user.profile}</td>
-                                            <td>{user.school}</td>
+                                            <td>
+
+                                                {typeof user.school === 'object' && user.school !== null
+                                                    ? user.school.name
+                                                    : user.school}
+                                            </td>
                                             <td>{user.access}</td>
-                                            <td>{user.relatedNames.join(', ')}</td>
+                                            <td>
+                                                {Array.isArray(user.relatedUsers) && user.relatedUsers.length > 0
+                                                    ? user.relatedUsers
+                                                        .map((relatedUser) => {
+                                                            // Parse if the relatedUser is a JSON string
+                                                            const parsedUser = typeof relatedUser === 'string' ? JSON.parse(relatedUser) : relatedUser;
+                                                            return `${parsedUser.firstName} ${parsedUser.lastName}`;
+                                                        })
+                                                        .join(', ')
+                                                    : 'No related users'}
+                                            </td>
                                             <td>
                                                 <Button variant="plain" size="sm" onClick={() => openUserModal(index)}>✏️</Button>
                                                 <Button variant="plain" size="sm" onClick={() => handleDelete(index)}>❌</Button>
