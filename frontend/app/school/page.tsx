@@ -47,77 +47,44 @@ export default function SchoolManagementPage() {
 
 
     React.useEffect(() => {
-        const fetchData = async () => {
-            // Fetch users first and wait for the state to update
-            await fetchUsers();
+        fetchSchoolsWithUsers(); 
+      }, []);
 
-            // Now fetch schools after users are populated
-            fetchSchools();
-        };
-
-        fetchData();
-    }, []);  // Empty dependency array to ensure it runs once
-
-
-    const fetchUsers = async () => {
+      const fetchSchoolsWithUsers = async () => {
         try {
-            const response = await fetch('http://localhost:3333/users');
-            const data = await response.json();
-
-
-            setUsers(data.data || []);
+          console.log('Fetching users...');
+          const usersResponse = await fetch('http://localhost:3333/users', {
+            credentials: 'include',
+          });
+          const usersData = await usersResponse.json();
+      
+          const users: User[] = usersData.data || [];
+          console.log('Users fetched:', users);
+          setUsers(users);
+      
+          console.log('Fetching schools...');
+          const schoolsResponse = await fetch('http://localhost:3333/schools');
+          const schoolsData = await schoolsResponse.json();
+      
+          let fetchedSchools: School[] = Array.isArray(schoolsData.data)
+            ? schoolsData.data
+            : [];
+      
+          const schoolsWithAdminDetails = fetchedSchools.map((school) => {
+            const adminUser = users.find((user: User) =>
+              String(user.id) === String(school.adminUserId)
+            );
+            return { ...school, adminUser: adminUser || null };
+          });
+      
+          console.log('Schools with admin details:', schoolsWithAdminDetails);
+          setSchools(schoolsWithAdminDetails); 
         } catch (error) {
-            console.error('Failed to fetch users:', error);
+          console.error('Failed to fetch users or schools:', error);
         }
     };
-
-
-    const fetchSchools = async () => {
-        console.log('fetchSchools called');
-        try {
-            const response = await fetch('http://localhost:3333/schools');
-            const data = await response.json();
-            console.log('Fetched Schools Data:', data);
-
-            let fetchedSchools: School[] = [];
-
-            if (Array.isArray(data)) {
-                fetchedSchools = data;
-            } else if (data.data && Array.isArray(data.data)) {
-                fetchedSchools = data.data;
-            } else {
-                console.error('Unexpected response structure:', data);
-            }
-
-            // Check the fetched users and schools data
-            console.log("Users here:", users);
-            console.log("Schools:", fetchedSchools);
-
-            // // Map schools to include admin user details using adminUserId
-            // const schoolsWithAdminDetails = fetchedSchools.map((school: School) => {
-            //     // Ensure that adminUserId is defined and not null
-
-            //     const adminUser = users.find(user => {
-            //         console.log(`Checking user: ${user.firstName} ${user.lastName}, user.id: ${user.id}, adminUserId: ${school.adminUserId}`);
-            //         return String(user.id) === String(school.adminUserId);
-            //     });
-            //     return {
-            //         ...school,
-            //         adminUser: adminUser || null,
-            //     };
-            // });
-
-            // console.log("Schools with admin details:", schoolsWithAdminDetails);
-
-            setSchools(fetchedSchools);
-        } catch (error) {
-            console.error('Failed to fetch schools:', error);
-        }
-    };
-
-
-
-
+      
+      
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -181,7 +148,7 @@ export default function SchoolManagementPage() {
             await fetch(`http://localhost:3333/schools/${schools[index].id}`, {
                 method: 'DELETE',
             });
-            fetchSchools();
+            fetchSchoolsWithUsers();
         } catch (error) {
             console.error('Failed to delete school:', error);
         }
