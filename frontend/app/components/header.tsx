@@ -1,68 +1,49 @@
 import * as React from 'react';
-import { useColorScheme } from '@mui/joy/styles';
-import Box from '@mui/joy/Box';
-import Typography from '@mui/joy/Typography';
+import GlobalStyles from '@mui/joy/GlobalStyles';
 import IconButton from '@mui/joy/IconButton';
-import Stack from '@mui/joy/Stack';
-import Avatar from '@mui/joy/Avatar';
-import Input from '@mui/joy/Input';
-import Button from '@mui/joy/Button';
-import Tooltip from '@mui/joy/Tooltip';
-import Dropdown from '@mui/joy/Dropdown';
-import Menu from '@mui/joy/Menu';
-import MenuButton from '@mui/joy/MenuButton';
-import MenuItem from '@mui/joy/MenuItem';
-import ListDivider from '@mui/joy/ListDivider';
-import Drawer from '@mui/joy/Drawer';
-import ModalClose from '@mui/joy/ModalClose';
-import DialogTitle from '@mui/joy/DialogTitle';
-
-import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
-import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
-import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
-import BookRoundedIcon from '@mui/icons-material/BookRounded';
-import LanguageRoundedIcon from '@mui/icons-material/LanguageRounded';
-import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
-import HelpRoundedIcon from '@mui/icons-material/HelpRounded';
-import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded';
-import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
+import Sheet from '@mui/joy/Sheet';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
-
-import TeamNav from '../components/navigation';
-
-
-function ColorSchemeToggle() {
-    const { mode, setMode } = useColorScheme();
-    const [mounted, setMounted] = React.useState(false);
-    React.useEffect(() => {
-        setMounted(true);
-    }, []);
-    if (!mounted) {
-        return <IconButton size="sm" variant="outlined" color="primary" />;
-    }
-    return (
-        <Tooltip title="Change theme" variant="outlined">
-            <IconButton
-                id="toggle-mode"
-                size="sm"
-                variant="plain"
-                color="neutral"
-                sx={{ alignSelf: 'center' }}
-                onClick={() => {
-                    if (mode === 'light') {
-                        setMode('dark');
-                    } else {
-                        setMode('light');
-                    }
-                }}
-            >
-                {mode === 'light' ? <DarkModeRoundedIcon /> : <LightModeRoundedIcon />}
-            </IconButton>
-        </Tooltip>
-    );
-}
+import { toggleSidebar } from './utils';
 
 export default function Header() {
+  return (
+    <Sheet
+      sx={{
+        display: { sm: 'flex', md: 'none' },
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        position: 'fixed',
+        top: 0,
+        width: '100vw',
+        height: 'var(--Header-height)',
+        zIndex: 9995,
+        p: 2,
+        gap: 1,
+        borderBottom: '1px solid',
+        borderColor: 'background.level1',
+        boxShadow: 'sm',
+      }}
+    >
+      <GlobalStyles
+        styles={(theme) => ({
+          ':root': {
+            '--Header-height': '52px',
+            [theme.breakpoints.up('lg')]: {
+              '--Header-height': '0px',
+            },
+          },
+        })}
+      />
+      <IconButton
+        onClick={() => toggleSidebar()}
+        variant="outlined"
+        color="neutral"
+        size="sm"
+      >
+        <MenuRoundedIcon />
+      </IconButton>
+    </Sheet>
+  );
     const [open, setOpen] = React.useState(false);
     return (
         <Box

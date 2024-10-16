@@ -35,8 +35,6 @@ interface User {
 }
 
 export default function UserManagementPage() {
-
-    const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [isUserModalOpen, setIsUserModalOpen] = React.useState(false);
     const [users, setUsers] = React.useState<User[]>([]);
     const [schools, setSchools] = React.useState<School[]>([]);
@@ -247,77 +245,11 @@ export default function UserManagementPage() {
 
 
     return (
-
         <CssVarsProvider disableTransitionOnChange>
             <CssBaseline />
-            {drawerOpen && (
-                <Layout.SideDrawer onClose={() => setDrawerOpen(false)}>
-                    <Navigation />
-                </Layout.SideDrawer>
-            )}
-            <Stack
-                id="tab-bar"
-                direction="row"
-                justifyContent="space-around"
-                spacing={1}
-                sx={{
-                    display: { xs: 'flex', sm: 'none' },
-                    zIndex: '999',
-                    bottom: 0,
-                    position: 'fixed',
-                    width: '100dvw',
-                    py: 2,
-                    backgroundColor: 'background.body',
-                    borderTop: '1px solid',
-                    borderColor: 'divider',
-                }}
-            >
-                <Button
-                    variant="plain"
-                    color="neutral"
-                    component="a"
-                    href="/joy-ui/getting-started/templates/email/"
-                    size="sm"
-                    sx={{ flexDirection: 'column', '--Button-gap': 0 }}
-                >
-                    User Management
-                </Button>
-                <Button
-                    variant="plain"
-                    color="neutral"
-                    aria-pressed="true"
-                    component="a"
-                    href="/joy-ui/getting-started/templates/team/"
-                    size="sm"
-                    sx={{ flexDirection: 'column', '--Button-gap': 0 }}
-                >
-                    News Management
-                </Button>
-                <Button
-                    variant="plain"
-                    color="neutral"
-                    component="a"
-                    href="/joy-ui/getting-started/templates/files/"
-                    size="sm"
-                    sx={{ flexDirection: 'column', '--Button-gap': 0 }}
-                >
-                    Survey Management
-                </Button>
-            </Stack>
-            <Layout.Root
-                sx={{
-                    ...(drawerOpen && {
-                        height: '100vh',
-                        overflow: 'hidden',
-                    }),
-                }}
-            >
-                <Layout.Header>
-                    <Header />
-                </Layout.Header>
-                <Layout.SideNav>
-                    <Navigation />
-                </Layout.SideNav>
+            <Layout.Root>
+                <Navigation />
+                <Header />
                 <Layout.Main>
                     <article className="table-container">
                         <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>User Management</h1>

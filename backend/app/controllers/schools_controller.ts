@@ -37,7 +37,7 @@ export default class SchoolsController {
    * Show individual record
    */
   async show({ params }: HttpContext) {
-    return await School.query().preload('adminUser').where('id', params.id).firstOrFail()
+    return await School.query().preload('adminUser').preload('surveys').where('id', params.id).firstOrFail()
   }
 
   /**
