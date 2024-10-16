@@ -90,7 +90,7 @@ export default function Header() {
                 }}
             >
                 <img
-                    src="logo_oic.png"
+                    src="/logo_oic.png"
                     alt="Language"
                     style={{
                         width: '24px', // Adjust width as needed

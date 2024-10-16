@@ -111,24 +111,20 @@ export default class UsersController {
     return { message: 'User deleted successfully' };
   }
   // Update user's channel action (block/unblock)
-  // 更新用户的 channel action（block/unblock）
   async updateChannelAction({ params, request, response }: HttpContext) {
     try {
       const user = await User.findOrFail(params.id);
 
-      // 获取 channelId 和 action
       const { channelId, action } = request.only(['channelId', 'action']);
 
       if (!channelId || !['block', 'unblock'].includes(action)) {
         return response.status(400).json({ message: 'Invalid channel action data' });
       }
 
-      // 更新 channelActionMetadata
       const channelActionMetadata = user.channelActionMetadata || {};
       channelActionMetadata[channelId] = action;
       user.channelActionMetadata = channelActionMetadata;
 
-      // 保存用户数据
       console.log('Updated channelActionMetadata:', user.channelActionMetadata);
       await user.save();
 

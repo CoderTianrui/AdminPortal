@@ -22,7 +22,7 @@ interface User {
     id: number;
     firstName: string;
     lastName: string;
-    channelActionMetadata: string[]; // 用户权限元数据，保存频道的订阅状态
+    channelActionMetadata: string[];
 }
 
 interface Channel {
@@ -53,18 +53,6 @@ export default function ManageSubscribedChannels() {
             const response = await fetch('http://localhost:3333/subscriptions');
             const result = await response.json();
             const data = result.data;
-
-
-            // alert(JSON.stringify(data));
-            // console.log(data);
-
-    
-            // const subscriptions: Subscription[] = data.map((item: any) => ({
-            //     id: item.id,
-            //     user_id: item.userId,
-            //     channel_id: item.channelId,
-            //     action: item.action , // 'block' or 'unblock' based on user's permission_metadata
-            // }));
             const subscriptions: Subscription[] = await Promise.all(
                 data.map(async (item: any) => {
                     const user = await fetchUserById(item.userId);
@@ -89,51 +77,20 @@ export default function ManageSubscribedChannels() {
                 }
             }));
 
-            // const subscriptions: Subscription[] = await Promise.all(
-            //     data.map(async (item: any) => {
-            //         const user = await fetchUserById(item.userId); // 根据 user_id 获取用户信息
-            //         alert(JSON.stringify(user));
-            //         console.log('Fetched user:', user);
-            //         const action = determineAction(item.channelId, user); // 根据 permissionMetadata 确定 block/unblock
-
-            //         return {
-            //             id: item.id,
-            //             user_id: item.userId,
-            //             channel_id: item.channelId,
-            //             action: action, // 'block' or 'unblock' based on user's permission_metadata
-            //         };
-            //     })
-            // );
 
             // alert(JSON.stringify(subscriptions));
             // console.log(subscriptions);
 
-    
             setSubscriptionList(subscriptions);
             setFilteredSubscriptionList(subscriptions);
         } catch (error) {
             console.error('Error fetching subscriptions:', error);
         }
     };
-    // const fetchUserById = async (userId: number): Promise<User | null> => {
-    //     if (userCache[userId]) {
-    //         return userCache[userId]; // 如果缓存中已有用户信息，直接返回
-    //     }
-
-    //     try {
-    //         const response = await fetch(`http://localhost:3333/users/${userId}`);
-    //         const user = await response.json();
-    //         setUserCache((prevCache) => ({ ...prevCache, [userId]: user })); // 将用户信息存入缓存
-    //         return user;
-    //     } catch (error) {
-    //         console.error(`Error fetching user with ID ${userId}:`, error);
-    //         return null;
-    //     }
-    // };
 
     const fetchUserById = async (userId: number): Promise<User | null> => {
         if (userCache[userId]) {
-            return userCache[userId]; // 缓存中已有
+            return userCache[userId]; 
         }
         try {
             const response = await fetch(`http://localhost:3333/users/${userId}`, {
@@ -148,7 +105,7 @@ export default function ManageSubscribedChannels() {
     };
     const fetchChannelById = async (channelId: number): Promise<Channel | null> => {
         if (channelCache[channelId]) {
-            return channelCache[channelId]; // 缓存中已有
+            return channelCache[channelId]; 
         }
         try {
             const response = await fetch(`http://localhost:3333/channels/${channelId}`);
@@ -160,7 +117,7 @@ export default function ManageSubscribedChannels() {
         }
     };
     const determineAction = (channelId: number, user: User | null) => {
-        if (user && user.channelActionMetadata[channelId] === 'block') {
+        if (user && user.channelActionMetadata && user.channelActionMetadata[channelId] === 'block') {
             return 'block';
         } else {
             return 'unblock';
@@ -170,23 +127,18 @@ export default function ManageSubscribedChannels() {
     const toggleAction = async (index: number) => {
         const updatedList = [...filteredSubscriptionList];
         const subscription = updatedList[index];
-    
-        // 获取用户信息
+
         const user = await fetchUserById(subscription.user_id);
         if (!user) return;
-    
-        // 判断当前状态并切换
+
         if (subscription.action === 'block') {
-            // 如果当前是 block，则从 channelActionMetadata 中移除 channel_id
             delete user.channelActionMetadata[subscription.channel_id];
             subscription.action = 'unblock';
         } else {
-            // 如果当前是 unblock，则将 channel_id 添加到 channelActionMetadata 中并设置为 block
             user.channelActionMetadata[subscription.channel_id] = 'block';
             subscription.action = 'block';
         }
     
-        // 更新后端的 channelActionMetadata
         try {
             await fetch(`http://localhost:3333/users/${subscription.user_id}/channel-action`, {
                 credentials: 'include',
@@ -195,7 +147,6 @@ export default function ManageSubscribedChannels() {
                 body: JSON.stringify({ channelId: subscription.channel_id, action: subscription.action }),
             });
     
-            // 同步更新 UI 状态
             setFilteredSubscriptionList(updatedList);
         } catch (error) {
             console.error('Error updating subscription:', error);
@@ -204,15 +155,25 @@ export default function ManageSubscribedChannels() {
     
 
     const handleSubscriptionSearchQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSubscriptionSearchQuery(e.target.value);
-        filterSubscriptions(e.target.value);
+        const query = e.target.value;
+        setSubscriptionSearchQuery(query);
+        filterSubscriptions(query);
     };
 
     const filterSubscriptions = (query: string) => {
-        const filtered = subscriptionList.filter(subscription =>
-            subscription.channel_id.toString().includes(query) ||
-            subscription.user_id.toString().includes(query)
-        );
+        const lowerCaseQuery = query.toLowerCase();
+        const filtered = subscriptionList.filter((subscription) => {
+            const channel = channelCache[subscription.channel_id];
+            const user = userCache[subscription.user_id];
+    
+            const channelMatch = channel && channel.title.toLowerCase().includes(lowerCaseQuery);
+            const userMatch =
+                user &&
+                `${user.firstName} ${user.lastName}`.toLowerCase().includes(lowerCaseQuery);
+    
+            return channelMatch || userMatch;
+        });
+    
         setFilteredSubscriptionList(filtered);
     };
 

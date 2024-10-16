@@ -1,7 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Subscription from '#models/subscriptions'
-// import Channel from '#models/channels';
-// import User from '#models/user';
 
 export default class SubscriptionsController {
   async index({}: HttpContext) {
@@ -24,17 +22,6 @@ export default class SubscriptionsController {
     await newItem.delete()
     return newItem
   }
-  // async index({}: HttpContext) {
-  //   const subscriptions = await Subscription.query()
-  //     .select('subscriptions.id', 'subscriptions.channel_id', 'subscriptions.user_id', 'subscriptions.created_at', 'subscriptions.updated_at')
-  //     .preload('channel', (channelQuery) => {
-  //       channelQuery.select('title');
-  //     })
-  //     .preload('user', (userQuery) => {
-  //       userQuery.select('first_name', 'last_name');
-  //     });
 
-  //   return subscriptions;
-  // }
 
 }
