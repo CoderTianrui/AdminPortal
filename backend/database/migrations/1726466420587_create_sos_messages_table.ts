@@ -1,22 +1,23 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
 
-export default class extends BaseSchema {
+export default class CreateSosMessagesTable extends BaseSchema {
   protected tableName = 'sos_messages'
 
-  async up() {
+  public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-
-      table.timestamp('created_at')
-      table.timestamp('updated_at')
-      table.json('permission_metadata').notNullable().defaultTo(JSON.stringify([]))
-      table.integer('owned_by_id').unsigned().references('users.id').onDelete('CASCADE')
-
-      table.string('message').notNullable()
+      table.timestamp('created_at').notNullable()
+      table.timestamp('updated_at').nullable()
+      table.timestamp('alert_date').defaultTo(this.now()).notNullable()
+      table.string('name').notNullable()
+      table.string('email').notNullable()
+      table.string('school').notNullable()
+      table.string('contact').notNullable()
+      table.string('batch').notNullable()  
     })
   }
 
-  async down() {
+  public async down() {
     this.schema.dropTable(this.tableName)
   }
 }

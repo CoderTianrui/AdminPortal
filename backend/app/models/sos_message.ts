@@ -1,22 +1,31 @@
-import { DateTime } from 'luxon'
-import { column, hasOne } from '@adonisjs/lucid/orm'
-import type { HasOne } from '@adonisjs/lucid/types/relations'
-import User from './user.js'
-import ManagedModel from './managed_model.js'
+import { DateTime } from 'luxon';
+import { BaseModel, column } from '@adonisjs/lucid/orm';
 
-export default class SosMessage extends ManagedModel {
+export default class SOSMessage extends BaseModel {
   @column({ isPrimary: true })
-  declare id: number
+  declare id: number;
 
+  @column()
+  declare name: string;
+
+  @column()
+  declare email: string;
+
+  @column()
+  declare school: string;
+
+  @column()
+  declare contact: string;
+
+  @column()
+  declare batch: string;  
+
+  @column.dateTime({ autoCreate: true })
+  declare alertDate: DateTime; 
+  
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime
-
-  @hasOne(() => User)
-  declare user: HasOne<typeof User>
-
-  @column()
-  declare message: string
+  declare updatedAt: DateTime;
 }

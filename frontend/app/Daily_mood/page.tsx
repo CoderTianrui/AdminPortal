@@ -19,12 +19,12 @@ interface Mood {
 
 interface SOSNotification {
     id?: number;
-    profileImage: string;
     name: string;
     email: string;
     alertDate: string;
     school: string;
     contact: string;
+    batch: string; 
 }
 
 export default function DailyMoodPage() {
@@ -34,13 +34,26 @@ export default function DailyMoodPage() {
     const [editIndex, setEditIndex] = React.useState<number | null>(null);
 
     const [sosNotifications, setSosNotifications] = React.useState<SOSNotification[]>([]);
+    const [newSOSNotification, setNewSOSNotification] = React.useState<SOSNotification>({
+        name: '',
+        email: '',
+        alertDate: '',
+        school: '',
+        contact: '',
+        batch: ''  
+    });
+    const [isSOSModalOpen, setIsSOSModalOpen] = React.useState(false);
+    const [sosEditIndex, setSosEditIndex] = React.useState<number | null>(null);
+
     const [searchTerm, setSearchTerm] = React.useState('');
+    const [sosSearchTerm, setSosSearchTerm] = React.useState('');
 
     React.useEffect(() => {
         fetchMoods();
         fetchSOSNotifications();
     }, []);
 
+    // Fetch moods
     const fetchMoods = async () => {
         try {
             const response = await fetch('http://localhost:3333/moods');
@@ -48,91 +61,166 @@ export default function DailyMoodPage() {
                 throw new Error('Failed to fetch moods');
             }
             const jsonData = await response.json();
-            console.log('Fetched Moods:', jsonData); // output log
+            console.log('Fetched Moods:', jsonData); 
             setMoodList(jsonData.data);
         } catch (error) {
             console.error('Error fetching moods:', error);
             setMoodList([]);
         }
     };
-    
 
+    // Fetch SOS notifications
     const fetchSOSNotifications = async () => {
         try {
             const response = await fetch('http://localhost:3333/sos_messages');
             const jsonData = await response.json();
-            setSosNotifications(jsonData.data); 
+            setSosNotifications(jsonData.data);
         } catch (error) {
             console.error('Error fetching SOS notifications:', error);
         }
     };
 
+    // Handle mood input change
     const handleMoodChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setNewMood({ ...newMood, [e.target.name]: e.target.value });
     };
 
+    // Handle SOS input change
+    const handleSOSChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNewSOSNotification({ ...newSOSNotification, [e.target.name]: e.target.value });
+    };
+
+    // Submit Mood
     const submitMood = async () => {
-        console.log('Submitting mood:', newMood);
         if (!newMood.name || !newMood.image) {
             alert('Please fill in both the name and the image URL.');
             return;
         }
-    
+
         try {
             const formattedMood = {
                 name: newMood.name,
-                imageUrl: newMood.image  
+                imageUrl: newMood.image
             };
-    
+
             if (editIndex !== null) {
-                // edit mood
                 const response = await fetch(`http://localhost:3333/moods/${moodList[editIndex].id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formattedMood),
                 });
-    
+
                 if (!response.ok) {
                     throw new Error(`HTTP error while updating mood! Status: ${response.status}`);
                 }
-    
+
                 const data = await response.json();
                 console.log('Updated mood:', data);
             } else {
-                // add new mood
                 const response = await fetch('http://localhost:3333/moods', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formattedMood),
                 });
-    
+
                 if (!response.ok) {
                     throw new Error(`HTTP error while creating mood! Status: ${response.status}`);
                 }
-    
+
                 const data = await response.json();
                 console.log('Created mood:', data);
             }
-    
+
             fetchMoods();
-            setNewMood({ name: '', image: '' }); 
-            setIsModalOpen(false); 
-            setEditIndex(null); 
+            setNewMood({ name: '', image: '' });
+            setIsModalOpen(false);
+            setEditIndex(null);
         } catch (error) {
             console.error('Error submitting mood:', error);
             alert('Failed to submit mood. Please try again.');
         }
     };
-    
-    
 
-    const editMood = (index: number) => {
-        const moodToEdit = moodList[index];
-        setNewMood(moodToEdit); 
-        setIsModalOpen(true);  
-        setEditIndex(index);     
+    // Submit SOS Notification
+    const submitSOSNotification = async () => {
+        if (!newSOSNotification.name || !newSOSNotification.email || !newSOSNotification.contact) {
+            alert('Please fill in the required fields.');
+            return;
+        }
+    
+        try {
+            const formattedSOSNotification = {
+                name: newSOSNotification.name,
+                email: newSOSNotification.email,
+                school: newSOSNotification.school,
+                contact: newSOSNotification.contact,
+                batch: newSOSNotification.batch,
+                alertDate: new Date().toISOString().slice(0, 10)  
+            };
+    
+            if (sosEditIndex !== null) {
+                const response = await fetch(`http://localhost:3333/sos_messages/${sosNotifications[sosEditIndex].id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formattedSOSNotification),
+                });
+    
+                if (!response.ok) {
+                    throw new Error(`HTTP error while updating SOS notification! Status: ${response.status}`);
+                }
+    
+                const data = await response.json();
+                console.log('Updated SOS notification:', data);
+            } else {
+                const response = await fetch('http://localhost:3333/sos_messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formattedSOSNotification),
+                });
+    
+                if (!response.ok) {
+                    throw new Error(`HTTP error while creating SOS notification! Status: ${response.status}`);
+                }
+    
+                const data = await response.json();
+                console.log('Created SOS notification:', data);
+            }
+    
+            fetchSOSNotifications();
+            setNewSOSNotification({
+                name: '',
+                email: '',
+                school: '',
+                contact: '',
+                batch: '',
+                alertDate: ''
+            });
+            
+            setIsSOSModalOpen(false);
+            setSosEditIndex(null);
+        } catch (error) {
+            console.error('Error submitting SOS notification:', error);
+            alert('Failed to submit SOS notification. Please try again.');
+        }
     };
     
+
+    // Edit Mood
+    const editMood = (index: number) => {
+        const moodToEdit = moodList[index];
+        setNewMood(moodToEdit);
+        setIsModalOpen(true);
+        setEditIndex(index);
+    };
+
+    // Edit SOS Notification
+    const editSOSNotification = (index: number) => {
+        const sosToEdit = sosNotifications[index];
+        setNewSOSNotification(sosToEdit);
+        setIsSOSModalOpen(true);
+        setSosEditIndex(index);
+    };
+
     const deleteMood = async (index: number) => {
         if (window.confirm('Are you sure you want to delete this mood?')) {
             try {
@@ -140,13 +228,12 @@ export default function DailyMoodPage() {
                 await fetch(`http://localhost:3333/moods/${moodToDelete.id}`, {
                     method: 'DELETE',
                 });
-                fetchMoods(); // re get mood list
+                fetchMoods();
             } catch (error) {
                 console.error('Error deleting mood:', error);
             }
         }
     };
-    
 
     const deleteNotification = async (index: number) => {
         if (window.confirm('Are you sure you want to delete this notification?')) {
@@ -166,11 +253,15 @@ export default function DailyMoodPage() {
         alert(`Notification sent to ${sosNotifications[index].contact}`);
     };
 
-    // const filteredMoods = moodList
+    // Search filtering for Mood and SOS Notification
     const filteredMoods = moodList.filter((mood) =>
         mood.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const filteredSOSNotifications = sosNotifications?.filter((notification) =>
+        notification.name.toLowerCase().includes(sosSearchTerm.toLowerCase()) ||
+        notification.batch.toLowerCase().includes(sosSearchTerm.toLowerCase())
+    ) || [];
 
 
     return (
@@ -193,12 +284,12 @@ export default function DailyMoodPage() {
                             <Input
                                 placeholder="Search Moods"
                                 value={searchTerm}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}  //onChange
-                                // endDecorator={<Button variant="outlined">Filter</Button>}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                                 sx={{ width: '300px' }}
                             />
                         </Box>
 
+                        {/* Mood Table */}
                         <Box sx={{ overflowX: 'auto', marginBottom: '40px' }}>
                             <table className="table">
                                 <thead>
@@ -225,28 +316,37 @@ export default function DailyMoodPage() {
                             </table>
                         </Box>
 
-                        {/* SOS Notifications Section */}
-                        <h2 className="sos-title">SOS Notifications</h2>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '20px' }}>SOS Notifications</h2>
+                        <Box sx={{ marginBottom: '20px', display: 'flex', gap: 1 }}>
+                            <Button variant="solid" color="primary" onClick={() => setIsSOSModalOpen(true)}>
+                                Add SOS Notification
+                            </Button>
+                            <Input
+                                placeholder="Search SOS Notifications (name or batch)"
+                                value={sosSearchTerm}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSosSearchTerm(e.target.value)}
+                                sx={{ width: '300px' }}
+                            />
+                        </Box>
+
+                        {/* SOS Notification Table */}
                         <Box sx={{ overflowX: 'auto', marginBottom: '40px' }}>
                             <table className="table">
                                 <thead>
                                     <tr>
-                                        <th>Profile</th>
+                                        <th>Name</th>
+                                        <th>Batch</th>
                                         <th>Alert Date</th>
                                         <th>School</th>
                                         <th>Contact</th>
-                                        <th>Status</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {sosNotifications.map((notification, index) => (
+                                    {filteredSOSNotifications.map((notification, index) => (
                                         <tr key={index}>
-                                            <td>
-                                                <img src={notification.profileImage || 'https://via.placeholder.com/50'} alt="Profile" className="profile-image" />
-                                                {notification.name}
-                                                <br />
-                                                {notification.email}
-                                            </td>
+                                            <td>{notification.name}</td>
+                                            <td>{notification.batch}</td>
                                             <td>{notification.alertDate}</td>
                                             <td>{notification.school}</td>
                                             <td>{notification.contact}</td>
@@ -254,7 +354,7 @@ export default function DailyMoodPage() {
                                                 <Button variant="solid" size="sm" color="primary" onClick={() => sendNotification(index)}>
                                                     Send
                                                 </Button>
-                                                <Button variant="plain" size="sm">✏️</Button>
+                                                <Button variant="plain" size="sm" onClick={() => editSOSNotification(index)}>✏️</Button>
                                                 <Button variant="plain" size="sm" onClick={() => deleteNotification(index)}>❌</Button>
                                             </td>
                                         </tr>
@@ -264,6 +364,7 @@ export default function DailyMoodPage() {
                         </Box>
                     </Box>
 
+                    {/* Mood Modal */}
                     {isModalOpen && (
                         <div className="modal-overlay">
                             <div className="modal-content">
@@ -292,6 +393,64 @@ export default function DailyMoodPage() {
                             </div>
                         </div>
                     )}
+
+                    {/* SOS Modal */}
+                    {isSOSModalOpen && (
+                        <div className="modal-overlay">
+                            <div className="modal-content">
+                                <button className="modal-close" onClick={() => setIsSOSModalOpen(false)}>✖️</button>
+                                <div className="modal-body">
+                                    <label htmlFor="sosName">Name</label>
+                                    <input
+                                        id="sosName"
+                                        type="text"
+                                        name="name"
+                                        value={newSOSNotification.name}
+                                        onChange={handleSOSChange}
+                                    />
+
+                                    <label htmlFor="sosEmail">Email</label>
+                                    <input
+                                        id="sosEmail"
+                                        type="email"
+                                        name="email"
+                                        value={newSOSNotification.email}
+                                        onChange={handleSOSChange}
+                                    />
+
+                                    <label htmlFor="sosBatch">Batch</label>
+                                    <input
+                                        id="sosBatch"
+                                        type="text"
+                                        name="batch"
+                                        value={newSOSNotification.batch}
+                                        onChange={handleSOSChange}
+                                    />
+
+                                    <label htmlFor="sosSchool">School</label>
+                                    <input
+                                        id="sosSchool"
+                                        type="text"
+                                        name="school"
+                                        value={newSOSNotification.school}
+                                        onChange={handleSOSChange}
+                                    />
+
+                                    <label htmlFor="sosContact">Contact</label>
+                                    <input
+                                        id="sosContact"
+                                        type="text"
+                                        name="contact"
+                                        value={newSOSNotification.contact}
+                                        onChange={handleSOSChange}
+                                    />
+
+                                    <button className="submit-button" onClick={submitSOSNotification}>Submit SOS Notification</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                 </Layout.Main>
             </Layout.Root>
         </CssVarsProvider>
