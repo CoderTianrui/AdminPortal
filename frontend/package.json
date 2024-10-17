@@ -29,6 +29,10 @@
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.1",
+    "@types/babel__core": "^7.20.5",
+    "@types/babel__generator": "^7.6.8",
+    "@types/babel__template": "^7.4.4",
+    "@types/babel__traverse": "^7.20.6",
     "@types/node": "^20",
     "@types/react": "npm:types-react@19.0.0-rc.1",
     "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
@@ -57,8 +61,11 @@
     },
     "moduleNameMapper": {
       "\\.(css|less|scss|sass)$": "identity-obj-proxy",
-      "^@/app/(.*)$": "<rootDir>/app/$1"
-    }
+      "^@/(.*)$": "<rootDir>/$1"
+    },
+    "testMatch": [
+      "**/test/**/*.[jt]s?(x)"
+    ]
   },
   "packageManager": "yarn@4.5.0",
   "overrides": {

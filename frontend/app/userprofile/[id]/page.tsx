@@ -58,7 +58,10 @@ export default function UserProfilePage() {
 
   useEffect(() => {
     if (id) {
-      fetch(`http://localhost:3333/users/${id}`)
+      fetch(`http://localhost:3333/users/${id}`, {
+        method: 'GET', // Optional, GET is the default
+        credentials: 'include', // Ensures cookies are sent with the request
+      })
         .then((res) => {
           if (!res.ok) {
             throw new Error('User not found');
