@@ -84,7 +84,8 @@ export default function SchoolManagementPage() {
         }
     };
       
-      
+
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -96,46 +97,127 @@ export default function SchoolManagementPage() {
 
     const handleSubmit = async () => {
         if (!newSchool.name) {
-            console.error('All fields are required');
-            return;
+          console.error('All fields are required');
+          alert('Please fill out all required fields.');
+          const nameInput = document.querySelector('input[name="name"]') as HTMLInputElement | null;
+          nameInput?.focus();
+          return;
         }
-
-        let response;
+      
+        console.log('Adding new school:', newSchool);
+      
         try {
-            const payload = {
-                name: newSchool.name,
-                adminUserId: newSchool.adminUser && typeof newSchool.adminUser === 'object'
-                    ? newSchool.adminUser.id
-                    : newSchool.adminUser,
-            };
-
-            if (editIndex !== null) {
-                response = await fetch(`http://localhost:3333/schools/${schools[editIndex].id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                });
-            } else {
-                response = await fetch('http://localhost:3333/schools', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                });
-
-                if (!response.ok) {
-                    const errorMessage = await response.text();
-                    throw new Error(`Failed to create school: ${errorMessage}`);
-                }
-
-                const createdSchool = await response.json();
-                setSchools((prevSchools) => [...prevSchools, createdSchool]);
+          const payload = {
+            name: newSchool.name,
+            adminUserId:
+              newSchool.adminUser && typeof newSchool.adminUser === 'object'
+                ? newSchool.adminUser.id
+                : newSchool.adminUser,
+          };
+      
+          const submitButton = document.querySelector('.submit-button') as HTMLButtonElement | null;
+          if (submitButton) submitButton.disabled = true;
+      
+          let response: Response;
+      
+          if (editIndex !== null) {
+            // Existing editing logic...
+            // (This part remains as adjusted previously)
+            console.log(`Updating school with ID: ${schools[editIndex].id}`);
+            response = await fetch(`http://localhost:3333/schools/${schools[editIndex].id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+      
+            if (!response.ok) {
+              const errorMessage = await response.text();
+              throw new Error(`Failed to update school: ${errorMessage}`);
             }
-
-            closeSchoolModal();
+      
+            const responseData = await response.json();
+            const updatedSchool = responseData.data;
+      
+            // Update the adminUser in the updatedSchool
+            if (updatedSchool.adminUserId) {
+              const adminUser = users.find((user) => String(user.id) === String(updatedSchool.adminUserId));
+              if (adminUser) {
+                updatedSchool.adminUser = adminUser;
+              }
+            } else {
+              updatedSchool.adminUser = null;
+            }
+      
+            // Update the schools state
+            setSchools((prevSchools) => {
+              const updatedSchools = [...prevSchools];
+              updatedSchools[editIndex!] = { ...updatedSchools[editIndex!], ...updatedSchool };
+              return updatedSchools;
+            });
+      
+            // Clear the form after editing
+            setNewSchool({ name: '', adminUser: null });
+          } else {
+            // Adding a new school
+            console.log('Creating a new school...');
+            response = await fetch('http://localhost:3333/schools', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+      
+            if (!response.ok) {
+              const errorMessage = await response.text();
+              throw new Error(`Failed to create school: ${errorMessage}`);
+            }
+      
+            const responseData = await response.json();
+            const createdSchool = responseData.data;
+      
+            // Update the adminUser in the createdSchool
+            if (createdSchool.adminUserId) {
+              const adminUser = users.find((user) => String(user.id) === String(createdSchool.adminUserId));
+              if (adminUser) {
+                createdSchool.adminUser = adminUser;
+              }
+            } else {
+              createdSchool.adminUser = null;
+            }
+      
+            // Update the schools state
+            setSchools((prevSchools) => [...prevSchools, createdSchool]);
+      
+            // Clear the form after adding
+            setNewSchool({ name: '', adminUser: null });
+          }
+      
+          alert(editIndex !== null ? 'School updated successfully!' : 'School created successfully!');
+          closeSchoolModal();
         } catch (error) {
-            console.error('Failed to save school:', error);
+          console.error('Failed to save school:', error);
+      
+          if (error instanceof Error) {
+            alert(`Error: ${error.message}`);
+          } else {
+            alert('An unexpected error occurred. Please try again.');
+          }
+        } finally {
+          const submitButton = document.querySelector('.submit-button') as HTMLButtonElement | null;
+          if (submitButton) submitButton.disabled = false;
+      
+          const nameInput = document.querySelector('input[name="name"]') as HTMLInputElement | null;
+          nameInput?.focus(); // Focus back on the name input
         }
-    };
+      };
+      
+      
+    
+    React.useEffect(() => {
+        console.log('Schools state updated:', schools);
+    }, [schools]);
+      
+    
+    
 
     const handleEdit = (index: number) => {
         setEditIndex(index);
@@ -158,9 +240,7 @@ export default function SchoolManagementPage() {
         setSearch(e.target.value);
     };
 
-    React.useEffect(() => {
-        console.log('Schools state updated:', schools);
-    }, [schools]);
+
 
     const filteredSchools = search.trim()
         ? schools.filter(school =>
