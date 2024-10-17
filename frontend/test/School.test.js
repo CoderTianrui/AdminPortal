@@ -1,116 +1,127 @@
+// test/School.test.js
+
 import React from 'react';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import SchoolManagementPage from '../app/school/page';
-import { act } from 'react-dom/test-utils';
-// test/utils/render.js
-import { render as rtlRender } from '@testing-library/react';
+import { render } from '@testing-library/react';
 
-function render(ui, options = {}) {
-  return rtlRender(ui, { wrapper: ({ children }) => children, ...options });
-}
-
-export * from '@testing-library/react';
-export { render };
-
-// Mock `window.matchMedia`
 beforeAll(() => {
-  global.matchMedia = global.matchMedia || function () {
-    return {
-      matches: false,
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-    };
-  };
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: jest.fn().mockImplementation((query) => ({
+        matches: false, // You can set this to true if needed
+        media: query,
+        onchange: null,
+        addListener: jest.fn(), // Deprecated
+        removeListener: jest.fn(), // Deprecated
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+      })),
+    });
+  });
 
-  global.alert = jest.fn(); // Mock `alert` to avoid side effects
-});
-
-let mockUsersData = [];
+// Mock `global.fetch` before importing the component
 let mockSchoolsData = [];
+let mockUsersData = [];
 
-beforeEach(() => {
-  mockUsersData = [
-    { id: '1', firstName: 'John', lastName: 'Doe', email: 'john@example.com' },
-    { id: '2', firstName: 'Jane', lastName: 'Smith', email: 'jane@example.com' },
-  ];
-
-  mockSchoolsData = [
-    { id: '1', name: 'Test School', adminUserId: '1', adminUser: null },
-  ];
-});
-
-beforeAll(() => {
-  global.fetch = jest.fn((url, options) => {
-    if (url.includes('/users')) {
-      return Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: mockUsersData,
-          }),
-      });
-    } else if (url.includes('/schools') && (!options?.method || options?.method === 'GET')) {
-      return Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: mockSchoolsData,
-          }),
-      });
-    } else if (url.includes('/schools') && options?.method === 'POST') {
-      const newSchoolData = JSON.parse(options.body);
-      const newSchool = {
-        id: String(mockSchoolsData.length + 1), // Assign a new ID
-        ...newSchoolData,
-        adminUser: null,
+global.fetch = jest.fn((url, options = {}) => {
+  // Handle different endpoints and methods
+  if (url.endsWith('/schools') && (!options.method || options.method === 'GET')) {
+    // GET /schools
+    return Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({ data: mockSchoolsData }),
+    });
+  } else if (url.endsWith('/users') && (!options.method || options.method === 'GET')) {
+    // GET /users
+    return Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({ data: mockUsersData }),
+    });
+  } else if (url.endsWith('/schools') && options.method === 'POST') {
+    // POST /schools
+    const newSchoolData = JSON.parse(options.body);
+    const newSchool = {
+      id: String(mockSchoolsData.length + 1),
+      ...newSchoolData,
+      adminUser: mockUsersData.find((user) => user.id === newSchoolData.adminUserId) || null,
+    };
+    mockSchoolsData.push(newSchool);
+    return Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve(newSchool),
+    });
+  } else if (url.match(/\/schools\/\d+$/) && options.method === 'PUT') {
+    // PUT /schools/:id
+    const id = url.split('/').pop();
+    const updatedSchoolData = JSON.parse(options.body);
+    const index = mockSchoolsData.findIndex((school) => school.id === id);
+    if (index !== -1) {
+      const updatedSchool = {
+        ...mockSchoolsData[index],
+        ...updatedSchoolData,
+        adminUser: mockUsersData.find((user) => user.id === updatedSchoolData.adminUserId) || null,
       };
-
-      // Find the admin user by id
-      const adminUser = mockUsersData.find(user => String(user.id) === String(newSchoolData.adminUserId));
-      if (adminUser) {
-        newSchool.adminUser = adminUser;
-      }
-
-      mockSchoolsData.push(newSchool);
+      mockSchoolsData[index] = updatedSchool;
       return Promise.resolve({
         ok: true,
-        json: () => Promise.resolve({ data: newSchool }),
+        json: () => Promise.resolve(updatedSchool),
       });
-    } else if (url.includes('/schools') && options?.method === 'PUT') {
-      const idToUpdate = url.split('/').pop();
-      const updatedSchoolData = JSON.parse(options.body);
-
-      mockSchoolsData = mockSchoolsData.map((school) =>
-        school.id === idToUpdate ? { ...school, ...updatedSchoolData } : school
-      );
-
+    } else {
       return Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ data: updatedSchoolData }),
-      });
-    } else if (url.includes('/schools') && options?.method === 'DELETE') {
-      const idToDelete = url.split('/').pop();
-      mockSchoolsData = mockSchoolsData.filter((school) => school.id !== idToDelete);
-      return Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({}),
+        ok: false,
+        status: 404,
+        json: () => Promise.resolve({ error: 'School not found' }),
       });
     }
-    // Handle other cases or invalid requests
+  } else if (url.match(/\/schools\/\d+$/) && options.method === 'DELETE') {
+    // DELETE /schools/:id
+    const id = url.split('/').pop();
+    const index = mockSchoolsData.findIndex((school) => school.id === id);
+    if (index !== -1) {
+      mockSchoolsData.splice(index, 1);
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ message: 'School deleted' }),
+      });
+    } else {
+      return Promise.resolve({
+        ok: false,
+        status: 404,
+        json: () => Promise.resolve({ error: 'School not found' }),
+      });
+    }
+  } else {
+    // Default response for unhandled requests
     return Promise.resolve({
       ok: false,
       status: 404,
       json: () => Promise.resolve({ error: 'Not Found' }),
     });
-  });
+  }
 });
 
-afterAll(() => {
-  jest.resetAllMocks();
-});
+// Import the component after setting up the fetch mock
+import SchoolManagementPage from '../app/school/page';
 
 describe('SchoolManagementPage', () => {
+  beforeEach(() => {
+    // Initialize mock data before each test
+    mockUsersData = [
+      { id: '1', firstName: 'John', lastName: 'Doe', email: 'john@example.com' },
+      { id: '2', firstName: 'Jane', lastName: 'Smith', email: 'jane@example.com' },
+    ];
+
+    mockSchoolsData = [
+      { id: '1', name: 'Test School', adminUserId: '1', adminUser: null },
+    ];
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   test('edits a school to change its name', async () => {
     render(<SchoolManagementPage />);
 
@@ -129,7 +140,9 @@ describe('SchoolManagementPage', () => {
     });
 
     // Change the school name
-    fireEvent.change(screen.getByPlaceholderText('School Name'), { target: { value: 'Edited School Name' } });
+    fireEvent.change(screen.getByPlaceholderText('School Name'), {
+      target: { value: 'Edited School Name' },
+    });
 
     // Submit the form
     fireEvent.click(screen.getByText('Submit'));
@@ -188,10 +201,14 @@ describe('SchoolManagementPage', () => {
     });
 
     // Fill in the school name
-    fireEvent.change(screen.getByPlaceholderText('School Name'), { target: { value: 'School with Admin' } });
+    fireEvent.change(screen.getByPlaceholderText('School Name'), {
+      target: { value: 'School with Admin' },
+    });
 
     // Select an admin user from the dropdown
-    fireEvent.change(screen.getByLabelText('Admin User'), { target: { value: '2' } }); // Selecting Jane Smith
+    fireEvent.change(screen.getByLabelText('Admin User'), {
+      target: { value: '2' }, // Selecting Jane Smith
+    });
 
     // Submit the form
     fireEvent.click(screen.getByText('Submit'));
@@ -205,7 +222,6 @@ describe('SchoolManagementPage', () => {
     expect(screen.getByText('Jane Smith')).toBeInTheDocument();
   });
 
-  // Include the existing tests as well
   test('adds a school', async () => {
     render(<SchoolManagementPage />);
 
@@ -218,7 +234,9 @@ describe('SchoolManagementPage', () => {
     fireEvent.click(screen.getByText('Create School'));
 
     // Fill in the school name
-    fireEvent.change(screen.getByPlaceholderText('School Name'), { target: { value: 'New Test School' } });
+    fireEvent.change(screen.getByPlaceholderText('School Name'), {
+      target: { value: 'New Test School' },
+    });
 
     // Submit the form
     fireEvent.click(screen.getByText('Submit'));
