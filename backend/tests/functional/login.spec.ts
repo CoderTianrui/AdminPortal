@@ -2,8 +2,8 @@ import { test } from '@japa/runner'
 import { UserFactory } from '#database/factories/user_factory'
 import testUtils from '@adonisjs/core/services/test_utils'
 
-test.group('Login', (group) => {
-  group.each.setup(() => testUtils.db().withGlobalTransaction())
+test.group('Login', (suite) => {
+  suite.each.setup(() => testUtils.db().withGlobalTransaction())
 
   test('can login with valid credentials', async ({ client }) => {
     const user = await UserFactory.create()

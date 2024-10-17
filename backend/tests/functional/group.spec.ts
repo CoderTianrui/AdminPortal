@@ -5,11 +5,11 @@ import Group from '#models/group'
 import User from '#models/user'
 import { Access, Profile } from '#models/profile_access_enums'
 
-test.group('Groups', (group) => {
+test.group('Groups', (suite) => {
   // !! IMPORTANT !!
   // Make sure this lifecycle hook is executed before any test
   // Otherwise, the database will not be reset and the tests will fail
-  group.each.setup(() => testUtils.db().withGlobalTransaction())
+  suite.each.setup(() => testUtils.db().withGlobalTransaction())
 
   async function getMockUser() {
     return await User.create({
@@ -17,7 +17,7 @@ test.group('Groups', (group) => {
       password: 'password',
       profile: Profile.Admin,
       access: Access.Full,
-      permissionNode: 'test',
+      permissionNode: 'user',
       firstName: 'Test',
       lastName: 'User',
       ownedById: 1,
@@ -27,13 +27,13 @@ test.group('Groups', (group) => {
   // Test index method
   test('can list groups', async ({ client }) => {
     const user = await getMockUser()
-    const groupCount = (await Group.all()).length
+    const groups = await Group.all()
     await GroupFactory.createMany(3)
     
     const response = await client.get('/groups').loginAs(user)
     
     response.assertStatus(200)
-    response.assertBodyContains({ meta: { total: groupCount + 3 } })
+    response.assertBodyContains({ meta: { total: groups.length + 3 } })
   })
 
   // Test store method

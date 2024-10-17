@@ -6,8 +6,8 @@ import User from '#models/user'
 import { Access, Profile } from '#models/profile_access_enums'
 import PermissionService from '#services/permission_service'
 
-test.group('Permissions', (group) => {
-  group.each.setup(() => testUtils.db().withGlobalTransaction())
+test.group('Permissions', (suite) => {
+  suite.each.setup(() => testUtils.db().withGlobalTransaction())
 
   async function getMockAdminUser() {
     return await User.create({
@@ -64,7 +64,7 @@ test.group('Permissions', (group) => {
     const admin = await getMockAdminUser()
     const group = await GroupFactory.create()
     const permissions = ['group.read', 'group.write']
-    group.merge({ permissions })
+    group.permissions = permissions
     await group.save()
 
     const response = await client.get('/permissions/group')
