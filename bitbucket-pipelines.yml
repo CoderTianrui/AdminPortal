@@ -16,7 +16,7 @@ pipelines:
             - corepack prepare yarn@stable --activate
             - yarn install
             - yarn run build
-            - yarn run test
+            - yarn run coverage
       - step:
           name: 'Lint Frontend'
           script:
@@ -33,7 +33,8 @@ pipelines:
             - corepack prepare yarn@stable --activate
             - yarn install
             - yarn run build
-            - yarn run test
+            - node ace migration:fresh
+            - yarn run coverage
       - step:
           name: 'Lint Backend'
           script:
