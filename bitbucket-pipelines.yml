@@ -33,6 +33,7 @@ pipelines:
             - corepack prepare yarn@stable --activate
             - yarn install
             - yarn run build
+            - node ace migration:fresh
             - yarn run coverage
       - step:
           name: 'Lint Backend'
