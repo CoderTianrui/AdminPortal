@@ -1,19 +1,10 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { act } from 'react';
 
 // Mock icons
 jest.mock('@mui/icons-material/DarkModeRounded', () => ({ __esModule: true, default: () => <span>DarkModeIcon</span> }));
 jest.mock('@mui/icons-material/LightModeRounded', () => ({ __esModule: true, default: () => <span>LightModeIcon</span> }));
-
-// Mock the useFormState hook
-jest.mock('react-dom', () => ({
-  ...jest.requireActual('react-dom'),
-  useFormState: jest.fn(() => [{}, jest.fn()]),
-}));
-
-import { useFormState } from 'react-dom';
 
 // Mock window.matchMedia
 window.matchMedia = jest.fn(query => ({
@@ -46,6 +37,12 @@ import { redirect } from 'next/navigation';
 import JoySignInSideTemplate from '../app/signin/page';
 
 describe('login function', () => {
+  beforeAll(() => {
+    window.addEventListener('submit', (e) => {
+      e.preventDefault();
+    });
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     // Ensure fetch always returns a Promise
