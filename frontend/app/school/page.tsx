@@ -1,3 +1,4 @@
+
 'use client';
 
 
@@ -122,76 +123,85 @@ export default function SchoolManagementPage() {
       
           if (editIndex !== null) {
             // Existing editing logic...
-            // (This part remains as adjusted previously)
-            console.log(`Updating school with ID: ${schools[editIndex].id}`);
-            response = await fetch(`http://localhost:3333/schools/${schools[editIndex].id}`, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload),
-            });
-      
-            if (!response.ok) {
-              const errorMessage = await response.text();
-              throw new Error(`Failed to update school: ${errorMessage}`);
+        console.log(`Updating school with ID: ${schools[editIndex].id}`);
+        response = await fetch(`http://localhost:3333/schools/${schools[editIndex].id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            const errorMessage = await response.text();
+            throw new Error(`Failed to update school: ${errorMessage}`);
+        }
+
+        const responseData = await response.json();
+        console.log('responseData:', responseData); // For debugging
+
+        // Adjust this line
+        const updatedSchool = responseData; // Assuming the API returns the updated school object directly
+
+        // Update the adminUser in the updatedSchool
+        if (updatedSchool.adminUserId) {
+            const adminUser = users.find((user) => String(user.id) === String(updatedSchool.adminUserId));
+            if (adminUser) {
+            updatedSchool.adminUser = adminUser;
             }
-      
-            const responseData = await response.json();
-            const updatedSchool = responseData.data;
-      
-            // Update the adminUser in the updatedSchool
-            if (updatedSchool.adminUserId) {
-              const adminUser = users.find((user) => String(user.id) === String(updatedSchool.adminUserId));
-              if (adminUser) {
-                updatedSchool.adminUser = adminUser;
-              }
-            } else {
-              updatedSchool.adminUser = null;
-            }
-      
-            // Update the schools state
-            setSchools((prevSchools) => {
-              const updatedSchools = [...prevSchools];
-              updatedSchools[editIndex!] = { ...updatedSchools[editIndex!], ...updatedSchool };
-              return updatedSchools;
-            });
-      
-            // Clear the form after editing
-            setNewSchool({ name: '', adminUser: null });
+        } else {
+            updatedSchool.adminUser = null;
+        }
+
+        // Update the schools state
+        setSchools((prevSchools) => {
+            const updatedSchools = [...prevSchools];
+            updatedSchools[editIndex!] = { ...updatedSchools[editIndex!], ...updatedSchool };
+            return updatedSchools;
+        });
+
+        // Clear the form after editing
+        setNewSchool({ name: '', adminUser: null });
+
           } else {
             // Adding a new school
             console.log('Creating a new school...');
             response = await fetch('http://localhost:3333/schools', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload),
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
             });
-      
+
             if (!response.ok) {
-              const errorMessage = await response.text();
-              throw new Error(`Failed to create school: ${errorMessage}`);
+            const errorMessage = await response.text();
+            throw new Error(`Failed to create school: ${errorMessage}`);
             }
-      
+
             const responseData = await response.json();
-            const createdSchool = responseData.data;
-      
-            // Update the adminUser in the createdSchool
+            console.log('responseData:', responseData); // Add this line for debugging
+
+            // Adjust this line
+            const createdSchool = responseData; // Assuming the API returns the school object directly
+
+            // Proceed as before
             if (createdSchool.adminUserId) {
-              const adminUser = users.find((user) => String(user.id) === String(createdSchool.adminUserId));
-              if (adminUser) {
+            const adminUser = users.find(
+                (user) => String(user.id) === String(createdSchool.adminUserId)
+            );
+            if (adminUser) {
                 createdSchool.adminUser = adminUser;
-              }
-            } else {
-              createdSchool.adminUser = null;
             }
-      
+            } else {
+            createdSchool.adminUser = null;
+            }
+
             // Update the schools state
             setSchools((prevSchools) => [...prevSchools, createdSchool]);
-      
+
             // Clear the form after adding
             setNewSchool({ name: '', adminUser: null });
+
           }
       
-          alert(editIndex !== null ? 'School updated successfully!' : 'School created successfully!');
+        //   alert(editIndex !== null ? 'School updated successfully!' : 'School created successfully!');
           closeSchoolModal();
         } catch (error) {
           console.error('Failed to save school:', error);
