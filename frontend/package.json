@@ -18,9 +18,9 @@
     "@mui/joy": "5.0.0-beta.48",
     "@mui/material": "^5.16.7",
     "@mui/x-data-grid": "^7.18.0",
-    "next": "15.0.0-rc.1",
-    "react": "19.0.0-rc-cd22717c-20241013",
-    "react-dom": "19.0.0-rc-cd22717c-20241013"
+    "next": "^15.0.0-rc.1",
+    "react": "19.0.0-rc-bf7e210c-20241017",
+    "react-dom": "19.0.0-rc-bf7e210c-20241017"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.25.4",
@@ -34,8 +34,8 @@
     "@types/babel__template": "^7.4.4",
     "@types/babel__traverse": "^7.20.6",
     "@types/node": "^20",
-    "@types/react": "npm:types-react@19.0.0-rc.1",
-    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
     "babel-jest": "^29.7.0",
     "eslint": "^8",
     "eslint-config-next": "15.0.0-rc.1",
@@ -67,9 +67,5 @@
       "**/test/**/*.[jt]s?(x)"
     ]
   },
-  "packageManager": "yarn@4.5.0",
-  "overrides": {
-    "@types/react": "npm:types-react@19.0.0-rc.1",
-    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1"
-  }
+  "packageManager": "yarn@4.5.0"
 }
