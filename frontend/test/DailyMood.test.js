@@ -91,54 +91,54 @@ test('filters moods based on search input', async () => {
   });
 });
 
-// test('deletes a mood', async () => {
-//   const mockMoods = [
-//     { id: 1, name: 'Happy', image: 'https://example.com/happy.png' },
-//   ];
+test('deletes a mood', async () => {
+  const mockMoods = [
+    { id: 1, name: 'Happy', image: 'https://example.com/happy.png' },
+  ];
 
-//   global.fetch.mockResolvedValueOnce({
-//     ok: true,
-//     json: async () => ({ data: mockMoods }),
-//   });
+  global.fetch.mockResolvedValueOnce({
+    ok: true,
+    json: async () => ({ data: mockMoods }),
+  });
 
-//   await act(() => {
-//     render(<DailyMoodPage />);
-//   });
+  await act(() => {
+    render(<DailyMoodPage />);
+  });
 
 
-//   const deleteButton = screen.getByTestId('mood-delete'); 
+  const deleteButton = screen.getByTestId('mood-delete'); 
 
  
-//   window.confirm = jest.fn(() => true);
+  window.confirm = jest.fn(() => true);
 
 
-//   fireEvent.click(deleteButton);
+  fireEvent.click(deleteButton);
 
-//   expect(global.fetch).toHaveBeenCalledWith(
-//     'http://localhost:3333/moods/1',
-//     expect.objectContaining({
-//       method: 'DELETE',
-//     })
-//   );
-
-
-//   await waitFor(() => {
-//     expect(screen.queryByText('Happy')).not.toBeInTheDocument();
-//   });
-// });
+  expect(global.fetch).toHaveBeenCalledWith(
+    'http://localhost:3333/moods/1',
+    expect.objectContaining({
+      method: 'DELETE',
+    })
+  );
 
 
-test('opens and closes the Add SOS Notification modal', () => {
-  render(<DailyMoodPage />);
-
-
-  fireEvent.click(screen.getByText(/Add SOS Notification/i));
-  expect(screen.getByLabelText(/Name/i)).toBeInTheDocument();
-
-
-  fireEvent.click(screen.getByText(/✖️/i));
-  expect(screen.queryByPlaceholderText(/Enter name/i)).not.toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByText('Happy')).not.toBeInTheDocument();
+  });
 });
+
+
+// test('opens and closes the Add SOS Notification modal', () => {
+//   render(<DailyMoodPage />);
+
+
+//   fireEvent.click(screen.getByText(/Add SOS Notification/i));
+//   expect(screen.getByLabelText(/Name/i)).toBeInTheDocument();
+
+
+//   fireEvent.click(screen.getByText(/✖️/i));
+//   expect(screen.queryByPlaceholderText(/Enter name/i)).not.toBeInTheDocument();
+// });
 
 test('adds a new SOS notification entry', async () => {
   render(<DailyMoodPage />);
