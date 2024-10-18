@@ -205,49 +205,49 @@ test('filters SOS notifications based on search input', async () => {
   });
 });
 
-// test('deletes an SOS notification', async () => {
-//   const mockMoods = [
-//     { id: 1, name: 'Happy', image: 'https://example.com/happy.png' },
-//     { id: 2, name: 'Sad', image: 'https://example.com/sad.png' },
-//   ];
+test('deletes an SOS notification', async () => {
+  const mockMoods = [
+    { id: 1, name: 'Happy', image: 'https://example.com/happy.png' },
+    { id: 2, name: 'Sad', image: 'https://example.com/sad.png' },
+  ];
 
-//   global.fetch.mockResolvedValueOnce({
-//     ok: true,
-//     json: async () => ({ data: mockMoods }),
-//   });
+  global.fetch.mockResolvedValueOnce({
+    ok: true,
+    json: async () => ({ data: mockMoods }),
+  });
 
-//   const mockSOSNotifications = [
-//     { id: 1, name: 'John Doe', email: 'john@example.com', contact: '123456', batch: 'Batch-1' },
-//   ];
+  const mockSOSNotifications = [
+    { id: 1, name: 'John Doe', email: 'john@example.com', contact: '123456', batch: 'Batch-1' },
+  ];
 
-//   global.fetch.mockResolvedValueOnce({
-//     ok: true,
-//     json: async () => ({ data: mockSOSNotifications }),
-//   });
+  global.fetch.mockResolvedValueOnce({
+    ok: true,
+    json: async () => ({ data: mockSOSNotifications }),
+  });
 
-//   await act(() => {
-//     render(<DailyMoodPage />);
-//   })
+  await act(() => {
+    render(<DailyMoodPage />);
+  })
 
-//   const deleteButton = screen.getByTestId('sos-delete')
+  const deleteButton = screen.getByTestId('sos-delete')
 
-//   window.confirm = jest.fn(() => true);
+  window.confirm = jest.fn(() => true);
 
-//   fireEvent.click(deleteButton);
+  fireEvent.click(deleteButton);
 
 
-//   expect(global.fetch).toHaveBeenCalledWith(
-//     'http://localhost:3333/sos_messages/1',
-//     expect.objectContaining({
-//       method: 'DELETE',
-//     })
-//   );
+  expect(global.fetch).toHaveBeenCalledWith(
+    'http://localhost:3333/sos_messages/1',
+    expect.objectContaining({
+      method: 'DELETE',
+    })
+  );
 
  
-//   await waitFor(() => {
-//     expect(screen.queryByText('John Doe')).not.toBeInTheDocument();
-//   });
-// });
+  await waitFor(() => {
+    expect(screen.queryByText('John Doe')).not.toBeInTheDocument();
+  });
+});
 
 test('updates an existing mood entry', async () => {
   const mockMoods = [
