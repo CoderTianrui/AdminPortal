@@ -25,7 +25,6 @@ interface Survey {
     title: string;
     description: string;
     level: string;
-    // school: School | string | null;
     schools: School[];
 }
 
@@ -225,7 +224,7 @@ export default function SurveyManagementPage() {
                         <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>Survey Management</h1>
                         <Box sx={{ marginBottom: '20px', display: 'flex', gap: 1 }}>
                             <Button variant="solid" color="primary" onClick={() => openSurveyModal()}>
-                                Create Survey
+                                Add Survey
                             </Button>
                             <Input
                                 placeholder="Search Surveys by title"
@@ -255,6 +254,7 @@ export default function SurveyManagementPage() {
                                         <input
                                             type="level"
                                             className="form-control"
+                                            placeholder="Enter level"
                                             name="level"
                                             value={newSurvey.level}
                                             onChange={handleSurveyChange}
@@ -263,7 +263,7 @@ export default function SurveyManagementPage() {
                                         <label>School</label>
                                         <Select
                                             multiple
-                                            value={newSurvey.schools.length > 0 ? newSurvey.schools.map((schools) => schools.id) : []} // Handle no selected schools (empty array)
+                                            value={Array.isArray(newSurvey.schools) && newSurvey.schools.length > 0 ? newSurvey.schools.map((schools) => schools.id) : []} // Handle no selected schools (empty array)
                                             onChange={(event, newValue) => {
                                                 // If no schools are selected, `newValue` will be an empty array
                                                 const selectedSchools = newValue.length > 0
@@ -303,11 +303,11 @@ export default function SurveyManagementPage() {
 
                                         {/* Display selected schools below */}
                                         <Box sx={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', marginTop: '1rem' }}>
-                                            {newSurvey.schools.map((selectedSchool, i) => (
+                                            {Array.isArray(newSurvey.schools) && newSurvey.schools.length > 0 ? newSurvey.schools.map((selectedSchool, i) => (
                                                 <Chip key={i} variant="soft" color="primary">
                                                     {selectedSchool.name}
                                                 </Chip>
-                                            ))}
+                                            )) : <p>No school selected</p>}
                                         </Box>
 
                                         <label>Description</label>
