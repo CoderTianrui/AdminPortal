@@ -18,7 +18,6 @@ interface Subscriptions {
 }
 
 export default function ManageSubscribedChannels() {
-    const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [subscriptionSearchQuery, setSubscriptionSearchQuery] = React.useState('');
 
     const [subscriptionList, setSubscriptionList] = React.useState<Subscriptions[]>([
@@ -57,25 +56,9 @@ export default function ManageSubscribedChannels() {
     return (
         <CssVarsProvider disableTransitionOnChange>
             <CssBaseline />
-            {drawerOpen && (
-                <Layout.SideDrawer onClose={() => setDrawerOpen(false)}>
-                    <Navigation />
-                </Layout.SideDrawer>
-            )}
-            <Layout.Root
-                sx={{
-                    ...(drawerOpen && {
-                        height: '100vh',
-                        overflow: 'hidden',
-                    }),
-                }}
-            >
-                <Layout.Header>
-                    <Header />
-                </Layout.Header>
-                <Layout.SideNav>
-                    <Navigation />
-                </Layout.SideNav>
+            <Layout.Root>
+                <Navigation />
+                <Header />
                 <Layout.Main>
                     <Box sx={{ width: '100%', padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
                         <Button

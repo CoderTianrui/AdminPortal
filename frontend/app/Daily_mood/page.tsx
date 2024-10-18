@@ -29,7 +29,7 @@ export default function DailyMoodPage() {
     const [moodList, setMoodList] = React.useState<Mood[]>([
         {
             name: 'Excitement',
-            image: 'https://via.placeholder.com/50', 
+            image: 'https://via.placeholder.com/50',
         },
     ]);
 
@@ -71,12 +71,8 @@ export default function DailyMoodPage() {
         <CssVarsProvider disableTransitionOnChange>
             <CssBaseline />
             <Layout.Root>
-                <Layout.Header>
-                    <Header />
-                </Layout.Header>
-                <Layout.SideNav>
-                    <Navigation />
-                </Layout.SideNav>
+                <Navigation />
+                <Header />
                 <Layout.Main>
                     <Box sx={{ width: '100%', padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
                         <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>Mood Types</h1>
@@ -158,7 +154,7 @@ export default function DailyMoodPage() {
                             <div className="modal-content">
                                 <button className="modal-close" onClick={() => setIsModalOpen(false)}>✖️</button>
                                 <div className="modal-body">
-                                <label htmlFor="moodName">Mood Name</label>
+                                    <label htmlFor="moodName">Mood Name</label>
                                     <input
                                         id="moodName"
                                         type="text"

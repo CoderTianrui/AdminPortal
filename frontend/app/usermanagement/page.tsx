@@ -35,8 +35,6 @@ interface User {
 }
 
 export default function UserManagementPage() {
-
-    const [drawerOpen, setDrawerOpen] = React.useState(false);
     const [isUserModalOpen, setIsUserModalOpen] = React.useState(false);
     const [users, setUsers] = React.useState<User[]>([]);
     const [schools, setSchools] = React.useState<School[]>([]);
@@ -51,15 +49,15 @@ export default function UserManagementPage() {
     // Fetch users on component mount
     React.useEffect(() => {
         const fetchData = async () => {
-            // Fetch users first and wait for the state to update
-            await fetchSchools();
-
-            // Now fetch schools after users are populated
-            fetchUsers();
+          // Fetch schools first and wait for the state to update
+          await fetchSchools();
+      
+          // Now fetch users after schools are populated
+          await fetchUsers();
         };
-
+      
         fetchData();
-    }, []);  // Empty dependency array to ensure it runs once
+      }, []);
 
 
     const fetchSchools = async () => {
@@ -85,20 +83,21 @@ export default function UserManagementPage() {
 
 
 
-    // Fetch users from the back-end
     const fetchUsers = async () => {
+        console.log('fetchUsers called');
         try {
-            const response = await fetch('http://localhost:3333/users', {
-                credentials: 'include',
-            });
-            const data = await response.json();
-
-
-            setUsers(data.data || []);
+          const response = await fetch('http://localhost:3333/users', {
+            credentials: 'include',
+          });
+          const data = await response.json();
+      
+          console.log('Fetched Users Data:', data);
+      
+          setUsers(data.data || []);
         } catch (error) {
-            console.error('Failed to fetch users:', error);
+          console.error('Failed to fetch users:', error);
         }
-    };
+      };
 
 
 
@@ -111,85 +110,87 @@ export default function UserManagementPage() {
         }));
     };
 
-
     const handleSubmit = async () => {
         console.log('consoleSubmit called');
         console.log('newUser:', newUser);
-
+      
         if (!newUser.firstName || !newUser.lastName || !newUser.email || !newUser.profile || !newUser.access) {
-            console.error('All fields are required');
-            return;
+          console.error('All fields are required');
+          return;
         }
-
-        let response;
-
+      
         try {
-            const { school, relatedUsers, ...restOfNewUser } = newUser;
-
-
-            const payload = {
-                ...restOfNewUser,
-                userSchoolId: school && typeof school === 'object'
-                    ? school.id
-                    : school
-                        ? parseInt(school, 10)
-                        : null,
-                relatedUsers: relatedUsers && relatedUsers.length > 0
-                    ? relatedUsers.map((id) => Number(id))
-                    : null
-
-            };
-
-            console.log("users", relatedUsers);
-
-            if (editIndex !== null) {
-                response = await fetch(`http://localhost:3333/users/${users[editIndex].id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload),
-                    credentials: 'include',
-                });
-            } else {
-                // Create new user
-                console.log('Payload:', payload);
-
-                response = await fetch('http://localhost:3333/users', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload),
-                    credentials: 'include',
-                });
-
-                console.log("Response Status: ", response.status);
-                console.log("Response Object: ", response);
-
-                if (!response.ok) {
-                    throw new Error('Failed to save');
-                    // const errorMessage = await response.text();  // Get detailed error message
-                    // throw new Error(`Failed to create user: ${errorMessage}`);
-                }
-
-
-                const createdUser = await response.json();
-                console.log(createdUser);
-                console.log('New User Saved: ', createdUser);
-
-                setUsers((prevUsers) => {
-                    const updatedUsers = [...prevUsers, createdUser];
-                    console.log('Updated Users:', updatedUsers);
-                    return updatedUsers;
-                });
+          const { school, relatedUsers, ...restOfNewUser } = newUser;
+      
+          const payload = {
+            ...restOfNewUser,
+            userSchoolId: school && typeof school === 'object'
+              ? school.id
+              : school
+                ? parseInt(school, 10)
+                : null,
+            relatedUsers: relatedUsers && relatedUsers.length > 0
+              ? relatedUsers.map((id) => Number(id))
+              : null,
+          };
+      
+          console.log("users", users);
+      
+          if (editIndex !== null) {
+            // Code for editing user
+            const userId = users[editIndex].id;
+      
+            const response = await fetch(`http://localhost:3333/users/${userId}`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(payload),
+              credentials: 'include',
+            });
+      
+            if (!response.ok) {
+              throw new Error('Failed to update user');
             }
-            fetchUsers();
-            closeUserModal();
+      
+            const updatedUser = await response.json();
+            console.log('User Updated: ', updatedUser);
+      
+            // Refresh the users list
+            await fetchUsers();
+          }  else {
+            // Create new user
+            console.log('Payload:', payload);
+      
+            const response = await fetch('http://localhost:3333/users', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(payload),
+              credentials: 'include',
+            });
+      
+            console.log("Response Status: ", response.status);
+            console.log("Response Object: ", response);
+      
+            if (!response.ok) {
+              throw new Error('Failed to save');
+            }
+      
+            const createdUser = await response.json();
+            console.log('New User Saved: ', createdUser);
+      
+            // Instead of updating 'users' state directly, fetch the latest users
+            await fetchUsers(); // Refresh the users list
+          }
+      
+          closeUserModal();
         } catch (error) {
-            console.error('Failed to save user:', error);
+          console.error('Failed to save user:', error);
         }
-    };
+      };
+      
 
     // Handle user edit
     const handleEdit = (index: number) => {
@@ -201,13 +202,15 @@ export default function UserManagementPage() {
     // Handle user delete
     const handleDelete = async (index: number) => {
         try {
-            await fetch(`http://localhost:3333/users/${users[index].id}`, {
-                method: 'DELETE',
-                credentials: 'include',
-            });
-            fetchUsers();
+          console.log('Deleting user at index:', index);
+          await fetch(`http://localhost:3333/users/${users[index].id}`, {
+            method: 'DELETE',
+            credentials: 'include',
+          });
+          console.log('User deleted, fetching updated users list.');
+          await fetchUsers();
         } catch (error) {
-            console.error('Failed to delete user:', error);
+          console.error('Failed to delete user:', error);
         }
     };
 
@@ -247,77 +250,11 @@ export default function UserManagementPage() {
 
 
     return (
-
         <CssVarsProvider disableTransitionOnChange>
             <CssBaseline />
-            {drawerOpen && (
-                <Layout.SideDrawer onClose={() => setDrawerOpen(false)}>
-                    <Navigation />
-                </Layout.SideDrawer>
-            )}
-            <Stack
-                id="tab-bar"
-                direction="row"
-                justifyContent="space-around"
-                spacing={1}
-                sx={{
-                    display: { xs: 'flex', sm: 'none' },
-                    zIndex: '999',
-                    bottom: 0,
-                    position: 'fixed',
-                    width: '100dvw',
-                    py: 2,
-                    backgroundColor: 'background.body',
-                    borderTop: '1px solid',
-                    borderColor: 'divider',
-                }}
-            >
-                <Button
-                    variant="plain"
-                    color="neutral"
-                    component="a"
-                    href="/joy-ui/getting-started/templates/email/"
-                    size="sm"
-                    sx={{ flexDirection: 'column', '--Button-gap': 0 }}
-                >
-                    User Management
-                </Button>
-                <Button
-                    variant="plain"
-                    color="neutral"
-                    aria-pressed="true"
-                    component="a"
-                    href="/joy-ui/getting-started/templates/team/"
-                    size="sm"
-                    sx={{ flexDirection: 'column', '--Button-gap': 0 }}
-                >
-                    News Management
-                </Button>
-                <Button
-                    variant="plain"
-                    color="neutral"
-                    component="a"
-                    href="/joy-ui/getting-started/templates/files/"
-                    size="sm"
-                    sx={{ flexDirection: 'column', '--Button-gap': 0 }}
-                >
-                    Survey Management
-                </Button>
-            </Stack>
-            <Layout.Root
-                sx={{
-                    ...(drawerOpen && {
-                        height: '100vh',
-                        overflow: 'hidden',
-                    }),
-                }}
-            >
-                <Layout.Header>
-                    <Header />
-                </Layout.Header>
-                <Layout.SideNav>
-                    <Navigation />
-                </Layout.SideNav>
+            <Layout.Root>
+                <Navigation />
+                <Header />
                 <Layout.Main>
                     <article className="table-container">
                         <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>User Management</h1>

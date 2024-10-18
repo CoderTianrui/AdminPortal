@@ -18,10 +18,10 @@ import Stack from '@mui/joy/Stack';
 import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
 import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
 import BadgeRoundedIcon from '@mui/icons-material/BadgeRounded';
-import { useFormState } from 'react-dom'
+import { useActionState } from 'react';
 import { login } from './login';
 import { InfoOutlined } from '@mui/icons-material';
-import { FormHelperText } from '@mui/joy';
+import { CircularProgress, FormHelperText } from '@mui/joy';
 
 interface FormElements extends HTMLFormControlsCollection {
     email: HTMLInputElement;
@@ -58,7 +58,7 @@ function ColorSchemeToggle(props: IconButtonProps) {
 }
 
 export default function JoySignInSideTemplate() {
-    const [loginState, formAction] = useFormState(login, { success: undefined });
+    const [loginState, formAction, isPending] = useActionState(login, { success: undefined });
 
     return (
         <CssVarsProvider defaultMode="dark" disableTransitionOnChange>
@@ -106,9 +106,17 @@ export default function JoySignInSideTemplate() {
                     >
                         <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
                             <IconButton variant="soft" color="primary" size="sm">
-                                <BadgeRoundedIcon />
+                                <img
+                                    src="logo_oic.png"
+                                    alt="Language"
+                                    style={{
+                                        width: '24px', // Adjust width as needed
+                                        height: '24px', // Adjust height as needed
+                                        borderRadius: '50%', // Make it circular if the image should be circular
+                                    }}
+                                />
                             </IconButton>
-                            <Typography level="title-lg">Company logo</Typography>
+                            <Typography level="title-lg">OIC Education</Typography>
                         </Box>
                         <ColorSchemeToggle />
                     </Box>
@@ -140,12 +148,6 @@ export default function JoySignInSideTemplate() {
                                 <Typography component="h1" level="h3">
                                     Sign in
                                 </Typography>
-                                <Typography level="body-sm">
-                                    New to company?{' '}
-                                    <Link href="#replace-with-a-link" level="title-sm">
-                                        Sign up!
-                                    </Link>
-                                </Typography>
                             </Stack>
                         </Stack>
                         <Divider
@@ -158,7 +160,7 @@ export default function JoySignInSideTemplate() {
                             Welcome back
                         </Divider>
                         <Stack gap={4} sx={{ mt: 2 }}>
-                            <form action={formAction}>
+                            <form>
                                 <FormControl required error={loginState.success === false}>
                                     <FormLabel>Email</FormLabel>
                                     <Input type="email" name="email" />
@@ -185,16 +187,22 @@ export default function JoySignInSideTemplate() {
                                             Forgot your password?
                                         </Link>
                                     </Box>
-                                    <Button type="submit" fullWidth>
-                                        Sign in
-                                    </Button>
+                                    {isPending ? (
+                                        <Button fullWidth disabled>
+                                            <CircularProgress />
+                                        </Button>
+                                    ) : (
+                                        <Button formAction={formAction} type="submit" fullWidth>
+                                            Sign in
+                                        </Button>
+                                    )}
                                 </Stack>
                             </form>
                         </Stack>
                     </Box>
                     <Box component="footer" sx={{ py: 3 }}>
                         <Typography level="body-xs" textAlign="center">
-                            © Your company {new Date().getFullYear()}
+                            © OIC Education {new Date().getFullYear()}
                         </Typography>
                     </Box>
                 </Box>
