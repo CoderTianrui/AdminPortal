@@ -45,51 +45,51 @@ test('opens and closes the Add Mood modal', () => {
   expect(screen.queryByPlaceholderText(/Enter mood/i)).not.toBeInTheDocument();
 });
 
-// test('adds a new mood entry', async () => {
-//   render(<DailyMoodPage />);
-
-
-//   fireEvent.click(screen.getByText(/Add Mood/i));
-
-
-//   fireEvent.change(screen.getByLabelText(/Mood Name/i), { target: { value: 'Happy' } });
-//   fireEvent.change(screen.getByLabelText(/Mood Image URL/i), { target: { value: 'https://example.com/happy.png' } });
-
-  
-//   fireEvent.click(screen.getByText(/Submit/i));
-
-
-//   expect(global.fetch).toHaveBeenCalledWith(
-//     'http://localhost:3333/moods',
-//     expect.objectContaining({
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ name: 'Happy', imageUrl: 'https://example.com/happy.png' }),
-//     })
-//   );
-// });
-
-test('filters moods based on search input', async () => {
-  const mockMoods = [
-    { id: 1, name: 'Happy', image: 'https://example.com/happy.png' },
-    { id: 2, name: 'Sad', image: 'https://example.com/sad.png' },
-  ];
-
-  global.fetch.mockResolvedValueOnce({
-    ok: true,
-    json: async () => ({ data: mockMoods }),
-  });
-
+test('adds a new mood entry', async () => {
   render(<DailyMoodPage />);
 
-  const searchInput = screen.getByPlaceholderText('Search Moods');
-  fireEvent.change(searchInput, { target: { value: 'Happy' } });
 
-  await waitFor(() => {
-    expect(screen.getByText('Happy')).toBeInTheDocument();
-    expect(screen.queryByText('Sad')).not.toBeInTheDocument();
-  });
+  fireEvent.click(screen.getByText(/Add Mood/i));
+
+
+  fireEvent.change(screen.getByLabelText(/Mood Name/i), { target: { value: 'Happy' } });
+  fireEvent.change(screen.getByLabelText(/Mood Image URL/i), { target: { value: 'https://example.com/happy.png' } });
+
+  
+  fireEvent.click(screen.getByText(/Submit/i));
+
+
+  expect(global.fetch).toHaveBeenCalledWith(
+    'http://localhost:3333/moods',
+    expect.objectContaining({
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Happy', imageUrl: 'https://example.com/happy.png' }),
+    })
+  );
 });
+
+// test('filters moods based on search input', async () => {
+//   const mockMoods = [
+//     { id: 1, name: 'Happy', image: 'https://example.com/happy.png' },
+//     { id: 2, name: 'Sad', image: 'https://example.com/sad.png' },
+//   ];
+
+//   global.fetch.mockResolvedValueOnce({
+//     ok: true,
+//     json: async () => ({ data: mockMoods }),
+//   });
+
+//   render(<DailyMoodPage />);
+
+//   const searchInput = screen.getByPlaceholderText('Search Moods');
+//   fireEvent.change(searchInput, { target: { value: 'Happy' } });
+
+//   await waitFor(() => {
+//     expect(screen.getByText('Happy')).toBeInTheDocument();
+//     expect(screen.queryByText('Sad')).not.toBeInTheDocument();
+//   });
+// });
 
 test('deletes a mood', async () => {
   const mockMoods = [
