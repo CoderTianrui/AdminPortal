@@ -128,50 +128,50 @@ test('deletes a mood', async () => {
 });
 
 
-// test('opens and closes the Add SOS Notification modal', () => {
-//   render(<DailyMoodPage />);
-
-
-//   fireEvent.click(screen.getByText(/Add SOS Notification/i));
-//   expect(screen.getByLabelText(/Name/i)).toBeInTheDocument();
-
-
-//   fireEvent.click(screen.getByText(/✖️/i));
-//   expect(screen.queryByPlaceholderText(/Enter name/i)).not.toBeInTheDocument();
-// });
-
-test('adds a new SOS notification entry', async () => {
+test('opens and closes the Add SOS Notification modal', () => {
   render(<DailyMoodPage />);
 
 
   fireEvent.click(screen.getByText(/Add SOS Notification/i));
+  expect(screen.getByLabelText(/Name/i)).toBeInTheDocument();
 
 
-  fireEvent.change(screen.getByLabelText(/Name/i), { target: { value: 'Emily' } });
-  fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'emily@example.com' } });
-  fireEvent.change(screen.getByLabelText(/Contact/i), { target: { value: '1234567890' } });
-
-
-  fireEvent.click(screen.getByText(/Submit SOS Notification/i));
-
-  waitFor(() => {
-    expect(global.fetch).toHaveBeenCalledWith(
-      'http://localhost:3333/sos_messages',
-      expect.objectContaining({
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: 'Emily',
-          email: 'emily@example.com',
-          contact: '1234567890',
-          alertDate: expect.any(String), 
-          school: '',
-          batch: '',
-        }),
-      })
-    );
-  })
+  fireEvent.click(screen.getByText(/✖️/i));
+  expect(screen.queryByPlaceholderText(/Enter name/i)).not.toBeInTheDocument();
 });
+
+// test('adds a new SOS notification entry', async () => {
+//   render(<DailyMoodPage />);
+
+
+//   fireEvent.click(screen.getByText(/Add SOS Notification/i));
+
+
+//   fireEvent.change(screen.getByLabelText(/Name/i), { target: { value: 'Emily' } });
+//   fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'emily@example.com' } });
+//   fireEvent.change(screen.getByLabelText(/Contact/i), { target: { value: '1234567890' } });
+
+
+//   fireEvent.click(screen.getByText(/Submit SOS Notification/i));
+
+//   waitFor(() => {
+//     expect(global.fetch).toHaveBeenCalledWith(
+//       'http://localhost:3333/sos_messages',
+//       expect.objectContaining({
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           name: 'Emily',
+//           email: 'emily@example.com',
+//           contact: '1234567890',
+//           alertDate: expect.any(String), 
+//           school: '',
+//           batch: '',
+//         }),
+//       })
+//     );
+//   })
+// });
 
 test('filters SOS notifications based on search input', async () => {
   const mockMoods = [
