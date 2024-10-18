@@ -25,7 +25,6 @@ interface Survey {
     title: string;
     description: string;
     level: string;
-    // school: School | string | null;
     schools: School[];
 }
 
@@ -242,7 +241,7 @@ export default function SurveyManagementPage() {
                         <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>Survey Management</h1>
                         <Box sx={{ marginBottom: '20px', display: 'flex', gap: 1 }}>
                             <Button variant="solid" color="primary" onClick={() => openSurveyModal()}>
-                                Create Survey
+                                Add Survey
                             </Button>
                             <Input
                                 placeholder="Search Surveys by title"
@@ -272,6 +271,7 @@ export default function SurveyManagementPage() {
                                         <input
                                             type="level"
                                             className="form-control"
+                                            placeholder="Enter level"
                                             name="level"
                                             value={newSurvey.level}
                                             onChange={handleSurveyChange}
