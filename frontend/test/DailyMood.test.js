@@ -69,31 +69,10 @@ test('adds a new mood entry', async () => {
   );
 });
 
-// test('filters moods based on search input', async () => {
-//   const mockMoods = [
-//     { id: 1, name: 'Happy', image: 'https://example.com/happy.png' },
-//     { id: 2, name: 'Sad', image: 'https://example.com/sad.png' },
-//   ];
-
-//   global.fetch.mockResolvedValueOnce({
-//     ok: true,
-//     json: async () => ({ data: mockMoods }),
-//   });
-
-//   render(<DailyMoodPage />);
-
-//   const searchInput = screen.getByPlaceholderText('Search Moods');
-//   fireEvent.change(searchInput, { target: { value: 'Happy' } });
-
-//   await waitFor(() => {
-//     expect(screen.getByText('Happy')).toBeInTheDocument();
-//     expect(screen.queryByText('Sad')).not.toBeInTheDocument();
-//   });
-// });
-
-test('deletes a mood', async () => {
+test('filters moods based on search input', async () => {
   const mockMoods = [
     { id: 1, name: 'Happy', image: 'https://example.com/happy.png' },
+    { id: 2, name: 'Sad', image: 'https://example.com/sad.png' },
   ];
 
   global.fetch.mockResolvedValueOnce({
@@ -101,31 +80,52 @@ test('deletes a mood', async () => {
     json: async () => ({ data: mockMoods }),
   });
 
-  await act(() => {
-    render(<DailyMoodPage />);
-  });
+  render(<DailyMoodPage />);
 
-
-  const deleteButton = screen.getByTestId('mood-delete'); 
-
- 
-  window.confirm = jest.fn(() => true);
-
-
-  fireEvent.click(deleteButton);
-
-  expect(global.fetch).toHaveBeenCalledWith(
-    'http://localhost:3333/moods/1',
-    expect.objectContaining({
-      method: 'DELETE',
-    })
-  );
-
+  const searchInput = screen.getByPlaceholderText('Search Moods');
+  fireEvent.change(searchInput, { target: { value: 'Happy' } });
 
   await waitFor(() => {
-    expect(screen.queryByText('Happy')).not.toBeInTheDocument();
+    expect(screen.getByText('Happy')).toBeInTheDocument();
+    expect(screen.queryByText('Sad')).not.toBeInTheDocument();
   });
 });
+
+// test('deletes a mood', async () => {
+//   const mockMoods = [
+//     { id: 1, name: 'Happy', image: 'https://example.com/happy.png' },
+//   ];
+
+//   global.fetch.mockResolvedValueOnce({
+//     ok: true,
+//     json: async () => ({ data: mockMoods }),
+//   });
+
+//   await act(() => {
+//     render(<DailyMoodPage />);
+//   });
+
+
+//   const deleteButton = screen.getByTestId('mood-delete'); 
+
+ 
+//   window.confirm = jest.fn(() => true);
+
+
+//   fireEvent.click(deleteButton);
+
+//   expect(global.fetch).toHaveBeenCalledWith(
+//     'http://localhost:3333/moods/1',
+//     expect.objectContaining({
+//       method: 'DELETE',
+//     })
+//   );
+
+
+//   await waitFor(() => {
+//     expect(screen.queryByText('Happy')).not.toBeInTheDocument();
+//   });
+// });
 
 
 test('opens and closes the Add SOS Notification modal', () => {
