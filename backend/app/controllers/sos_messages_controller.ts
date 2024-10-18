@@ -6,8 +6,8 @@ export default class SosMessagesController {
    * Display a list of resources with pagination
    */
   async index({ request }: HttpContext) {
-    const page = request.input('page', 1);  // 默认显示第一页
-    const limit = 10;  // 每页显示10条
+    const page = request.input('page', 1);  
+    const limit = 10; 
     const sosMessages = await SosMessage.query().paginate(page, limit);
     return sosMessages;
   }
@@ -43,7 +43,7 @@ export default class SosMessagesController {
   async update({ params, request, response }: HttpContext) {
     try {
       const sosMessage = await SosMessage.findOrFail(params.id);
-      const data = request.only(['name', 'email', 'school', 'contact', 'batch']); // 只更新需要的字段
+      const data = request.only(['name', 'email', 'school', 'contact', 'batch']); 
       sosMessage.merge(data);
       await sosMessage.save();
       return response.status(200).json(sosMessage);
