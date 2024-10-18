@@ -1,7 +1,9 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { BaseModel, column, manyToMany } from '@adonisjs/lucid/orm'
 //import type { ManyToMany } from '@adonisjs/lucid/types/relations'
 //import Recipient from './recipient.js'
+import Channel from './channel.js'
+import type { ManyToMany } from '@adonisjs/lucid/types/relations'
 
 export default class New extends BaseModel {
   @column({ isPrimary: true })
@@ -27,4 +29,7 @@ export default class New extends BaseModel {
 
   @column()
   declare recipients: string; //need to change it later
+
+  @manyToMany(() => Channel, {pivotTable: 'channel_news',})
+  declare channels: ManyToMany<typeof Channel>
 }
