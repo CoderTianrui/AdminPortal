@@ -19,7 +19,7 @@ export default class UsersController {
         .orWhereLike('email', `%${search}%`)
     }
 
-    const users = await usersQuery.paginate(page);
+    const users = await usersQuery.paginate(page, 10);
     return users;
   }
 

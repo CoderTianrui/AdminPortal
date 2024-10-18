@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { CssVarsProvider } from '@mui/joy/styles';
 import CssBaseline from '@mui/joy/CssBaseline';
 import Box from '@mui/joy/Box';
@@ -85,7 +84,6 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 export default function GroupPermissionsPage() {
-  const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [selectedGroup, setSelectedGroup] = React.useState<Group | null>(null);
   const [groups, setGroups] = React.useState<Group[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -263,19 +261,10 @@ export default function GroupPermissionsPage() {
   return (
     <CssVarsProvider disableTransitionOnChange>
       <CssBaseline />
-      {drawerOpen && (
-        <Layout.SideDrawer onClose={() => setDrawerOpen(false)}>
-          <Navigation />
-        </Layout.SideDrawer>
-      )}
       <Layout.Root sx={{ height: '100vh', overflow: 'hidden' }}>
-        <Layout.Header>
-          <Header />
-        </Layout.Header>
-        <Layout.SideNav>
-          <Navigation />
-        </Layout.SideNav>
-        <Layout.Main sx={{ height: 'calc(100vh - 64px)', overflow: 'hidden', position: 'relative' }}>
+        <Navigation />
+        <Header />
+        <Layout.Main sx={{ height: '100vh', overflow: 'hidden', position: 'relative' }}>
           <Box sx={{ p: '2vh', height: '100%', boxSizing: 'border-box', position: 'relative' }}>
             <Sheet
               sx={{
@@ -283,8 +272,8 @@ export default function GroupPermissionsPage() {
                 p: '2vh',
                 boxShadow: 'sm',
                 transition: 'all 0.2s ease-in-out',
-                '&:hover': { boxShadow: 'md', transform: 'translateY(-2px)' },
-                height: isPortalVisible ? 'calc(100% - 60px)' : '100%',
+                '&:hover': { boxShadow: 'md' },
+                height: isPortalVisible ? 'calc(100% - 8vh)' : '100%',
                 display: 'flex',
                 flexDirection: 'column',
                 position: 'relative',
@@ -367,7 +356,7 @@ export default function GroupPermissionsPage() {
               <Input
                 autoFocus
                 value={editingGroup?.name || ''}
-                onChange={(e) => setEditingGroup(prev => prev ? {...prev, name: e.target.value} : null)}
+                onChange={(e) => setEditingGroup(prev => prev ? { ...prev, name: e.target.value } : null)}
               />
             </FormControl>
           </DialogContent>
@@ -470,7 +459,11 @@ function GroupListSection({
             <List>
               {[...Array(10)].map((_, index) => (
                 <ListItem key={index}>
-                  <ListItemButton disabled>
+                  <ListItemButton disabled
+                    sx={{
+                      height: { xs: 'auto', md: '7vh' },
+                    }}
+                  >
                     <ListItemContent>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <Skeleton variant="circular" width={40} height={40} />
@@ -552,7 +545,8 @@ function GroupListSection({
                       sx={{
                         borderRadius: 'sm',
                         transition: 'all 0.2s',
-                        '&:hover': { bgcolor: 'background.level1', transform: 'translateX(4px)' },
+                        '&:hover': { bgcolor: 'background.level1' },
+                        height: { xs: 'auto', md: '7vh' },
                       }}
                     >
                       <ListItemContent>
@@ -732,7 +726,7 @@ function GroupPermissions({
           ))}
         </List>
       </Box>
-      {portalContainer && ReactDOM.createPortal(
+      {portalContainer && createPortal(
         <Box
           sx={{
             position: 'fixed',
@@ -773,7 +767,7 @@ function GroupPermissions({
           </Button>
         </Box>,
         portalContainer
-      )}
+      ) as React.ReactPortal}
       {(saveStatus === 'success' || saveStatus === 'error') && createPortal(
         <Alert
           color={saveStatus === 'success' ? 'success' : 'danger'}
@@ -803,7 +797,7 @@ function GroupPermissions({
           </Typography>
         </Alert>,
         document.body
-      )}
+      ) as React.ReactPortal}
     </Box>
   );
 }
