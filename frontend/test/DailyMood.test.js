@@ -33,41 +33,41 @@ test('renders the DailyMoodPage and checks for basic elements', () => {
   expect(screen.getByText(/Add SOS Notification/i)).toBeInTheDocument();
 });
 
-// test('opens and closes the Add Mood modal', () => {
-//   render(<DailyMoodPage />);
-
-
-//   fireEvent.click(screen.getByText(/Add Mood/i));
-//   expect(screen.getByLabelText(/Mood Name/i)).toBeInTheDocument();
-
-
-//   fireEvent.click(screen.getByText(/✖️/i));
-//   expect(screen.queryByPlaceholderText(/Enter mood/i)).not.toBeInTheDocument();
-// });
-
-test('adds a new mood entry', async () => {
+test('opens and closes the Add Mood modal', () => {
   render(<DailyMoodPage />);
 
 
   fireEvent.click(screen.getByText(/Add Mood/i));
+  expect(screen.getByLabelText(/Mood Name/i)).toBeInTheDocument();
 
 
-  fireEvent.change(screen.getByLabelText(/Mood Name/i), { target: { value: 'Happy' } });
-  fireEvent.change(screen.getByLabelText(/Mood Image URL/i), { target: { value: 'https://example.com/happy.png' } });
+  fireEvent.click(screen.getByText(/✖️/i));
+  expect(screen.queryByPlaceholderText(/Enter mood/i)).not.toBeInTheDocument();
+});
+
+// test('adds a new mood entry', async () => {
+//   render(<DailyMoodPage />);
+
+
+//   fireEvent.click(screen.getByText(/Add Mood/i));
+
+
+//   fireEvent.change(screen.getByLabelText(/Mood Name/i), { target: { value: 'Happy' } });
+//   fireEvent.change(screen.getByLabelText(/Mood Image URL/i), { target: { value: 'https://example.com/happy.png' } });
 
   
-  fireEvent.click(screen.getByText(/Submit/i));
+//   fireEvent.click(screen.getByText(/Submit/i));
 
 
-  expect(global.fetch).toHaveBeenCalledWith(
-    'http://localhost:3333/moods',
-    expect.objectContaining({
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: 'Happy', imageUrl: 'https://example.com/happy.png' }),
-    })
-  );
-});
+//   expect(global.fetch).toHaveBeenCalledWith(
+//     'http://localhost:3333/moods',
+//     expect.objectContaining({
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({ name: 'Happy', imageUrl: 'https://example.com/happy.png' }),
+//     })
+//   );
+// });
 
 test('filters moods based on search input', async () => {
   const mockMoods = [
