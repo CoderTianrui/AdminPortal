@@ -21,29 +21,29 @@ beforeEach(() => {
   };
 });
 
-// test('renders the DailyMoodPage and checks for basic elements', () => {
-//   render(<DailyMoodPage />);
-
-
-//   expect(screen.getByText(/Mood Types/i)).toBeInTheDocument();
-//   expect(screen.getByText(/SOS Notifications/i)).toBeInTheDocument();
-
-
-//   expect(screen.getByText(/Add Mood/i)).toBeInTheDocument();
-//   expect(screen.getByText(/Add SOS Notification/i)).toBeInTheDocument();
-// });
-
-test('opens and closes the Add Mood modal', () => {
+test('renders the DailyMoodPage and checks for basic elements', () => {
   render(<DailyMoodPage />);
 
 
-  fireEvent.click(screen.getByText(/Add Mood/i));
-  expect(screen.getByLabelText(/Mood Name/i)).toBeInTheDocument();
+  expect(screen.getByText(/Mood Types/i)).toBeInTheDocument();
+  expect(screen.getByText(/SOS Notifications/i)).toBeInTheDocument();
 
 
-  fireEvent.click(screen.getByText(/✖️/i));
-  expect(screen.queryByPlaceholderText(/Enter mood/i)).not.toBeInTheDocument();
+  expect(screen.getByText(/Add Mood/i)).toBeInTheDocument();
+  expect(screen.getByText(/Add SOS Notification/i)).toBeInTheDocument();
 });
+
+// test('opens and closes the Add Mood modal', () => {
+//   render(<DailyMoodPage />);
+
+
+//   fireEvent.click(screen.getByText(/Add Mood/i));
+//   expect(screen.getByLabelText(/Mood Name/i)).toBeInTheDocument();
+
+
+//   fireEvent.click(screen.getByText(/✖️/i));
+//   expect(screen.queryByPlaceholderText(/Enter mood/i)).not.toBeInTheDocument();
+// });
 
 test('adds a new mood entry', async () => {
   render(<DailyMoodPage />);
