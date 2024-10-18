@@ -304,8 +304,8 @@ export default function DailyMoodPage() {
                                                 <img src={mood.image || 'https://via.placeholder.com/50'} alt="Mood" style={{ width: '50px', height: '50px' }} />
                                             </td>
                                             <td>
-                                                <Button variant="plain" size="sm" onClick={() => editMood(index)}>✏️</Button>
-                                                <Button variant="plain" size="sm" onClick={() => deleteMood(index)}>❌</Button>
+                                                <Button variant="plain" size="sm" data-testid="mood-edit" onClick={() => editMood(index)}>✏️</Button>
+                                                <Button variant="plain" data-testid="mood-delete" size="sm" onClick={() => deleteMood(index)}>❌</Button>
                                             </td>
                                         </tr>
                                     ))}
@@ -351,8 +351,8 @@ export default function DailyMoodPage() {
                                                 <Button variant="solid" size="sm" color="primary" onClick={() => sendNotification(index)}>
                                                     Send
                                                 </Button>
-                                                <Button variant="plain" size="sm" onClick={() => editSOSNotification(index)}>✏️</Button>
-                                                <Button variant="plain" size="sm" onClick={() => deleteNotification(index)}>❌</Button>
+                                                <Button variant="plain" size="sm" data-testid="sos-edit" onClick={() => editSOSNotification(index)}>✏️</Button>
+                                                <Button variant="plain" size="sm" data-testid="sos-delete" onClick={() => deleteNotification(index)}>❌</Button>
                                             </td>
                                         </tr>
                                     ))}
@@ -373,6 +373,7 @@ export default function DailyMoodPage() {
                                         type="text"
                                         name="name"
                                         value={newMood.name}
+                                        placeholder="Enter mood"
                                         onChange={handleMoodChange}
                                     />
 
@@ -382,6 +383,7 @@ export default function DailyMoodPage() {
                                         type="text"
                                         name="image"
                                         value={newMood.image}
+                                        placeholder="Enter mood image URL"
                                         onChange={handleMoodChange}
                                     />
 
