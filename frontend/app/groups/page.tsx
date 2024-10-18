@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { CssVarsProvider } from '@mui/joy/styles';
 import CssBaseline from '@mui/joy/CssBaseline';
 import Box from '@mui/joy/Box';
@@ -727,7 +726,7 @@ function GroupPermissions({
           ))}
         </List>
       </Box>
-      {portalContainer && ReactDOM.createPortal(
+      {portalContainer && createPortal(
         <Box
           sx={{
             position: 'fixed',
