@@ -156,4 +156,41 @@ test.group('Events', (group) => {
     assert.isNull(deletedEvent) // The event should no longer exist in the database
   })
   // **Equivalence Partitioning**: This test case represents the valid partition where an existing event is deleted successfully.
+
+  test('can edit an existing event', async ({ client, assert }) => {
+    const user = await User.create({
+      email: 'admin@example14.com',
+      password: 'password',
+      profile: Profile.Admin,
+      access: Access.Full,
+    })
+  
+    // Create an event to be edited
+    const event = await Event.create({
+      title: 'Original Event Title',
+      description: 'Original event description',
+      startDate: DateTime.now(),
+      endDate: DateTime.now().plus({ hours: 1 }),
+      ownedById: user.id,
+    })
+  
+    // New data to update the event
+    const updatedEventData = {
+      title: 'Updated Event Title',
+      description: 'Updated event description',
+      startDate: DateTime.now(),
+      endDate: DateTime.now().plus({ hours: 2 }), // Extend event by 1 hour
+    }
+  
+    // Send PUT request to update the event
+    const response = await client.put(`/events/${event.id}`).loginAs(user).json(updatedEventData)
+    response.assertStatus(200)
+  
+    // Check that the event was updated correctly
+    const updatedEvent = await Event.find(event.id)
+    assert.equal(updatedEvent?.title, 'Updated Event Title')
+    assert.equal(updatedEvent?.description, 'Updated event description')
+  })
+  // **Equivalence Partitioning**: This test case represents the valid partition where an event is successfully edited with new data.
+  
 })
