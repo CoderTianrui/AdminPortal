@@ -767,7 +767,7 @@ function GroupPermissions({
           </Button>
         </Box>,
         portalContainer
-      ) as React.ReactPortal}
+      )}
       {(saveStatus === 'success' || saveStatus === 'error') && createPortal(
         <Alert
           color={saveStatus === 'success' ? 'success' : 'danger'}
@@ -797,7 +797,7 @@ function GroupPermissions({
           </Typography>
         </Alert>,
         document.body
-      ) as React.ReactPortal}
+      )}
     </Box>
   );
 }
