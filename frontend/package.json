@@ -46,7 +46,8 @@
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "ts-jest": "^29.2.5",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "whatwg-fetch": "^3.6.20"
   },
   "jest": {
     "preset": "ts-jest",

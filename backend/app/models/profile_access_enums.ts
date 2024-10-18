@@ -3,6 +3,7 @@ export enum Profile {
     School = 'Parent',
     Teacher = 'Teacher',
     Student = 'Student',
+    User = "User",
   }
   
   export enum Access {
