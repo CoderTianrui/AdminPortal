@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { CssVarsProvider } from '@mui/joy/styles';
 import CssBaseline from '@mui/joy/CssBaseline';
 import Box from '@mui/joy/Box';
@@ -727,7 +726,7 @@ function GroupPermissions({
           ))}
         </List>
       </Box>
-      {portalContainer && ReactDOM.createPortal(
+      {portalContainer && createPortal(
         <Box
           sx={{
             position: 'fixed',
@@ -768,7 +767,7 @@ function GroupPermissions({
           </Button>
         </Box>,
         portalContainer
-      )}
+      ) as React.ReactPortal}
       {(saveStatus === 'success' || saveStatus === 'error') && createPortal(
         <Alert
           color={saveStatus === 'success' ? 'success' : 'danger'}
@@ -798,7 +797,7 @@ function GroupPermissions({
           </Typography>
         </Alert>,
         document.body
-      )}
+      ) as React.ReactPortal}
     </Box>
   );
 }
