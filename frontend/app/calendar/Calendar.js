@@ -1,18 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Calendar.css';
 
-const Calendar = ({ initialEvents, sx }) => {
+const Calendar = ({ sx, initialEvents }) => {
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-    const [events, setEvents] = useState(initialEvents);
+    const [events, setEvents] = useState(initialEvents || []); // 使用 initialEvents 作为初始事件
     const [selectedDate, setSelectedDate] = useState(null);
     const [newEvent, setNewEvent] = useState({ title: '', startTime: '', endTime: '', memo: '' });
     const [showForm, setShowForm] = useState(false);
     const [editEvent, setEditEvent] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
 
+    // 当组件挂载时，从后端获取事件数据
+    useEffect(() => {
+        fetchEvents();
+    }, []);
+
+    const fetchEvents = async () => {
+        try {
+            const response = await fetch('http://localhost:3333/events');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            setEvents(data.data || data); // 兼容分页数据和非分页数据
+        } catch (error) {
+            console.error('Error fetching events:', error);
+        }
+    };
+
     const handleDateClick = (day) => {
-        const date = new Date(currentYear, currentMonth, day);
         const formattedDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         setSelectedDate(formattedDate);
         setShowForm(true);
@@ -26,7 +43,7 @@ const Calendar = ({ initialEvents, sx }) => {
         setIsEditing(false);
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (newEvent.startTime >= newEvent.endTime) {
             alert("Start time cannot be later than end time.");
             return;
@@ -34,40 +51,90 @@ const Calendar = ({ initialEvents, sx }) => {
         if (isEditing) {
             handleSaveEdit();
         } else {
-            setEvents([...events, { date: selectedDate, title: newEvent.title, startTime: newEvent.startTime, endTime: newEvent.endTime, memo: newEvent.memo }]);
-            handleClose();
+            try {
+                const newEventData = {
+                    title: newEvent.title,
+                    description: newEvent.memo,
+                    startDate: `${selectedDate}T${newEvent.startTime}`,
+                    endDate: `${selectedDate}T${newEvent.endTime}`,
+                    permissionMetadata: JSON.stringify([]), // 根据后端需要调整
+                    ownedById: 1, // 根据实际情况调整
+                };
+                const response = await fetch('http://localhost:3333/events', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(newEventData),
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const createdEvent = await response.json();
+                setEvents([...events, createdEvent]);
+                handleClose();
+            } catch (error) {
+                console.error('Error saving event:', error);
+            }
         }
     };
 
-    const handleSaveEdit = () => {
-        if (newEvent.startTime >= newEvent.endTime) {
-            alert("Start time cannot be later than end time.");
-            return;
+    const handleSaveEdit = async () => {
+        try {
+            const updatedEventData = {
+                title: newEvent.title,
+                description: newEvent.memo,
+                startDate: `${selectedDate}T${newEvent.startTime}`,
+                endDate: `${selectedDate}T${newEvent.endTime}`,
+                permissionMetadata: editEvent.permissionMetadata,
+                ownedById: editEvent.ownedById,
+            };
+            const response = await fetch(`http://localhost:3333/events/${editEvent.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedEventData),
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const updatedEvent = await response.json();
+            setEvents(events.map(event => (event.id === updatedEvent.id ? updatedEvent : event)));
+            handleClose();
+        } catch (error) {
+            console.error('Error updating event:', error);
         }
-        setEvents(events.map(event =>
-            event.date === editEvent.date && event.title === editEvent.title ? { ...editEvent, ...newEvent } : event
-        ));
-        handleClose();
+    };
+
+    const handleDelete = async (eventToDelete) => {
+        try {
+            const response = await fetch(`http://localhost:3333/events/${eventToDelete.id}`, {
+                method: 'DELETE',
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            setEvents(events.filter(event => event.id !== eventToDelete.id));
+            if (showForm) {
+                handleClose();
+            }
+        } catch (error) {
+            console.error('Error deleting event:', error);
+        }
     };
 
     const handleEdit = (event) => {
         setEditEvent(event);
         setNewEvent({
             title: event.title,
-            startTime: event.startTime,
-            endTime: event.endTime,
-            memo: event.memo || ''
+            startTime: new Date(event.startDate).toISOString().slice(11, 16),
+            endTime: new Date(event.endDate).toISOString().slice(11, 16),
+            memo: event.description || '',
         });
-        setSelectedDate(event.date); 
+        setSelectedDate(event.startDate.split('T')[0]);
         setIsEditing(true);
         setShowForm(true);
-    };
-
-    const handleDelete = (eventToDelete) => {
-        setEvents(events.filter(event => event !== eventToDelete));
-        if (showForm) {
-            handleClose();
-        }
     };
 
     const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -100,7 +167,10 @@ const Calendar = ({ initialEvents, sx }) => {
 
     const daysInMonth = getDaysInMonth(currentMonth, currentYear);
     const firstDayOfMonth = getFirstDayOfMonth(currentMonth, currentYear);
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
 
     const blankDays = Array(firstDayOfMonth).fill(null);
 
@@ -125,24 +195,24 @@ const Calendar = ({ initialEvents, sx }) => {
                     const day = index + 1;
                     return (
                         <div key={day} className="calendar-cell" onClick={() => handleDateClick(day)}>
-                        <div className="date">{day}</div>
-                        <div className="events">
-                            {events.filter(event => {
-                            const eventDate = new Date(event.date);
-                            return (
-                                eventDate.getDate() === day &&
-                                eventDate.getMonth() === currentMonth &&
-                                eventDate.getFullYear() === currentYear
-                            );
-                            }).map((event, i) => (
-                            <div key={i} className="event-dot" 
-                                onClick={(e) => {
-                                e.stopPropagation();
-                                handleEdit(event);
-                                }}
-                            />
-                            ))}
-                        </div>
+                            <div className="date">{day}</div>
+                            <div className="events">
+                                {events.filter(event => {
+                                    const eventDate = new Date(event.startDate);
+                                    return (
+                                        eventDate.getDate() === day &&
+                                        eventDate.getMonth() === currentMonth &&
+                                        eventDate.getFullYear() === currentYear
+                                    );
+                                }).map((event, i) => (
+                                    <div key={i} className="event-dot"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleEdit(event);
+                                        }}
+                                    />
+                                ))}
+                            </div>
                         </div>
                     );
                 })}
@@ -169,7 +239,7 @@ const Calendar = ({ initialEvents, sx }) => {
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <input
                                 type="text"
-                                value={selectedDate}
+                                value={selectedDate || ''}
                                 readOnly
                                 className="modal-input"
                             />
@@ -184,7 +254,7 @@ const Calendar = ({ initialEvents, sx }) => {
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <input
                                 type="text"
-                                value={selectedDate}
+                                value={selectedDate || ''}
                                 readOnly
                                 className="modal-input"
                             />
@@ -196,9 +266,13 @@ const Calendar = ({ initialEvents, sx }) => {
                                 style={{ width: '45%' }}
                             />
                         </div>
-                        <button onClick={handleSave} className="modal-add-button">{isEditing ? 'Save Changes' : 'Add'}</button>
+                        <button onClick={handleSave} className="modal-add-button">
+                            {isEditing ? 'Save Changes' : 'Add'}
+                        </button>
                         {isEditing && (
-                            <button onClick={() => handleDelete(editEvent)} className="modal-delete-button">Delete Event</button>
+                            <button onClick={() => handleDelete(editEvent)} className="modal-delete-button">
+                                Delete Event
+                            </button>
                         )}
                     </div>
                 </div>

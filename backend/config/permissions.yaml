@@ -4,6 +4,7 @@ User:
   - update
   - delete
   - list
+  - admin
 
 Event:
   - create
@@ -11,6 +12,7 @@ Event:
   - update
   - delete
   - list
+  - admin
 
 News:
   - create
@@ -18,6 +20,7 @@ News:
   - update
   - delete
   - list
+  - admin
 
 Notification:
   - create
@@ -25,6 +28,7 @@ Notification:
   - update
   - delete
   - list
+  - admin
 
 Recipient:
   - create
@@ -32,6 +36,7 @@ Recipient:
   - update
   - delete
   - list
+  - admin
 
 School:
   - create
@@ -39,6 +44,7 @@ School:
   - update
   - delete
   - list
+  - admin
 
 SosMessage:
   - create
@@ -46,6 +52,7 @@ SosMessage:
   - update
   - delete
   - list
+  - admin
 
 Survey:
   - create
@@ -53,3 +60,4 @@ Survey:
   - update
   - delete
   - list
+  - admin

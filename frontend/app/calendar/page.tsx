@@ -13,8 +13,6 @@ import Navigation from '@/app/components/navigation';
 import Calendar from './Calendar';
 
 export default function CalendarPage() {
-    const [drawerOpen, setDrawerOpen] = React.useState(false);
-
     // Sample initial events
     const initialEvents = [
         { title: 'Meeting with Mark', date: '2023-09-15', time: '10:00 AM', description: 'Discuss Q3 targets.' },
@@ -25,68 +23,33 @@ export default function CalendarPage() {
     return (
         <CssVarsProvider disableTransitionOnChange>
             <CssBaseline />
-            {drawerOpen && (
-                <Layout.SideDrawer onClose={() => setDrawerOpen(false)}>
-                    <Navigation />
-                </Layout.SideDrawer>
-            )}
-            <Stack
-                id="tab-bar"
-                direction="row"
-                justifyContent="space-around"
-                spacing={1}
-                sx={{
-                    display: { xs: 'flex', sm: 'none' },
-                    zIndex: '999',
-                    bottom: 0,
-                    position: 'fixed',
-                    width: '100dvw',
-                    py: 2,
-                    backgroundColor: 'background.body',
-                    borderTop: '1px solid',
-                    borderColor: 'divider',
-                }}
-            >
-                <Button
-                    variant="plain"
-                    color="neutral"
-                    component="a"
-                    href="/calendar"
-                    size="sm"
-                    sx={{ flexDirection: 'column', '--Button-gap': 0 }}
-                >
-                    Calendar
-                </Button>
-            </Stack>
-            <Layout.Root
-                sx={{
-                    ...(drawerOpen && {
-                        height: '100vh',
-                        overflow: 'hidden',
-                    }),
-                }}
-            >
-                <Layout.Header>
-                    <Header />
-                </Layout.Header>
-                <Layout.SideNav>
-                    <Navigation />
-                </Layout.SideNav>
+            <Layout.Root>
+                <Navigation />
+                <Header />
                 <Layout.Main
-            sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                padding: '20px',
-                height: '100%',
-            }}
-        >
-            <div style={{ marginLeft: '0px' }}> {/* 使用外部 div 包裹 */}
-                <Calendar initialEvents={initialEvents} sx={{}}/>
-            </div>
-        </Layout.Main>
-
-
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        padding: '20px',
+                        height: '100%',
+                    }}
+                >
+                    <div style={{
+                            marginTop: '800px',
+                            marginLeft: '0px',
+                            maxWidth: '90%', 
+                            maxHeight: '90vh', 
+                            width: '100%', 
+                            height: 'auto',
+                            overflow: 'auto', 
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center', 
+                        }}> {}
+                        <Calendar initialEvents={initialEvents} sx={{}} />
+                    </div>
+                </Layout.Main>
             </Layout.Root>
         </CssVarsProvider>
     );
