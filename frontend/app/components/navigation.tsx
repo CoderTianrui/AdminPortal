@@ -118,7 +118,7 @@ export default function Sidebar() {
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                 <IconButton size="sm">
                     <img
-                        src="logo_oic.png"
+                        src="/logo_oic.png"
                         alt="Language"
                         className="w-10 h-12"
                     />
@@ -272,7 +272,7 @@ export default function Sidebar() {
                 <Avatar
                     variant="outlined"
                     size="sm"
-                    src="logo_oic.png"
+                    src="/logo_oic.png"
                 />
                 <Box sx={{ minWidth: 0, flex: 1 }}>
                     <Typography level="title-sm">Demo User</Typography>
