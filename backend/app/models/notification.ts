@@ -20,9 +20,16 @@ export default class Notification extends ManagedModel {
   @column()
   declare content: string
 
-  @column()  // Add this line for the date
+  @column() 
   declare date: string;
 
-  @manyToMany(() => School)
-  declare recipients: ManyToMany<typeof School>
+  @manyToMany(() => School, {
+    pivotTable: 'notification_schools', 
+    localKey: 'id', 
+    pivotForeignKey: 'notification_id', 
+    relatedKey: 'id', 
+    pivotRelatedForeignKey: 'school_id', 
+    pivotTimestamps: true, 
+  })
+  public schools!: ManyToMany<typeof School>
 }
