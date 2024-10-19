@@ -368,9 +368,10 @@ export default function NewsNotificationManagementPage() {
                                                 value={newNews.title}
                                                 onChange={handleNewsChange}
                                             />
-                                            <label>Date</label>
+                                            <label htmlFor="date">Date</label>
                                             <input
                                                 type="date"
+                                                id="date"
                                                 className="form-control"
                                                 name="date"
                                                 value={newNews.date}
@@ -500,13 +501,14 @@ export default function NewsNotificationManagementPage() {
                                                 value={newNotification.title}
                                                 onChange={handleNotificationChange}
                                             />
-                                            <label>Date</label>
+                                            <label htmlFor="date">Date</label>
                                             <input
                                                 type="date"
+                                                id="date"
                                                 className="form-control"
                                                 name="date"
-                                                value={newNotification.date}
-                                                onChange={handleNotificationChange}
+                                                value={newNews.date}
+                                                onChange={handleNewsChange}
                                             />
 
                                             <label>Recipients</label>
