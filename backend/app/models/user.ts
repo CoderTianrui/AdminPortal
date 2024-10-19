@@ -1,13 +1,14 @@
 import { DateTime } from 'luxon'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
-import type { ManyToMany } from '@adonisjs/lucid/types/relations'
-import { BaseModel, belongsTo, column, manyToMany, computed} from '@adonisjs/lucid/orm'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+
+import { BaseModel, belongsTo, column, computed, manyToMany} from '@adonisjs/lucid/orm'
+import type { BelongsTo, ManyToMany } from '@adonisjs/lucid/types/relations'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import School from './school.js'
 import PermissionService from '#services/permission_service'
 import {Profile, Access} from './profile_access_enums.js'
+import Channel from './channel.js'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],
@@ -59,6 +60,13 @@ export default class User extends compose(BaseModel, AuthFinder) {
     return this.permissionMetadata
   }
 
+  @column({
+    prepare: (value) => JSON.stringify(value),
+    consume: (value) => JSON.parse(value || '{}'),
+  })
+  declare channelActionMetadata: Record<number, string>; // channelId -> 'block' 或 'unblock'
+
+
   async hasPermission(permission: string): Promise<boolean> {
     const effectivePermissions = await PermissionService.getUserEffectivePermissions(this)
 
@@ -98,4 +106,11 @@ export default class User extends compose(BaseModel, AuthFinder) {
     foreignKey: 'ownedById',
   })
   declare ownedBy: BelongsTo<typeof User>
+
+  @manyToMany(() => Channel, {
+    pivotTable: 'subscriptions',
+    // pivotForeignKey: 'user_id',
+    // pivotRelatedForeignKey: 'channel_id'
+  })
+  declare channels: ManyToMany<typeof Channel>
 }

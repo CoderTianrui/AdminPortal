@@ -1,7 +1,9 @@
 import { DateTime } from 'luxon'
 import { column, manyToMany } from '@adonisjs/lucid/orm'
+//import type { ManyToMany } from '@adonisjs/lucid/types/relations'
+//import Recipient from './recipient.js'
+import Channel from './channel.js'
 import type { ManyToMany } from '@adonisjs/lucid/types/relations'
-import School from './school.js'
 import ManagedModel from './managed_model.js'
 
 export default class New extends ManagedModel {
@@ -20,9 +22,9 @@ export default class New extends ManagedModel {
   @column()
   declare url: string
 
-  @column() 
-  declare date: string; 
+  @column()
+  declare recipients: string; //need to change it later
 
-  @manyToMany(() => School)
-  declare recipients: ManyToMany<typeof School>
+  @manyToMany(() => Channel, {pivotTable: 'channel_news',})
+  declare channels: ManyToMany<typeof Channel>
 }

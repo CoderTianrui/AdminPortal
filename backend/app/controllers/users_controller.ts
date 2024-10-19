@@ -2,7 +2,6 @@ import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
 import UserPolicy from '#policies/user_policy'
 import {Profile, Access} from '../models/profile_access_enums.js'
-
 export default class UsersController {
   async index({ bouncer, request }: HttpContext) {
     // Check if the user can list users
@@ -19,7 +18,7 @@ export default class UsersController {
         .orWhereLike('email', `%${search}%`)
     }
 
-    const users = await usersQuery.paginate(page);
+    const users = await usersQuery.paginate(page, 10);
     return users;
   }
 
@@ -97,7 +96,7 @@ export default class UsersController {
     const user = await User.findOrFail(params.id);
     // Check if the user can edit the user
     await bouncer.with(UserPolicy).authorize('edit', user)
-    const userData = request.only(['firstName', 'lastName', 'email', 'profile', 'school', 'access', 'relatedNames']);
+    const userData = request.only(['firstName', 'lastName', 'email', 'profile', 'school', 'access', 'relatedNames','permissionMetadata']);
     user.merge(userData);
     await user.save();
     return user;
@@ -111,4 +110,31 @@ export default class UsersController {
     await user.delete();
     return { message: 'User deleted successfully' };
   }
+  // Update user's channel action (block/unblock)
+  async updateChannelAction({ params, request, response }: HttpContext) {
+    try {
+      const user = await User.findOrFail(params.id);
+
+      const { channelId, action } = request.only(['channelId', 'action']);
+
+      if (!channelId || !['block', 'unblock'].includes(action)) {
+        return response.status(400).json({ message: 'Invalid channel action data' });
+      }
+
+      const channelActionMetadata = user.channelActionMetadata || {};
+      channelActionMetadata[channelId] = action;
+      user.channelActionMetadata = channelActionMetadata;
+
+      console.log('Updated channelActionMetadata:', user.channelActionMetadata);
+      await user.save();
+
+      await user.save();
+
+      return response.status(200).json(user);
+    } catch (error) {
+      return response.status(500).json({ message: 'Failed to update channel action', error: error.message });
+    }
+  }
+
+  
 }
