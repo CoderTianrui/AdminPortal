@@ -106,15 +106,25 @@ export default function SurveyManagementPage() {
 
 
     const handleSurveySearchQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSurveySearchQuery(e.target.value);
+        setSurveySearchQuery(e.target.value.toLowerCase());
+        filterSurvey();
     };
 
     const filterSurvey = () => {
+        if (!surveySearchQuery) {
+            // If the search query is empty, reset the filtered list to the full survey list
+            setFilteredSurveyList(surveyList);
+        } else {
         const filtered = surveyList.filter(survey =>
             survey.title.toLowerCase().includes(surveySearchQuery.toLowerCase())
         );
         setFilteredSurveyList(filtered);
+        }
     };
+
+    const resetSurveys = () => {
+        setFilteredSurveyList(surveyList);
+    }
 
     // const submitSurvey = async () => {
     //     const surveyToSubmit = { ...newSurvey };
@@ -230,7 +240,7 @@ export default function SurveyManagementPage() {
                                 placeholder="Search Surveys by title"
                                 value={surveySearchQuery}
                                 onChange={handleSurveySearchQueryChange}
-                                endDecorator={<Button variant="outlined" onClick={filterSurvey}>Search</Button>}
+                                endDecorator={<Button variant="outlined" onClick={resetSurveys}>Reset</Button>}
                                 sx={{ width: '300px' }}
                             />
                         </Box>
@@ -260,8 +270,9 @@ export default function SurveyManagementPage() {
                                             onChange={handleSurveyChange}
                                         />
 
-                                        <label>School</label>
+                                        <label htmlFor="school-select">School</label>
                                         <Select
+                                            id="school-select"
                                             multiple
                                             value={Array.isArray(newSurvey.schools) && newSurvey.schools.length > 0 ? newSurvey.schools.map((schools) => schools.id) : []} // Handle no selected schools (empty array)
                                             onChange={(event, newValue) => {
@@ -336,39 +347,45 @@ export default function SurveyManagementPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {Array.isArray(filteredSurveyList) && filteredSurveyList.map((survey, index) => (
-                                        <tr key={survey.id}>
-                                            <td>{survey.title}</td>
-                                            <td>{survey.description}</td>
-                                            <td>{survey.level}</td>
-                                            <td>
-                                                {Array.isArray(survey.schools) && survey.schools.length > 0
-                                                    ? survey.schools.map((s, i) => (
-                                                        <span key={i}>
-                                                            {s?.name}{i < survey.schools.length - 1 ? ', ' : ''}
-                                                        </span>
-                                                    ))
-                                                    // : survey.school && typeof survey.school === 'object'
-                                                    // ? survey.school.name
-                                                    : 'No School'
-                                                }
+                                    {Array.isArray(filteredSurveyList) && filteredSurveyList.length > 0 ? (
+                                        filteredSurveyList.map((survey, index) => (
+                                            <tr key={survey.id}>
+                                                <td>{survey.title}</td>
+                                                <td>{survey.description}</td>
+                                                <td>{survey.level}</td>
+                                                <td>
+                                                    {Array.isArray(survey.schools) && survey.schools.length > 0
+                                                        ? survey.schools.map((s, i) => (
+                                                            <span key={i}>
+                                                                {s?.name}{i < survey.schools.length - 1 ? ', ' : ''}
+                                                            </span>
+                                                        ))
+                                                        // : survey.school && typeof survey.school === 'object'
+                                                        // ? survey.school.name
+                                                        : 'No School'
+                                                    }
 
-                                                {/* {survey.school?.map((school) => (
-                                                    <Chip key={school} variant="soft" color="primary">
-                                                        {school}
-                                                    </Chip> */}
+                                                    {/* {survey.school?.map((school) => (
+                                                        <Chip key={school} variant="soft" color="primary">
+                                                            {school}
+                                                        </Chip> */}
 
-                                            </td>
-                                            <td>
-                                                <Button variant="plain" size="sm" onClick={() => openSurveyModal(index)}>
-                                                    ✏️
-                                                </Button>
-                                                <Button variant="plain" size="sm" onClick={() => deleteSurvey(survey.id)}>
-                                                    ❌
-                                                </Button>
-                                            </td>
+                                                </td>
+                                                <td>
+                                                    <Button variant="plain" size="sm" onClick={() => openSurveyModal(index)}>
+                                                        ✏️
+                                                    </Button>
+                                                    <Button variant="plain" size="sm" onClick={() => deleteSurvey(survey.id)}>
+                                                        ❌
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={7} className="text-center">No surveys found</td>
                                         </tr>
-                                    ))}
+                                    )}
                                 </tbody>
                             </table>
                         </Box>
