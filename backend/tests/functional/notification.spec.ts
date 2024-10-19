@@ -62,6 +62,24 @@ test.group('Notifications', (group) => {
         assert.equal(updatedNotification.schools[0].id, school2.id)
       })
 
+    test('can create notification without schools', async ({ client }) => {
+        const notificationData = {
+          title: 'News without School',
+          date: '2024-10-15',
+          content: "this is notification",
+        };
+    
+        const response = await client.post('/notifications').json(notificationData);
+        response.assertStatus(200);
+    
+        const createdNotification = await Notification.query().where('title', notificationData.title).firstOrFail();
+        response.assertBodyContains({
+          title: createdNotification.title,
+          date: createdNotification.date,
+          content: createdNotification.content,
+        });
+      });
+
     test('can retrieve a specific notification', async ({ client }) => {
         const school = await School.create({ name: 'School 3' });
     
@@ -81,24 +99,6 @@ test.group('Notifications', (group) => {
           content: notification.content,
           date: notification.date,
           schools: [{ id: school.id, name: school.name }],
-        });
-      });
-
-    test('can create notification without schools', async ({ client }) => {
-        const notificationData = {
-          title: 'News without School',
-          date: '2024-10-15',
-          content: "this is notification",
-        };
-    
-        const response = await client.post('/notifications').json(notificationData);
-        response.assertStatus(200);
-    
-        const createdNotification = await Notification.query().where('title', notificationData.title).firstOrFail();
-        response.assertBodyContains({
-          title: createdNotification.title,
-          date: createdNotification.date,
-          content: createdNotification.content,
         });
       });
 
