@@ -3,10 +3,11 @@ import Survey from '#models/survey'
 
 export default class SurveysController {
   /**
-   * Display a list of resources
+   * Display a list of resource
    */
   async index({}: HttpContext) {
     return await Survey.query().preload('schools').paginate(1) // Preload related schools
+    // return await Survey.query().paginate(1)
   }
 
   /**
@@ -14,16 +15,14 @@ export default class SurveysController {
    */
   async store({ request }: HttpContext) {
     const { schools, ...surveyData } = request.only(['title', 'description', 'level', 'schools']) // Expecting schools as an array of school IDs
-
     // Create the survey
     const survey = await Survey.create(surveyData)
-
     // Attach related schools (many-to-many relationship)
     if (schools && schools.length > 0) {
       await survey.related('schools').attach(schools) // Attach school IDs to the survey
     }
-
     return survey
+    // return await Survey.create(request.all())
   }
 
   /**
@@ -31,6 +30,7 @@ export default class SurveysController {
    */
   async show({ params }: HttpContext) {
     return await Survey.query().where('id', params.id).preload('schools').firstOrFail() // Preload schools for individual survey
+    // return await Survey.findOrFail(params.id)
   }
 
   /**
@@ -38,13 +38,11 @@ export default class SurveysController {
    */
   async update({ params, request }: HttpContext) {
     const survey = await Survey.findOrFail(params.id)
-
     const { schools, ...surveyData } = request.only(['title', 'description', 'level', 'schools']) // Expecting schools as an array of school IDs
-
     // Update the survey fields
     survey.merge(surveyData)
+    // survey.merge(request.all())
     await survey.save()
-
     // Sync the related schools (many-to-many relationship)
     if (schools && schools.length > 0) {
       await survey.related('schools').sync(schools) // Sync the school relationship with new IDs
