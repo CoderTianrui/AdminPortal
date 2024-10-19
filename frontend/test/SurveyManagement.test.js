@@ -1,73 +1,267 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import SurveyManagementPage from '../app/surveymanagement/page';
 import '@testing-library/jest-dom';
 
-beforeAll(() => {
-    window.matchMedia = window.matchMedia || function() {
+
+// Mock data
+let mockSurveysData = [];
+let mockSchoolsData = [];
+
+describe('SurveyManagementPage', () => {
+  beforeAll(() => {
+    global.matchMedia = global.matchMedia || function () {
       return {
         matches: false,
-        addListener: function() {},
-        removeListener: function() {}
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
       };
     };
-});
 
+    global.fetch = jest.fn((url, options = {}) => {
+      if (url.includes('/surveys') && (!options.method || options.method === 'GET')) {
+        // GET /surveys
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ data: mockSurveysData }),
+        });
+      } else if (url.includes('/schools') && (!options.method || options.method === 'GET')) {
+        // GET /schools
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ data: mockSchoolsData }),
+        });
+      } else if (url.includes('/surveys') && options.method === 'POST') {
+        // POST /surveys
+        const newSurveyData = JSON.parse(options.body);
+        const newSurvey = {
+          id: String(mockSurveysData.length + 1),
+          ...newSurveyData,
+        };
 
-test('renders the SurveyManagementPage and checks for basic elements', () => {
+        // Handle school assignment
+        if (newSurvey.schools && newSurvey.schools.length > 0) {
+          newSurvey.schools = newSurvey.schools.map(schoolId => {
+            return mockSchoolsData.find(school => school.id === String(schoolId)) || null;
+          }).filter(school => school !== null);
+        }
+
+        mockSurveysData.push(newSurvey);
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(newSurvey),
+        });
+      } else if (url.match(/\/surveys\/\d+$/) && options.method === 'PUT') {
+        // PUT /surveys/:id
+        const idToUpdate = url.split('/').pop();
+        const updatedSurveyData = JSON.parse(options.body);
+
+        const index = mockSurveysData.findIndex(survey => survey.id === idToUpdate);
+        if (index !== -1) {
+          const existingSurvey = mockSurveysData[index];
+          const updatedSurvey = { ...existingSurvey, ...updatedSurveyData };
+
+          if (updatedSurvey.schools && updatedSurvey.schools.length > 0) {
+            updatedSurvey.schools = updatedSurvey.schools.map(schoolId => {
+              return mockSchoolsData.find(school => school.id === String(schoolId)) || null;
+            }).filter(school => school !== null);
+          }
+
+          mockSurveysData[index] = updatedSurvey;
+
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(updatedSurvey),
+          });
+        } else {
+          return Promise.resolve({
+            ok: false,
+            status: 404,
+            json: () => Promise.resolve({ error: 'Survey not found' }),
+          });
+        }
+      } else if (url.match(/\/surveys\/\d+$/) && options.method === 'DELETE') {
+        // DELETE /surveys/:id
+        const idToDelete = url.split('/').pop();
+        const initialLength = mockSurveysData.length;
+        mockSurveysData = mockSurveysData.filter(survey => survey.id !== idToDelete);
+
+        if (mockSurveysData.length < initialLength) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ message: 'Survey deleted' }),
+          });
+        } else {
+          return Promise.resolve({
+            ok: false,
+            status: 404,
+            json: () => Promise.resolve({ error: 'Survey not found' }),
+          });
+        }
+      } else {
+        // Default response for unhandled requests
+        return Promise.resolve({
+          ok: false,
+          status: 404,
+          json: () => Promise.resolve({ error: 'Not Found' }),
+        });
+      }
+    }); // Close global.fetch
+
+  });
+
+  beforeEach(() => {
+    // Reset mock data before each test
+    mockSurveysData = [
+      {
+        id: '1',
+        title: 'Sample Survey',
+        description: 'Sample Description',
+        level: 'Easy',
+        schools: [],
+      },
+    ];
+
+    mockSchoolsData = [
+      {
+        id: '1',
+        name: 'Test School',
+      },
+    ];
+  });
+
+  afterAll(() => {
+    jest.resetAllMocks();
+  });
+
+  test('adds a survey', async () => {
     render(<SurveyManagementPage />);
 
-    // Check for the main title
-    const titleElement = screen.queryAllByText((content, element) => {
-        return element.tagName.toLowerCase() === 'h1' && content.includes('Survey Management');
+    await waitFor(() => {
+      expect(screen.getByText('Survey Management')).toBeInTheDocument();
     });
-    expect(titleElement.length).toBeGreaterThan(0);
 
-    // Check for the "Create Survey" button
-    expect(screen.getByText(/Add Survey/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/Sample Survey/i)).toBeInTheDocument();
+    });
 
-    // Check for the search input
-    expect(screen.getByPlaceholderText(/Search Surveys by title/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Add Survey'));
+
+    fireEvent.change(screen.getByPlaceholderText('Enter title'), { target: { value: 'New Survey' } });
+    fireEvent.change(screen.getByPlaceholderText('Enter level'), { target: { value: 'Medium' } });
+    fireEvent.change(screen.getByPlaceholderText('Enter description'), { target: { value: 'New Description' } });
+
+    fireEvent.change(screen.getByLabelText('School'), { target: { value: '1' } });
+
+    fireEvent.click(screen.getByText('Submit'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/New Survey/i)).toBeInTheDocument();
+    });
+  });
+
+  test('edits a survey', async () => {
+    render(<SurveyManagementPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText((content, element) => content.includes('Sample Survey'))).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getAllByText('✏️')[0]);
+
+    fireEvent.change(screen.getByPlaceholderText('Enter title'), { target: { value: 'Updated Survey' } });
+
+    fireEvent.click(screen.getByText('Submit'));
+
+    await waitFor(() => {
+      expect(screen.getByText((content) => content.includes('Updated Survey'))).toBeInTheDocument();
+    });
+  });
+
+  test('deletes a survey', async () => {
+    render(<SurveyManagementPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText((content) => content.includes('Sample Survey'))).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getAllByText('❌')[0]);
+
+    await waitFor(() => {
+      expect(screen.queryByText((content) => content.includes('Sample Survey'))).not.toBeInTheDocument();
+    });
+  });
+
+  // test('filters surveys by search input', async () => {
+  //   mockSurveysData.push(
+  //     {
+  //       id: '2',
+  //       title: 'Another Survey',
+  //       description: 'Another Description',
+  //       level: 'Medium',
+  //       schools: [],
+  //     }
+  //   );
+
+  //   render(<SurveyManagementPage />);
+
+  //   await waitFor(() => {
+  //     expect(screen.getByText((content) => content.includes('Sample Survey'))).toBeInTheDocument();
+  //     expect(screen.getByText((content) => content.includes('Another Survey'))).toBeInTheDocument();
+  //   });
+
+  //   fireEvent.change(screen.getByPlaceholderText('Search Surveys by title'), { target: { value: 'Another' } });
+
+  //   await waitFor(() => {
+  //     expect(screen.getByText('Another Survey')).toBeInTheDocument();
+  //     expect(screen.queryByText('Sample Survey')).not.toBeInTheDocument();
+  //   });
+
+  //   // Clear the search input (reset it to show all surveys)
+  //   fireEvent.change(screen.getByPlaceholderText('Search Surveys by title'), {
+  //   target: { value: '' },
+  //   });
+
+  //   // Wait for the full list of surveys to be displayed again
+  //   await waitFor(() => {
+  //     expect(screen.getByText('Sample Survey')).toBeInTheDocument();
+  //     expect(screen.getByText('Another Survey')).toBeInTheDocument();
+  //   });
+  // });
+
+  test('shows no surveys when there are none', async () => {
+    mockSurveysData = [];
+
+    render(<SurveyManagementPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('No surveys found')).toBeInTheDocument();
+    });
+  });
+
+  test('displays multiple surveys', async () => {
+    mockSurveysData = [
+      {
+        id: '1',
+        title: 'Survey One',
+        description: 'Description One',
+        level: 'Easy',
+        schools: [],
+      },
+      {
+        id: '2',
+        title: 'Survey Two',
+        description: 'Description Two',
+        level: 'Medium',
+        schools: [],
+      },
+    ];
+
+    render(<SurveyManagementPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText((content) => content.includes('Survey One'))).toBeInTheDocument();
+      expect(screen.getByText((content) => content.includes('Survey Two'))).toBeInTheDocument();
+    });
+  });
 });
-
-
-// test('submits a new survey and displays it in the list', () => {
-//   render(<SurveyManagementPage />);
-
-//   // Open the survey modal
-//   fireEvent.click(screen.getByText(/Add Survey/i));
-
-//   // Fill out the survey form
-//   fireEvent.change(screen.getByPlaceholderText(/Enter title/i), { target: { value: 'New Survey' } });
-//   fireEvent.change(screen.getByPlaceholderText(/Enter description/i), { target: { value: 'This is a new survey' } });
-//   fireEvent.change(screen.getByPlaceholderText(/Enter level/i), { target: { value: '1' } });
-
-//   // Submit the form
-//   fireEvent.click(screen.getByText(/Submit/i));
-
-//   // Verify that the new survey appears in the list
-//   const surveyElements = screen.queryAllByText((content, element) => {
-//       return element.tagName.toLowerCase() === 'td' && content === 'New Survey';
-//   });
-//   expect(surveyElements.length).toBeGreaterThan(0);
-// });
-
-// test('deletes a survey from the list', () => {
-//   render(<SurveyManagementPage />);
-
-//   // Simulate that there's already a survey in the list (you may need to mock fetch requests here)
-//   fireEvent.click(screen.getByText(/Create Survey/i));
-//   fireEvent.change(screen.getByPlaceholderText(/Enter title/i), { target: { value: 'Survey to Delete' } });
-//   fireEvent.change(screen.getByPlaceholderText(/Enter description/i), { target: { value: 'This survey will be deleted' } });
-//   fireEvent.change(screen.getByPlaceholderText(/Enter level/i), { target: { value: 'Advanced' } });
-//   fireEvent.click(screen.getByText(/Submit/i));
-
-//   // Simulate deleting the survey
-//   fireEvent.click(screen.getAllByText(/❌/i)[0]); // Assuming the delete button has ❌ icon
-
-//   // Verify that the survey is removed from the list
-//   const deletedSurveyElement = screen.queryAllByText((content, element) => {
-//       return element.tagName.toLowerCase() === 'td' && content === 'Survey to Delete';
-//   });
-//   expect(deletedSurveyElement.length).toBe(0);
-// });
