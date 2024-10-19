@@ -9,7 +9,6 @@
     "build": "node ace build",
     "dev": "node ace serve --hmr",
     "test": "node ace test",
-    "coverage": "c8 node ace test",
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit"
@@ -45,7 +44,7 @@
     "@types/js-yaml": "^4.0.9",
     "@types/luxon": "^3.4.2",
     "@types/node": "^22.5.1",
-    "c8": "^10.1.2",
+    "artillery": "^2.0.20",
     "eslint": "^9.9.1",
     "hot-hook": "^0.2.6",
     "pino-pretty": "^11.2.2",
@@ -56,9 +55,9 @@
   "dependencies": {
     "@adonisjs/auth": "^9.2.3",
     "@adonisjs/bouncer": "^3.1.3",
-    "@adonisjs/core": "^6.12.1",
+    "@adonisjs/core": "^6.14.1",
     "@adonisjs/cors": "^2.2.1",
-    "@adonisjs/lucid": "^21.3.0",
+    "@adonisjs/lucid": "^21.2.0",
     "@adonisjs/session": "^7.4.2",
     "@vinejs/vine": "^2.1.0",
     "better-sqlite3": "^11.2.1",
@@ -82,13 +81,6 @@
     "overrides": {
       "strtok3": "8.0.1"
     }
-  },
-  "c8": {
-    "include": [
-      "app/**"
-    ],
-    "check-coverage": true,
-    "lines": 80
   },
   "prettier": "@adonisjs/prettier-config",
   "packageManager": "yarn@4.4.1"
