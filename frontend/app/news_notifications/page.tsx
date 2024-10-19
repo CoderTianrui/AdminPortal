@@ -21,19 +21,19 @@ interface School {
 }
 
 interface News {
-    id?: number;
+    id: string;
     title: string;
     url: string;
     date: string;
-    recipients: School[];
+    schools: School[];
 }
 
 interface Notification {
-    id?: number;
+    id: string;
     title: string;
     content: string;
     date: string;
-    recipients: School[];
+    schools: School[];
 }
 
 export default function NewsNotificationManagementPage() {
@@ -44,8 +44,8 @@ export default function NewsNotificationManagementPage() {
     const [notificationList, setNotificationList] = React.useState<Notification[]>([]);
     const [schools, setSchools] = React.useState<School[]>([]);
 
-    const [newNews, setNewNews] = React.useState<News>({ title: '', url: '', date: '', recipients: [] });
-    const [newNotification, setNewNotification] = React.useState<Notification>({ title: '', content: '', date: '', recipients: [] });
+    const [newNews, setNewNews] = React.useState<News>({ id: '', title: '', url: '', date: '', schools: [] });
+    const [newNotification, setNewNotification] = React.useState<Notification>({ id: '', title: '', content: '', date: '', schools: [] });
 
     const [editNewsIndex, setEditNewsIndex] = React.useState<number | null>(null);
     const [editNotificationIndex, setEditNotificationIndex] = React.useState<number | null>(null);
@@ -63,12 +63,21 @@ export default function NewsNotificationManagementPage() {
     }, []);
 
     const fetchSchools = async () => {
+        console.log('fetchSchools called');
         try {
             const response = await fetch('http://localhost:3333/schools');
             const data = await response.json();
-            setSchools(data.data || []);
+            console.log('Fetched Data:', data);
+
+            if (Array.isArray(data)) {
+                setSchools(data);
+            } else if (data.data && Array.isArray(data.data)) {
+                setSchools(data.data);
+            } else {
+                console.error('Unexpected response structure:', data);
+            }
         } catch (error) {
-            console.error('Error fetching schools:', error);
+            console.error('Failed to fetch schools:', error);
         }
     };
 
@@ -104,7 +113,7 @@ export default function NewsNotificationManagementPage() {
 
     const closeNewsModal = () => {
         setIsNewsModalOpen(false);
-        setNewNews({ title: '', url: '', date: '', recipients: [] });
+        setNewNews({ id: '', title: '', url: '', date: '', schools: [] });
         setEditNewsIndex(null);
     };
 
@@ -118,7 +127,7 @@ export default function NewsNotificationManagementPage() {
 
     const closeNotificationModal = () => {
         setIsNotificationModalOpen(false);
-        setNewNotification({ title: '', content: '', date: '', recipients: [] });
+        setNewNotification({ id: '', title: '', content: '', date: '', schools: [] });
         setEditNotificationIndex(null);
     };
 
@@ -153,64 +162,126 @@ export default function NewsNotificationManagementPage() {
         setFilteredNotificationList(filtered);
     };
 
-    const submitNews = async () => {
-        const recipients = newNews.recipients;
+    const handleNewsSubmit = async () => {
 
-        if (editNewsIndex !== null) {
-            // Edit existing news
-            try {
-                await fetch(`http://localhost:3333/news/${newsList[editNewsIndex].id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ...newNews, recipients }),
-                });
-                fetchNews();
-            } catch (error) {
-                console.error('Error updating news:', error);
-            }
-        } else {
-            // Add new news
-            try {
-                await fetch('http://localhost:3333/news', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ...newNews, recipients }),
-                });
-                fetchNews();
-            } catch (error) {
-                console.error('Error creating news:', error);
-            }
+        if (!newNews.title || !newNews.date || !newNews.url) {
+            console.error('All fields are required');
+            return;
         }
-        closeNewsModal();
+
+        let response;
+
+        try {
+            const { schools, ...restOfNewNews } = newNews; // Destructure to separate out schools
+
+            const payload = {
+                ...restOfNewNews,
+                schools: schools && schools.length > 0
+                    ? schools.map((school) => school.id) // Map selected schools to their IDs
+                    : [], // Empty array if no schools are selected
+            };
+
+            console.log("School IDs:", payload);
+
+            if (editNewsIndex !== null) {
+                // Update existing news
+                response = await fetch(`http://localhost:3333/news/${newsList[editNewsIndex].id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+            } else {
+                // Create new news
+                console.log('Payload:', payload);
+
+                response = await fetch('http://localhost:3333/news', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                console.log("Response Status: ", response.status);
+                console.log("Response Object: ", response);
+
+                if (!response.ok) {
+                    throw new Error('Failed to save');
+                }
+
+                const createdNews = await response.json();
+                console.log('New News Saved: ', createdNews);
+
+                setNewsList((prevNews) => [...prevNews, createdNews]);
+            }
+            fetchNews(); 
+            closeNewsModal(); 
+        } catch (error) {
+            console.error('Failed to save news:', error);
+        }
     };
+    
+    const handleNotificationSubmit = async () => {
 
-    const submitNotification = async () => {
-        const recipients = newNotification.recipients;
-
-        if (editNotificationIndex !== null) {
-            try {
-                await fetch(`http://localhost:3333/notifications/${notificationList[editNotificationIndex].id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ...newNotification, recipients }),
-                });
-                fetchNotifications();
-            } catch (error) {
-                console.error('Error updating notification:', error);
-            }
-        } else {
-            try {
-                await fetch('http://localhost:3333/notifications', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ...newNotification, recipients }),
-                });
-                fetchNotifications();
-            } catch (error) {
-                console.error('Error creating notification:', error);
-            }
+        if (!newNotification.title || !newNotification.date || !newNotification.content) {
+            console.error('All fields are required');
+            return;
         }
-        closeNotificationModal();
+
+        let response;
+
+        try {
+            const { schools, ...restOfNewNotification } = newNotification; // Destructure to separate out schools
+
+            const payload = {
+                ...restOfNewNotification,
+                schools: schools && schools.length > 0
+                    ? schools.map((school) => school.id) // Map selected schools to their IDs
+                    : [], // Empty array if no schools are selected
+            };
+
+            console.log("School IDs:", payload);
+
+            if (editNotificationIndex !== null) {
+                // Update existing notification
+                response = await fetch(`http://localhost:3333/notifications/${newsList[editNotificationIndex].id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+            } else {
+                // Create new notification
+                console.log('Payload:', payload);
+
+                response = await fetch('http://localhost:3333/notifications', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                console.log("Response Status: ", response.status);
+                console.log("Response Object: ", response);
+
+                if (!response.ok) {
+                    throw new Error('Failed to save');
+                }
+
+                const createdNotification = await response.json();
+                console.log('New News Saved: ', createdNotification);
+
+                setNewsList((prevNotification) => [...prevNotification, createdNotification]);
+            }
+            fetchNotifications(); 
+            closeNotificationModal(); 
+        } catch (error) {
+            console.error('Failed to save news:', error);
+        }
     };
 
     const deleteNews = async (index: number) => {
@@ -309,15 +380,18 @@ export default function NewsNotificationManagementPage() {
                                             <label>Recipients</label>
                                             <Select
                                                 multiple
-                                                value={newNews.recipients?.length > 0 ? newNews.recipients.map((recipients) => recipients.id) : []} // Handle no selected schools (empty array)
+                                                value={newNews.schools.length > 0 ? newNews.schools.map((schools) => schools.id) : []} // Handle no selected schools (empty array)
                                                 onChange={(event, newValue) => {
                                                     const selectedSchools = newValue.length > 0
-                                                        ? newValue.map((schoolId) => schools.find((recipients) => recipients.id === schoolId))
-                                                        .filter((recipients) => recipients !== undefined)
-                                                        : [];
+                                                        ? newValue
+                                                            .map((schoolId) => schools.find((school) => school.id === schoolId))
+                                                            .filter((school) => school !== undefined) // Filter out any undefined values
+                                                        : []; // Set to an empty array if no schools are selected
+    
+                                                    // Update the state with selected schools (or an empty array if none selected)
                                                     setNewNews((prevNews) => ({
                                                         ...prevNews,
-                                                        recipients: selectedSchools as School[]
+                                                        schools: selectedSchools as School[] // Store the array of selected schools, or empty
                                                     }));
                                                 }}
                                                 renderValue={(selected) => (
@@ -335,9 +409,9 @@ export default function NewsNotificationManagementPage() {
                                                 )}
                                                 sx={{ minWidth: '15rem' }}
                                             >
-                                                {schools.map((recipients) => (
-                                                    <Option key={recipients.id} value={recipients.id}>
-                                                        {recipients.name}
+                                                {schools.map((school) => (
+                                                    <Option key={school.id} value={school.id}>
+                                                        {school.name}
                                                     </Option>
                                                 ))}
                                             </Select>
@@ -351,7 +425,7 @@ export default function NewsNotificationManagementPage() {
                                                 onChange={handleNewsChange}
                                             />
                                         </div>
-                                        <button className="submit-button" onClick={submitNews}>Submit</button>
+                                        <button className="submit-button" onClick={handleNewsSubmit}>Submit</button>
                                     </div>
                                 </div>
                             )}
@@ -377,22 +451,14 @@ export default function NewsNotificationManagementPage() {
                                                 </td>
                                                 <td>{news.date}</td>
                                                 <td>
-                                                {Array.isArray(news.recipients) && news.recipients.length > 0
-                                                    ? news.recipients.map((s, i) => (
+                                                {Array.isArray(news.schools) && news.schools.length > 0
+                                                    ? news.schools.map((s, i) => (
                                                         <span key={i}>
-                                                        {s?.name}{i < news.recipients.length - 1 ? ', ' : ''}
+                                                        {s?.name}{i < news.schools.length - 1 ? ', ' : ''}
                                                         </span>
                                                     ))
-                                                    // : survey.school && typeof survey.school === 'object'
-                                                    // ? survey.school.name
                                                     : 'No School'
                                                 }
-                                                
-                                                {/* {survey.school?.map((school) => (
-                                                    <Chip key={school} variant="soft" color="primary">
-                                                        {school}
-                                                    </Chip> */}
-                                                
                                                 </td>
                                                 <td>
                                                     <Button variant="plain" size="sm" onClick={() => openNewsModal(index)}>✏️</Button>
@@ -446,15 +512,19 @@ export default function NewsNotificationManagementPage() {
                                             <label>Recipients</label>
                                             <Select
                                                 multiple
-                                                value={newNotification.recipients.length > 0 ? newNotification.recipients.map((school) => school.id) : []} // Handle no selected schools (empty array)
+                                                value={newNotification.schools.length > 0 ? newNotification.schools.map((schools) => schools.id) : []} // Handle no selected schools (empty array)
                                                 onChange={(event, newValue) => {
+                                                    // If no schools are selected, `newValue` will be an empty array
                                                     const selectedSchools = newValue.length > 0
-                                                        ? newValue.map((schoolId) => schools.find((school) => school.id === schoolId))
-                                                        .filter((school) => school !== undefined)
-                                                        : [];
-                                                    setNewNotification((prevNews) => ({
-                                                        ...prevNews,
-                                                        recipients: selectedSchools as School[]
+                                                        ? newValue
+                                                            .map((schoolId) => schools.find((school) => school.id === schoolId))
+                                                            .filter((school) => school !== undefined) // Filter out any undefined values
+                                                        : []; // Set to an empty array if no schools are selected
+    
+                                                    // Update the state with selected schools (or an empty array if none selected)
+                                                    setNewNotification((prevNotification) => ({
+                                                        ...prevNotification,
+                                                        schools: selectedSchools as School[] // Store the array of selected schools, or empty
                                                     }));
                                                 }}
                                                 renderValue={(selected) => (
@@ -488,7 +558,7 @@ export default function NewsNotificationManagementPage() {
                                                 onChange={handleNotificationChange}
                                             />
                                         </div>
-                                        <button className="submit-button" onClick={submitNotification}>Submit</button>
+                                        <button className="submit-button" onClick={handleNotificationSubmit}>Submit</button>
                                     </div>
                                 </div>
                             )}
@@ -510,22 +580,14 @@ export default function NewsNotificationManagementPage() {
                                                 <td>{notification.content}</td>
                                                 <td>{notification.date}</td>
                                                 <td>
-                                                {Array.isArray(notification.recipients) && notification.recipients.length > 0
-                                                    ? notification.recipients.map((s, i) => (
+                                                {Array.isArray(notification.schools) && notification.schools.length > 0
+                                                    ? notification.schools.map((s, i) => (
                                                         <span key={i}>
-                                                        {s?.name}{i < notification.recipients.length - 1 ? ', ' : ''}
+                                                        {s?.name}{i < notification.schools.length - 1 ? ', ' : ''}
                                                         </span>
                                                     ))
-                                                    // : survey.school && typeof survey.school === 'object'
-                                                    // ? survey.school.name
                                                     : 'No School'
                                                 }
-                                                
-                                                {/* {survey.school?.map((school) => (
-                                                    <Chip key={school} variant="soft" color="primary">
-                                                        {school}
-                                                    </Chip> */}
-                                                
                                                 </td>
                                                 <td>
                                                     <Button variant="plain" size="sm" onClick={() => openNotificationModal(index)}>✏️</Button>
