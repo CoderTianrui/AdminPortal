@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@adonisjs/lucid/orm'
-//import type { ManyToMany } from '@adonisjs/lucid/types/relations'
-//import Recipient from './recipient.js'
+import { column, manyToMany } from '@adonisjs/lucid/orm'
+import type { ManyToMany } from '@adonisjs/lucid/types/relations'
+import School from './school.js'
+import ManagedModel from './managed_model.js'
 
-export default class Notification extends BaseModel {
+export default class Notification extends ManagedModel {
   @column({ isPrimary: true })
   declare id: number
 
@@ -19,12 +20,16 @@ export default class Notification extends BaseModel {
   @column()
   declare content: string
 
-  //@manyToMany(() => Recipient)
-  //declare recipients: ManyToMany<typeof Recipient>
+  @column() 
+  declare date: string;
 
-  @column.dateTime()  // Add this line for the date
-  declare date: DateTime;
-
-  @column()
-  declare recipients: string; // need to change later 
+  @manyToMany(() => School, {
+    pivotTable: 'notification_schools', 
+    localKey: 'id', 
+    pivotForeignKey: 'notification_id', 
+    relatedKey: 'id', 
+    pivotRelatedForeignKey: 'school_id', 
+    pivotTimestamps: true, 
+  })
+  public schools!: ManyToMany<typeof School>
 }

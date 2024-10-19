@@ -1,11 +1,11 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, manyToMany } from '@adonisjs/lucid/orm'
-//import type { ManyToMany } from '@adonisjs/lucid/types/relations'
-//import Recipient from './recipient.js'
+import { column, manyToMany } from '@adonisjs/lucid/orm'
+import School from './school.js'
 import Channel from './channel.js'
 import type { ManyToMany } from '@adonisjs/lucid/types/relations'
+import ManagedModel from './managed_model.js'
 
-export default class New extends BaseModel {
+export default class New extends ManagedModel {
   @column({ isPrimary: true })
   declare id: number
 
@@ -21,14 +21,18 @@ export default class New extends BaseModel {
   @column()
   declare url: string
 
-  @column.dateTime() 
-  declare date: DateTime; 
-
-  //@manyToMany(() => Recipient)
-  //declare recipients: ManyToMany<typeof Recipient>
+  @manyToMany(() => School, {
+    pivotTable: 'news_schools',
+    localKey: 'id', 
+    pivotForeignKey: 'news_id',
+    relatedKey: 'id', 
+    pivotRelatedForeignKey: 'school_id', 
+    pivotTimestamps: true, 
+  })
+  public schools!: ManyToMany<typeof School>
 
   @column()
-  declare recipients: string; //need to change it later
+  declare date: string;
 
   @manyToMany(() => Channel, {pivotTable: 'channel_news',})
   declare channels: ManyToMany<typeof Channel>

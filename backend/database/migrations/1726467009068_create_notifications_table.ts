@@ -14,8 +14,7 @@ export default class extends BaseSchema {
 
       table.string('title').notNullable()
       table.string('content', 254).notNullable()
-      table.dateTime('date').notNullable()
-      table.string('recipients').notNullable()
+      table.string('date').notNullable()
     })
   }
 
