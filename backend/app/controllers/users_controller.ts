@@ -122,14 +122,7 @@ export default class UsersController {
         message: 'School does not exist',
       });
     }
-    for (const userId of userData.relatedUsers || []) {
-      const userExists = await User.find(userId);
-      if (!userExists) {
-        return response.status(400).json({
-          message: `User does not exist.`,
-        });
-      }
-    }
+  
     if(userData.firstName.length > 255){
       return response.status(400).json({
         message: `First name too long.`,
