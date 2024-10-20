@@ -288,9 +288,11 @@ describe('SchoolManagementPage', () => {
     await waitFor(() => expect(screen.getByText(/Test School/i)).toBeInTheDocument());
 
     // Perform search
-    fireEvent.change(screen.getByPlaceholderText(/Search schools/i), {
-      target: { value: 'Nonexistent' },
-    });
+    // fireEvent.change(screen.getByPlaceholderText(/Search schools/i), {
+    //   target: { value: 'Nonexistent' },
+    // });
+    await fireEvent.change(screen.getByPlaceholderText('Search schools...'), { target: { value: 'Nonexistent' } });
+    fireEvent.click(screen.getAllByText('Search')[0]);
 
     // Verify that no schools match the search term
     expect(screen.queryByText(/Test School/i)).not.toBeInTheDocument();
