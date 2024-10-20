@@ -106,7 +106,7 @@ export default class UsersController {
       }
     }
 
-    if (!(userData.email.includes('@') && userData.email.includes('.com'))) {
+    if (!(userData.email.includes('@') && userData.email.includes('.'))) {
      
       return response.status(400).json({ message: 'Email does not exist' })
     }
