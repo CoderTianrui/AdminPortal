@@ -36,13 +36,13 @@ test.group('Surveys', (group) => {
 
   // EXISTING TEST: Create a new survey with schools (store method)
   test('can create a new survey with schools', async ({ client }) => {
-    const school = await School.create({ name: 'Test School' })
+    const school1 = await School.create({ name: 'Test School' })
 
     const surveyData = {
       title: 'Survey with School',
       description: 'This survey has an associated school',
       level: 1,
-      schools: [school.id],
+      schools: [school1.id],
     }
 
     const response = await client.post('/surveys').json(surveyData)
@@ -50,7 +50,10 @@ test.group('Surveys', (group) => {
 
     response.assertBodyContains({
       title: surveyData.title,
-      schools: [{ id: school.id, name: school.name }],
+      description: surveyData.description,
+      level: surveyData.level,
+      schools: [{ id: school1.id, name: 'Test School' }],
+
     })
   })
 
@@ -134,6 +137,7 @@ test.group('Surveys', (group) => {
     response.assertBodyContains({
       title: 'Survey without Schools',
       description: 'This survey has no associated schools',
+      level: 1,
       schools: [], // Verify no schools attached
     })
   })
