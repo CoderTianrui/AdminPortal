@@ -28,8 +28,8 @@ export default class UsersController {
   async show({ bouncer, params, response }: HttpContext) {
     try {
 
-      const userId = parseInt(params.id, 10);
-      if (isNaN(userId)) {
+      const userId = Number.parseInt(params.id, 10);
+      if (Number.isNaN(userId)) {
         return response.status(404).json({
           message: 'Invalid user ID. Please provide a numerical ID.',
         });
@@ -169,8 +169,8 @@ export default class UsersController {
   // Update an existing user
   async update({ bouncer, params, request, response }: HttpContext) {
 
-    const userId = parseInt(params.id, 10);
-    if (isNaN(userId)) {
+    const userId = Number.parseInt(params.id, 10);
+    if (Number.isNaN(userId)) {
       return response.status(404).json({
         message: 'Invalid user ID. Please provide a numerical ID.',
       });
@@ -233,8 +233,8 @@ export default class UsersController {
   async destroy({ bouncer, params, response }: HttpContext) {
 
     try {
-    const userId = parseInt(params.id, 10);
-    if (isNaN(userId)) {
+    const userId = Number.parseInt(params.id, 10);
+    if (Number.isNaN(userId)) {
       return response.status(404).json({
         message: 'Invalid user ID. Please provide a numerical ID.',
       });
@@ -278,3 +278,4 @@ export default class UsersController {
 
   
 }
+
