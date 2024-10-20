@@ -1,20 +1,16 @@
-
 'use client';
-
 
 import * as React from 'react';
 import { CssVarsProvider } from '@mui/joy/styles';
 import CssBaseline from '@mui/joy/CssBaseline';
 import Box from '@mui/joy/Box';
 import Button from '@mui/joy/Button';
-import Stack from '@mui/joy/Stack';
 import Input from '@mui/joy/Input';
 import Layout from '@/app/components/layout';
 import Header from '@/app/components/header';
 import Navigation from '@/app/components/navigation';
 
 import './School.css';
-import { School } from '@mui/icons-material';
 
 interface User {
     id: string;
@@ -34,59 +30,54 @@ interface School {
     adminUser: User | string | null;
 }
 
-
-
 export default function SchoolManagementPage() {
     const [isSchoolModalOpen, setIsSchoolModalOpen] = React.useState(false);
     const [schools, setSchools] = React.useState<School[]>([]);
+    const [filteredSchools, setFilteredSchools] = React.useState<School[]>([]); // New state for filtered schools
     const [newSchool, setNewSchool] = React.useState<School>({ name: '', adminUser: null });
     const [editIndex, setEditIndex] = React.useState<number | null>(null);
     const [search, setSearch] = React.useState('');
     const [users, setUsers] = React.useState<User[]>([]);
 
-
-
-
+    // Fetch users and schools on component mount
     React.useEffect(() => {
-        fetchSchoolsWithUsers(); 
-      }, []);
+        fetchSchoolsWithUsers();
+    }, []);
 
-      const fetchSchoolsWithUsers = async () => {
+    const fetchSchoolsWithUsers = async () => {
         try {
-          console.log('Fetching users...');
-          const usersResponse = await fetch('http://localhost:3333/users', {
-            credentials: 'include',
-          });
-          const usersData = await usersResponse.json();
-      
-          const users: User[] = usersData.data || [];
-          console.log('Users fetched:', users);
-          setUsers(users);
-      
-          console.log('Fetching schools...');
-          const schoolsResponse = await fetch('http://localhost:3333/schools');
-          const schoolsData = await schoolsResponse.json();
-      
-          let fetchedSchools: School[] = Array.isArray(schoolsData.data)
-            ? schoolsData.data
-            : [];
-      
-          const schoolsWithAdminDetails = fetchedSchools.map((school) => {
-            const adminUser = users.find((user: User) =>
-              String(user.id) === String(school.adminUserId)
-            );
-            return { ...school, adminUser: adminUser || null };
-          });
-      
-          console.log('Schools with admin details:', schoolsWithAdminDetails);
-          setSchools(schoolsWithAdminDetails); 
+            console.log('Fetching users...');
+            const usersResponse = await fetch('http://localhost:3333/users', {
+                credentials: 'include',
+            });
+            const usersData = await usersResponse.json();
+
+            const fetchedUsers: User[] = usersData.data || [];
+            console.log('Users fetched:', fetchedUsers);
+            setUsers(fetchedUsers);
+
+            console.log('Fetching schools...');
+            const schoolsResponse = await fetch('http://localhost:3333/schools');
+            const schoolsData = await schoolsResponse.json();
+
+            let fetchedSchools: School[] = Array.isArray(schoolsData.data)
+                ? schoolsData.data
+                : [];
+
+            const schoolsWithAdminDetails = fetchedSchools.map((school) => {
+                const adminUser = fetchedUsers.find((user: User) =>
+                    String(user.id) === String(school.adminUserId)
+                );
+                return { ...school, adminUser: adminUser || null };
+            });
+
+            console.log('Schools with admin details:', schoolsWithAdminDetails);
+            setSchools(schoolsWithAdminDetails);
+            setFilteredSchools(schoolsWithAdminDetails); // Initialize filteredSchools with all schools
         } catch (error) {
-          console.error('Failed to fetch users or schools:', error);
+            console.error('Failed to fetch users or schools:', error);
         }
     };
-      
-
-
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -98,136 +89,136 @@ export default function SchoolManagementPage() {
 
     const handleSubmit = async () => {
         if (!newSchool.name) {
-          console.error('All fields are required');
-          alert('Please fill out all required fields.');
-          const nameInput = document.querySelector('input[name="name"]') as HTMLInputElement | null;
-          nameInput?.focus();
-          return;
+            console.error('All fields are required');
+            alert('Please fill out all required fields.');
+            const nameInput = document.querySelector('input[name="name"]') as HTMLInputElement | null;
+            nameInput?.focus();
+            return;
         }
-      
-        console.log('Adding new school:', newSchool);
-      
+
+        console.log('Adding/updating school:', newSchool);
+
         try {
-          const payload = {
-            name: newSchool.name,
-            adminUserId:
-              newSchool.adminUser && typeof newSchool.adminUser === 'object'
-                ? newSchool.adminUser.id
-                : newSchool.adminUser,
-          };
-      
-          const submitButton = document.querySelector('.submit-button') as HTMLButtonElement | null;
-          if (submitButton) submitButton.disabled = true;
-      
-          let response: Response;
-      
-          if (editIndex !== null) {
-            // Existing editing logic...
-        console.log(`Updating school with ID: ${schools[editIndex].id}`);
-        response = await fetch(`http://localhost:3333/schools/${schools[editIndex].id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        });
+            const payload = {
+                name: newSchool.name,
+                adminUserId:
+                    newSchool.adminUser && typeof newSchool.adminUser === 'object'
+                        ? newSchool.adminUser.id
+                        : newSchool.adminUser,
+            };
 
-        if (!response.ok) {
-            const errorMessage = await response.text();
-            throw new Error(`Failed to update school: ${errorMessage}`);
-        }
+            const submitButton = document.querySelector('.submit-button') as HTMLButtonElement | null;
+            if (submitButton) submitButton.disabled = true;
 
-        const responseData = await response.json();
-        console.log('responseData:', responseData); // For debugging
+            let response: Response;
 
-        // Adjust this line
-        const updatedSchool = responseData; // Assuming the API returns the updated school object directly
+            if (editIndex !== null) {
+                // Editing an existing school
+                console.log(`Updating school with ID: ${schools[editIndex].id}`);
+                response = await fetch(`http://localhost:3333/schools/${schools[editIndex].id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
 
-        // Update the adminUser in the updatedSchool
-        if (updatedSchool.adminUserId) {
-            const adminUser = users.find((user) => String(user.id) === String(updatedSchool.adminUserId));
-            if (adminUser) {
-            updatedSchool.adminUser = adminUser;
-            }
-        } else {
-            updatedSchool.adminUser = null;
-        }
+                if (!response.ok) {
+                    const errorMessage = await response.text();
+                    throw new Error(`Failed to update school: ${errorMessage}`);
+                }
 
-        // Update the schools state
-        setSchools((prevSchools) => {
-            const updatedSchools = [...prevSchools];
-            updatedSchools[editIndex!] = { ...updatedSchools[editIndex!], ...updatedSchool };
-            return updatedSchools;
-        });
+                const responseData = await response.json();
+                console.log('responseData:', responseData); // For debugging
 
-        // Clear the form after editing
-        setNewSchool({ name: '', adminUser: null });
+                const updatedSchool: School = responseData; // Assuming the API returns the updated school object directly
 
-          } else {
-            // Adding a new school
-            console.log('Creating a new school...');
-            response = await fetch('http://localhost:3333/schools', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-            });
+                // Update the adminUser in the updatedSchool
+                if (updatedSchool.adminUserId) {
+                    const adminUser = users.find((user) => String(user.id) === String(updatedSchool.adminUserId));
+                    if (adminUser) {
+                        updatedSchool.adminUser = adminUser;
+                    }
+                } else {
+                    updatedSchool.adminUser = null;
+                }
 
-            if (!response.ok) {
-            const errorMessage = await response.text();
-            throw new Error(`Failed to create school: ${errorMessage}`);
-            }
+                // Update the schools state
+                setSchools((prevSchools) => {
+                    const updatedSchools = [...prevSchools];
+                    updatedSchools[editIndex!] = { ...updatedSchools[editIndex!], ...updatedSchool };
+                    return updatedSchools;
+                });
 
-            const responseData = await response.json();
-            console.log('responseData:', responseData); // Add this line for debugging
+                // Also update filteredSchools
+                setFilteredSchools((prevFiltered) => {
+                    const updatedFiltered = [...prevFiltered];
+                    updatedFiltered[editIndex!] = { ...updatedFiltered[editIndex!], ...updatedSchool };
+                    return updatedFiltered;
+                });
 
-            // Adjust this line
-            const createdSchool = responseData; // Assuming the API returns the school object directly
-
-            // Proceed as before
-            if (createdSchool.adminUserId) {
-            const adminUser = users.find(
-                (user) => String(user.id) === String(createdSchool.adminUserId)
-            );
-            if (adminUser) {
-                createdSchool.adminUser = adminUser;
-            }
+                // Clear the form after editing
+                setNewSchool({ name: '', adminUser: null });
             } else {
-            createdSchool.adminUser = null;
+                // Adding a new school
+                console.log('Creating a new school...');
+                response = await fetch('http://localhost:3333/schools', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+
+                if (!response.ok) {
+                    const errorMessage = await response.text();
+                    throw new Error(`Failed to create school: ${errorMessage}`);
+                }
+
+                const responseData = await response.json();
+                console.log('responseData:', responseData); // For debugging
+
+                const createdSchool: School = responseData; // Assuming the API returns the school object directly
+
+                if (createdSchool.adminUserId) {
+                    const adminUser = users.find(
+                        (user) => String(user.id) === String(createdSchool.adminUserId)
+                    );
+                    if (adminUser) {
+                        createdSchool.adminUser = adminUser;
+                    }
+                } else {
+                    createdSchool.adminUser = null;
+                }
+
+                // Update the schools state
+                setSchools((prevSchools) => [...prevSchools, createdSchool]);
+
+                // Also update filteredSchools
+                setFilteredSchools((prevFiltered) => [...prevFiltered, createdSchool]);
+
+                // Clear the form after adding
+                setNewSchool({ name: '', adminUser: null });
             }
 
-            // Update the schools state
-            setSchools((prevSchools) => [...prevSchools, createdSchool]);
-
-            // Clear the form after adding
-            setNewSchool({ name: '', adminUser: null });
-
-          }
-      
-        //   alert(editIndex !== null ? 'School updated successfully!' : 'School created successfully!');
-          closeSchoolModal();
+            closeSchoolModal();
+            alert(editIndex !== null ? 'School updated successfully!' : 'School created successfully!');
         } catch (error) {
-          console.error('Failed to save school:', error);
-      
-          if (error instanceof Error) {
-            alert(`Error: ${error.message}`);
-          } else {
-            alert('An unexpected error occurred. Please try again.');
-          }
+            console.error('Failed to save school:', error);
+
+            if (error instanceof Error) {
+                alert(`Error: ${error.message}`);
+            } else {
+                alert('An unexpected error occurred. Please try again.');
+            }
         } finally {
-          const submitButton = document.querySelector('.submit-button') as HTMLButtonElement | null;
-          if (submitButton) submitButton.disabled = false;
-      
-          const nameInput = document.querySelector('input[name="name"]') as HTMLInputElement | null;
-          nameInput?.focus(); // Focus back on the name input
+            const submitButton = document.querySelector('.submit-button') as HTMLButtonElement | null;
+            if (submitButton) submitButton.disabled = false;
+
+            const nameInput = document.querySelector('input[name="name"]') as HTMLInputElement | null;
+            nameInput?.focus(); // Focus back on the name input
         }
-      };
-      
-      
-    
+    };
+
     React.useEffect(() => {
         console.log('Schools state updated:', schools);
     }, [schools]);
-      
-    
-    
 
     const handleEdit = (index: number) => {
         setEditIndex(index);
@@ -241,8 +232,10 @@ export default function SchoolManagementPage() {
                 method: 'DELETE',
             });
             fetchSchoolsWithUsers();
+            alert('School deleted successfully!');
         } catch (error) {
             console.error('Failed to delete school:', error);
+            alert('Failed to delete school. Please try again.');
         }
     };
 
@@ -250,20 +243,24 @@ export default function SchoolManagementPage() {
         setSearch(e.target.value);
     };
 
+    const filterSchools = () => {
+        const trimmedSearch = search.trim().toLowerCase();
+        if (!trimmedSearch) {
+            setFilteredSchools(schools);
+        } else {
+            const filtered = schools.filter((school) =>
+                school?.name?.toLowerCase().includes(trimmedSearch)
+            );
+            setFilteredSchools(filtered);
+        }
+    };
 
-
-    const filteredSchools = search.trim()
-        ? schools.filter(school =>
-            school?.name?.toLowerCase().includes(search.trim().toLowerCase())
-        )
-        : schools;
-    console.log('Search term:', search);
-    console.log('Filtered schools:', filteredSchools);
-    console.log('Schools:', schools);
-
+    const resetSearch = () => {
+        setSearch('');
+        setFilteredSchools(schools);
+    };
 
     const openSchoolModal = (index: number | null = null) => {
-
         if (index !== null) {
             setNewSchool(schools[index]);
             setEditIndex(index);
@@ -277,109 +274,116 @@ export default function SchoolManagementPage() {
         setEditIndex(null);
     };
 
-    return (<CssVarsProvider disableTransitionOnChange>
-        <CssBaseline />
-        <Layout.Root>
-            <Navigation />
-            <Header />
-            <Layout.Main>
+    return (
+        <CssVarsProvider disableTransitionOnChange>
+            <CssBaseline />
+            <Layout.Root>
+                <Navigation />
+                <Header />
+                <Layout.Main>
+                    <div>
+                        <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>School Management</h1>
 
+                        <Box sx={{ marginBottom: '20px', display: 'flex', gap: 1, alignItems: 'center' }}>
+                            <Button variant="solid" color="primary" onClick={() => openSchoolModal()}>
+                                Create School
+                            </Button>
 
-                <div>
-                    <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>School Management</h1>
+                            {/* Modal for Create or Edit Schools */}
+                            {isSchoolModalOpen && (
+                                <div className="modal-overlay">
+                                    <div className="modal-content">
+                                        <button className="modal-close" onClick={closeSchoolModal}>✖️</button>
+                                        <div className="modal-body">
+                                            <label>School Name</label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                name="name"
+                                                placeholder="School Name"
+                                                value={newSchool.name}
+                                                onChange={handleChange}
+                                            />
 
-                    <Box sx={{ marginBottom: '20px', display: 'flex', gap: 1 }}>
-                        <Button variant="solid" color="primary" onClick={() => openSchoolModal()}>
-                            Create School
-                        </Button>
-
-                        {isSchoolModalOpen && (
-                            <div className="modal-overlay">
-                                <div className="modal-content">
-                                    <button className="modal-close" onClick={closeSchoolModal}>✖️</button>
-                                    <div className="modal-body">
-                                        <label>School Name</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            name="name"
-                                            placeholder="School Name"
-                                            value={newSchool.name}
-                                            onChange={handleChange}
-                                        />
-
-                                        <label>Admin User (optional)</label>
-                                        <select
-                                            className="form-select"
-                                            aria-label="Admin User"
-                                            name="adminUser"
-                                            value={newSchool.adminUser ? (typeof newSchool.adminUser === 'object' ? newSchool.adminUser.id : newSchool.adminUser) : ''}
-                                            onChange={(e) => setNewSchool((prevSchool) => ({
-                                                ...prevSchool,
-                                                adminUser: e.target.value || null,
-                                            }))}
-                                        >
-                                            <option value="">No Admin User</option>
-                                            {users.map(user => (
-                                                <option key={user.id} value={user.id}>
-                                                    {user.firstName} {user.lastName}
-                                                </option>
-                                            ))}
-                                        </select>
+                                            <label>Admin User (optional)</label>
+                                            <select
+                                                className="form-select"
+                                                aria-label="Admin User"
+                                                name="adminUser"
+                                                value={newSchool.adminUser ? (typeof newSchool.adminUser === 'object' ? newSchool.adminUser.id : newSchool.adminUser) : ''}
+                                                onChange={(e) => {
+                                                    const selectedUserId = e.target.value || null;
+                                                    const selectedUser = users.find((user) => String(user.id) === String(selectedUserId));
+                                                    setNewSchool((prevSchool) => ({
+                                                        ...prevSchool,
+                                                        adminUser: selectedUser || selectedUserId,
+                                                    }));
+                                                }}
+                                            >
+                                                <option value="">No Admin User</option>
+                                                {users.map(user => (
+                                                    <option key={user.id} value={user.id}>
+                                                        {user.firstName} {user.lastName}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <button className="submit-button" type="button" onClick={handleSubmit}>Submit</button>
                                     </div>
-                                    <button className="submit-button" type="button" onClick={handleSubmit}>Submit</button>
                                 </div>
-                            </div>
-                        )}
-
-                        <div className="mb-3">
-                            <Input
-                                placeholder="Search schools"
-                                value={search}
-                                onChange={handleSearchChange}
-                                endDecorator={<Button variant="outlined">Filter</Button>}
-                                sx={{ width: '300px' }}
-                            />
-                        </div>
-                    </Box>
-
-                    <table className="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Admin</th>
-                                <th scope="col">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredSchools.length > 0 ? (
-                                filteredSchools.map((school, index) => (
-                                    <tr key={index}>
-                                        <td>{index + 1}</td>
-                                        <td>{school.name}</td>
-                                        <td>
-
-                                            {typeof school.adminUser === 'object' && school.adminUser !== null && school.adminUser.lastName
-                                                ? `${school.adminUser.firstName ? school.adminUser.firstName + ' ' : ''}${school.adminUser.lastName}`
-                                                : 'No Admin'}
-                                        </td>
-                                        <td>
-                                            <Button variant="plain" size="sm" onClick={() => openSchoolModal(index)}>✏️</Button>
-                                            <Button variant="plain" size="sm" onClick={() => handleDelete(index)}>❌</Button>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={4}>No schools found</td>
-                                </tr>
                             )}
-                        </tbody>
-                    </table>
-                </div>
-            </Layout.Main>
-        </Layout.Root>
-    </CssVarsProvider>
+
+                            {/* Search Input with Search and Reset Buttons */}
+                            <Box sx={{ flexGrow: 1, display: 'flex', gap: 1 }}>
+                                <Input
+                                    placeholder="Search schools..."
+                                    value={search}
+                                    onChange={handleSearchChange}
+                                    endDecorator={<Button variant="outlined" onClick={filterSchools}>Search</Button>}
+                                    sx={{ width: '300px' }}
+                                />
+                                <Button variant="outlined" onClick={resetSearch}>
+                                    Reset
+                                </Button>
+                            </Box>
+                        </Box>
+
+                        <table className="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Admin</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredSchools.length > 0 ? (
+                                    filteredSchools.map((school, index) => (
+                                        <tr key={school.id || index}>
+                                            <td>{index + 1}</td>
+                                            <td>{school.name}</td>
+                                            <td>
+                                                {typeof school.adminUser === 'object' && school.adminUser !== null && 'lastName' in school.adminUser
+                                                    ? `${school.adminUser.firstName ? school.adminUser.firstName + ' ' : ''}${school.adminUser.lastName}`
+                                                    : 'No Admin'}
+                                            </td>
+                                            <td>
+                                                <Button variant="plain" size="sm" onClick={() => handleEdit(index)}>✏️</Button>
+                                                <Button variant="plain" size="sm" onClick={() => handleDelete(index)}>❌</Button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={4} className="text-center">No schools found</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </Layout.Main>
+            </Layout.Root>
+        </CssVarsProvider>
     );
 }
