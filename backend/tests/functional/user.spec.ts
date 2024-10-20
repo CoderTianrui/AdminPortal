@@ -582,7 +582,7 @@ test.group('Users', (group) => {
     });
 
     const responseBody = response.body();
-    const actualRelatedUserIds = responseBody.relatedUsers.map((user: any) => user.id);
+    const actualRelatedUserIds = responseBody.relatedUsers.map((u: any) => u.id);
     const expectedRelatedUserIds = relatedUsers;
 
     if (actualRelatedUserIds.length !== expectedRelatedUserIds.length) {
@@ -593,7 +593,7 @@ test.group('Users', (group) => {
 
   // TEST: Update user with minimum and maximum boundary values
   test('should handle boundary values when updating user', async ({ client, assert }) => {
-    const { user, school } = await getUser()
+    const { user } = await getUser()
 
     // Update with minimum boundary values
     const minUpdateData = {
