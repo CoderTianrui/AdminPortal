@@ -34,7 +34,7 @@ const Calendar = ({ sx, initialEvents }) => {
         setSelectedDate(formattedDate);
         setShowForm(true);
     };
-
+    
     const handleClose = () => {
         setShowForm(false);
         setNewEvent({ title: '', startTime: '', endTime: '', memo: '' });
@@ -106,7 +106,7 @@ const Calendar = ({ sx, initialEvents }) => {
             console.error('Error updating event:', error);
         }
     };
-
+    
     const handleDelete = async (eventToDelete) => {
         try {
             const response = await fetch(`http://localhost:3333/events/${eventToDelete.id}`, {
@@ -175,110 +175,147 @@ const Calendar = ({ sx, initialEvents }) => {
     const blankDays = Array(firstDayOfMonth).fill(null);
 
     return (
-        <div className="calendar-container" style={sx}>
-            <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>Calendar Management</h1>
-            <div className="calendar-header">
-                <button className="nav-button rectangular-button" onClick={handlePreviousMonth}>&lt;</button>
-                <span>{monthNames[currentMonth]} {currentYear}</span>
-                <button className="nav-button rectangular-button" onClick={handleNextMonth}>&gt;</button>
-            </div>
-            <div className="calendar-grid">
-                {daysOfWeek.map((day, index) => (
-                    <div key={index} className="day-header">
-                        {day}
-                    </div>
-                ))}
-                {blankDays.map((_, index) => (
-                    <div key={index} className="calendar-cell empty"></div>
-                ))}
-                {[...Array(daysInMonth)].map((_, index) => {
-                    const day = index + 1;
-                    return (
-                        <div key={day} className="calendar-cell" onClick={() => handleDateClick(day)}>
-                            <div className="date">{day}</div>
-                            <div className="events">
-                                {events.filter(event => {
-                                    const eventDate = new Date(event.startDate);
-                                    return (
-                                        eventDate.getDate() === day &&
-                                        eventDate.getMonth() === currentMonth &&
-                                        eventDate.getFullYear() === currentYear
-                                    );
-                                }).map((event, i) => (
-                                    <div key={i} className="event-dot"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleEdit(event);
-                                        }}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-
-            {showForm && (
-                <div className="modal-background">
-                    <div className="modal-container">
-                        <button className="modal-close-button" onClick={handleClose}>&times;</button>
-                        <input
-                            type="text"
-                            placeholder="Title"
-                            value={newEvent.title}
-                            onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                            className="modal-input"
-                        />
-                        <textarea
-                            placeholder="Memo"
-                            value={newEvent.memo}
-                            onChange={(e) => setNewEvent({ ...newEvent, memo: e.target.value })}
-                            className="modal-input"
-                            rows="3"
-                        ></textarea>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <input
-                                type="text"
-                                value={selectedDate || ''}
-                                readOnly
-                                className="modal-input"
-                            />
-                            <input
-                                type="time"
-                                value={newEvent.startTime}
-                                onChange={(e) => setNewEvent({ ...newEvent, startTime: e.target.value })}
-                                className="modal-input"
-                                style={{ width: '45%' }}
-                            />
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <input
-                                type="text"
-                                value={selectedDate || ''}
-                                readOnly
-                                className="modal-input"
-                            />
-                            <input
-                                type="time"
-                                value={newEvent.endTime}
-                                onChange={(e) => setNewEvent({ ...newEvent, endTime: e.target.value })}
-                                className="modal-input"
-                                style={{ width: '45%' }}
-                            />
-                        </div>
-                        <button onClick={handleSave} className="modal-add-button">
-                            {isEditing ? 'Save Changes' : 'Add'}
-                        </button>
-                        {isEditing && (
-                            <button onClick={() => handleDelete(editEvent)} className="modal-delete-button">
-                                Delete Event
-                            </button>
-                        )}
-                    </div>
+        <>
+            {/* 将标题放置在页面左上角 */}
+            <h1 className="calendar-title" style={{ fontSize: '2.0rem', fontWeight: 'bold', position: 'absolute', top: '50px', left: '300px' }}>
+                Calendar Management
+            </h1>
+    
+            <div className="calendar-container" style={sx}>
+                <div className="calendar-header">
+                    <button
+                        className="nav-button rectangular-button"
+                        onClick={handlePreviousMonth}
+                        style={{
+                            backgroundColor: 'black',
+                            color: 'white',
+                            borderRadius: '4px',
+                            padding: '5px 10px',
+                            fontSize: '18px',
+                            border: 'none',
+                            cursor: 'pointer',
+                            width: '40px',
+                        }}
+                    >
+                        &lt;
+                    </button>
+                    <span>{monthNames[currentMonth]} {currentYear}</span>
+                    <button
+                        className="nav-button rectangular-button"
+                        onClick={handleNextMonth}
+                        style={{
+                            backgroundColor: 'black',
+                            color: 'white',
+                            borderRadius: '4px',
+                            padding: '5px 10px',
+                            fontSize: '18px',
+                            border: 'none',
+                            cursor: 'pointer',
+                            width: '40px',
+                        }}
+                    >
+                        &gt;
+                    </button>
                 </div>
-            )}
-        </div>
+                <div className="calendar-grid">
+                    {daysOfWeek.map((day, index) => (
+                        <div key={index} className="day-header">
+                            {day}
+                        </div>
+                    ))}
+                    {blankDays.map((_, index) => (
+                        <div key={index} className="calendar-cell empty"></div>
+                    ))}
+                    {[...Array(daysInMonth)].map((_, index) => {
+                        const day = index + 1;
+                        return (
+                            <div key={day} className="calendar-cell" onClick={() => handleDateClick(day)}>
+                                <div className="date">{day}</div>
+                                <div className="events">
+                                    {events.filter(event => {
+                                        const eventDate = new Date(event.startDate);
+                                        return (
+                                            eventDate.getDate() === day &&
+                                            eventDate.getMonth() === currentMonth &&
+                                            eventDate.getFullYear() === currentYear
+                                        );
+                                    }).map((event, i) => (
+                                        <div key={i} className="event-dot"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleEdit(event);
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+    
+                {showForm && (
+                    <div className="modal-background">
+                        <div className="modal-container">
+                            <button className="modal-close-button" onClick={handleClose}>&times;</button>
+                            <input
+                                type="text"
+                                placeholder="Title"
+                                value={newEvent.title}
+                                onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                                className="modal-input"
+                            />
+                            <textarea
+                                placeholder="Memo"
+                                value={newEvent.memo}
+                                onChange={(e) => setNewEvent({ ...newEvent, memo: e.target.value })}
+                                className="modal-input"
+                                rows="3"
+                            ></textarea>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <input
+                                    type="text"
+                                    value={selectedDate || ''}
+                                    readOnly
+                                    className="modal-input"
+                                />
+                                <input
+                                    type="time"
+                                    value={newEvent.startTime}
+                                    onChange={(e) => setNewEvent({ ...newEvent, startTime: e.target.value })}
+                                    className="modal-input"
+                                    style={{ width: '45%' }}
+                                />
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <input
+                                    type="text"
+                                    value={selectedDate || ''}
+                                    readOnly
+                                    className="modal-input"
+                                />
+                                <input
+                                    type="time"
+                                    value={newEvent.endTime}
+                                    onChange={(e) => setNewEvent({ ...newEvent, endTime: e.target.value })}
+                                    className="modal-input"
+                                    style={{ width: '45%' }}
+                                />
+                            </div>
+                            <button onClick={handleSave} className="modal-add-button">
+                                {isEditing ? 'Save Changes' : 'Add'}
+                            </button>
+                            {isEditing && (
+                                <button onClick={() => handleDelete(editEvent)} className="modal-delete-button">
+                                    Delete Event
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </>
     );
+
 };
 
 export default Calendar;
