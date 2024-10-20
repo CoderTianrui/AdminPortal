@@ -1,6 +1,5 @@
 'use client';
 
-
 import * as React from 'react';
 import { CssVarsProvider } from '@mui/joy/styles';
 import CssBaseline from '@mui/joy/CssBaseline';
@@ -14,9 +13,7 @@ import Navigation from '@/app/components/navigation';
 // import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 // import Link from 'next/Link';
 
-
 import './UserList.css';
-
 
 interface School {
     id: string;
@@ -43,22 +40,19 @@ export default function UserManagementPage() {
     });
     const [editIndex, setEditIndex] = React.useState<number | null>(null);
     const [search, setSearch] = React.useState('');
+    const [filteredUsers, setFilteredUsers] = React.useState<User[]>([]); // State for filtered users
     const [selectedProfile, setSelectedProfile] = React.useState<string | ''>('');
     // const router = useRouter();
 
-    // Fetch users on component mount
+    // Fetch users and schools on component mount
     React.useEffect(() => {
         const fetchData = async () => {
-          // Fetch schools first and wait for the state to update
-          await fetchSchools();
-      
-          // Now fetch users after schools are populated
-          await fetchUsers();
+            await fetchSchools();
+            await fetchUsers();
         };
-      
-        fetchData();
-      }, []);
 
+        fetchData();
+    }, []);
 
     const fetchSchools = async () => {
         console.log('fetchSchools called');
@@ -81,26 +75,22 @@ export default function UserManagementPage() {
         }
     };
 
-
-
     const fetchUsers = async () => {
         console.log('fetchUsers called');
         try {
-          const response = await fetch('http://localhost:3333/users', {
-            credentials: 'include',
-          });
-          const data = await response.json();
-      
-          console.log('Fetched Users Data:', data);
-      
-          setUsers(data.data || []);
+            const response = await fetch('http://localhost:3333/users', {
+                credentials: 'include',
+            });
+            const data = await response.json();
+
+            console.log('Fetched Users Data:', data);
+
+            setUsers(data.data || []);
+            setFilteredUsers(data.data || []); // Initialize filteredUsers with all users
         } catch (error) {
-          console.error('Failed to fetch users:', error);
+            console.error('Failed to fetch users:', error);
         }
-      };
-
-
-
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -113,84 +103,83 @@ export default function UserManagementPage() {
     const handleSubmit = async () => {
         console.log('consoleSubmit called');
         console.log('newUser:', newUser);
-      
+
         if (!newUser.firstName || !newUser.lastName || !newUser.email || !newUser.profile || !newUser.access) {
-          console.error('All fields are required');
-          return;
+            console.error('All fields are required');
+            return;
         }
-      
+
         try {
-          const { school, relatedUsers, ...restOfNewUser } = newUser;
-      
-          const payload = {
-            ...restOfNewUser,
-            userSchoolId: school && typeof school === 'object'
-              ? school.id
-              : school
-                ? parseInt(school, 10)
-                : null,
-            relatedUsers: relatedUsers && relatedUsers.length > 0
-              ? relatedUsers.map((id) => Number(id))
-              : null,
-          };
-      
-          console.log("users", users);
-      
-          if (editIndex !== null) {
-            // Code for editing user
-            const userId = users[editIndex].id;
-      
-            const response = await fetch(`http://localhost:3333/users/${userId}`, {
-              method: 'PUT',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(payload),
-              credentials: 'include',
-            });
-      
-            if (!response.ok) {
-              throw new Error('Failed to update user');
+            const { school, relatedUsers, ...restOfNewUser } = newUser;
+
+            const payload = {
+                ...restOfNewUser,
+                userSchoolId: school && typeof school === 'object'
+                    ? school.id
+                    : school
+                        ? parseInt(school, 10)
+                        : null,
+                relatedUsers: relatedUsers && relatedUsers.length > 0
+                    ? relatedUsers.map((id) => Number(id))
+                    : null,
+            };
+
+            console.log("users", users);
+
+            if (editIndex !== null) {
+                // Code for editing user
+                const userId = users[editIndex].id;
+
+                const response = await fetch(`http://localhost:3333/users/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                    credentials: 'include',
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update user');
+                }
+
+                const updatedUser = await response.json();
+                console.log('User Updated: ', updatedUser);
+
+                // Refresh the users list
+                await fetchUsers();
+            } else {
+                // Create new user
+                console.log('Payload:', payload);
+
+                const response = await fetch('http://localhost:3333/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                    credentials: 'include',
+                });
+
+                console.log("Response Status: ", response.status);
+                console.log("Response Object: ", response);
+
+                if (!response.ok) {
+                    throw new Error('Failed to save');
+                }
+
+                const createdUser = await response.json();
+                console.log('New User Saved: ', createdUser);
+
+                // Instead of updating 'users' state directly, fetch the latest users
+                await fetchUsers(); // Refresh the users list
             }
-      
-            const updatedUser = await response.json();
-            console.log('User Updated: ', updatedUser);
-      
-            // Refresh the users list
-            await fetchUsers();
-          }  else {
-            // Create new user
-            console.log('Payload:', payload);
-      
-            const response = await fetch('http://localhost:3333/users', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(payload),
-              credentials: 'include',
-            });
-      
-            console.log("Response Status: ", response.status);
-            console.log("Response Object: ", response);
-      
-            if (!response.ok) {
-              throw new Error('Failed to save');
-            }
-      
-            const createdUser = await response.json();
-            console.log('New User Saved: ', createdUser);
-      
-            // Instead of updating 'users' state directly, fetch the latest users
-            await fetchUsers(); // Refresh the users list
-          }
-      
-          closeUserModal();
+
+            closeUserModal();
         } catch (error) {
-          console.error('Failed to save user:', error);
+            console.error('Failed to save user:', error);
         }
-      };
-      
+    };
 
     // Handle user edit
     const handleEdit = (index: number) => {
@@ -202,30 +191,40 @@ export default function UserManagementPage() {
     // Handle user delete
     const handleDelete = async (index: number) => {
         try {
-          console.log('Deleting user at index:', index);
-          await fetch(`http://localhost:3333/users/${users[index].id}`, {
-            method: 'DELETE',
-            credentials: 'include',
-          });
-          console.log('User deleted, fetching updated users list.');
-          await fetchUsers();
+            console.log('Deleting user at index:', index);
+            await fetch(`http://localhost:3333/users/${users[index].id}`, {
+                method: 'DELETE',
+                credentials: 'include',
+            });
+            console.log('User deleted, fetching updated users list.');
+            await fetchUsers();
         } catch (error) {
-          console.error('Failed to delete user:', error);
+            console.error('Failed to delete user:', error);
         }
     };
-
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value.toLowerCase());
     };
 
+    const filterUsers = () => {
+        
+        if (!search) {
+            setFilteredUsers(users);
+        } else {
+            
+            const filtered = users.filter(user =>
+                user && user.firstName &&
+                `${user.firstName.toLowerCase()}${user.lastName ? ` ${user.lastName.toLowerCase()}` : ''}`.includes(search)
+            )
+            setFilteredUsers(filtered);
+        }
+    };
 
-    const filteredUsers = Array.isArray(users)
-        ? users.filter(user =>
-            user && user.firstName &&
-            `${user.firstName.toLowerCase()}${user.lastName ? ` ${user.lastName.toLowerCase()}` : ''}`.includes(search)
-        )
-        : [];
+    const resetSearch = () => {
+        setSearch('');
+        setFilteredUsers(users);
+    };
 
     const openUserModal = (index: number | null = null) => {
         if (index !== null) {
@@ -247,8 +246,6 @@ export default function UserManagementPage() {
     //       }
     //   };
 
-
-
     return (
         <CssVarsProvider disableTransitionOnChange>
             <CssBaseline />
@@ -258,7 +255,7 @@ export default function UserManagementPage() {
                 <Layout.Main>
                     <article className="table-container">
                         <h1 style={{ fontSize: '2.0rem', fontWeight: 'bold', marginBottom: '30px' }}>User Management</h1>
-                        <Box sx={{ marginBottom: '20px', display: 'flex', gap: 1 }}>
+                        <Box sx={{ marginBottom: '20px', display: 'flex', gap: 1, alignItems: 'center' }}>
                             <Button variant="solid" color="primary" onClick={() => openUserModal()}>
                                 Create User
                             </Button>
@@ -358,59 +355,62 @@ export default function UserManagementPage() {
                                     </div>
                                 </div>
                             )}
-                            <div className="mb-3">
+                            <Box sx={{ flexGrow: 1, display: 'flex', gap: 1 }}>
                                 <Input
-                                    placeholder="Search by name"
+                                    placeholder="Search by name..."
                                     value={search}
                                     onChange={handleSearchChange}
-                                    endDecorator={<Button variant="outlined">Filter</Button>}
+                                    endDecorator={<Button variant="outlined" onClick={filterUsers}>Search</Button>}
                                     sx={{ width: '300px' }}
                                 />
-                            </div>
+                                <Button variant="outlined" onClick={resetSearch}>
+                                    Reset
+                                </Button>
+                            </Box>
                         </Box>
-                        <table className="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Profile</th>
-                                    <th scope="col">School</th>
-                                    <th scope="col">Access</th>
-                                    <th scope="col">Relations</th>
-                                    <th scope="col">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredUsers.length > 0 ? (
-                                    filteredUsers.map((user, index) => (
-                                        <tr key={index}>
-                                            <th scope="row">{index + 1}</th>
-                                            <td>
-                                                <a href={`/userprofile/${user.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                                                    <Button
-                                                        style={{
-                                                            backgroundColor: 'transparent',
-                                                            border: 'none',
-                                                            padding: 0,
-                                                            textAlign: 'left',
-                                                            fontWeight: 'normal',
-                                                            color: 'inherit',
-                                                            cursor: 'pointer'
-                                                        }}
-                                                    >
-                                                        {user.firstName} {user.lastName} <br />{user.email}
-                                                    </Button>
-                                                </a>
-                                            </td>
-                                            <td>{user.profile}</td>
-                                            <td>
-
-                                                {typeof user.school === 'object' && user.school !== null
-                                                    ? user.school.name
-                                                    : user.school}
-                                            </td>
-                                            <td>{user.access}</td>
-                                            <td>
+                        <Box sx={{ overflowX: 'auto', marginBottom: '40px' }}>
+                            <table className="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Profile</th>
+                                        <th scope="col">School</th>
+                                        <th scope="col">Access</th>
+                                        <th scope="col">Relations</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredUsers.length > 0 ? (
+                                        filteredUsers.map((user, index) => (
+                                            <tr key={user.id}>
+                                                <th scope="row">{index + 1}</th>
+                                                <td>
+                                                    <a href={`/userprofile/${user.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                                        <Button
+                                                            style={{
+                                                                backgroundColor: 'transparent',
+                                                                border: 'none',
+                                                                padding: 0,
+                                                                textAlign: 'left',
+                                                                fontWeight: 'normal',
+                                                                color: 'inherit',
+                                                                cursor: 'pointer'
+                                                            }}
+                                                        >
+                                                            {user.firstName} {user.lastName} <br />{user.email}
+                                                        </Button>
+                                                    </a>
+                                                </td>
+                                                <td>{user.profile}</td>
+                                                <td>
+                                                    {typeof user.school === 'object' && user.school !== null
+                                                        ? user.school.name
+                                                        : user.school}
+                                                </td>
+                                                <td>{user.access}</td>
+                                                <td>
                                                 {Array.isArray(user.relatedUsers) && user.relatedUsers.length > 0
                                                     ? user.relatedUsers
                                                         .map((relatedUser) => {
@@ -421,19 +421,20 @@ export default function UserManagementPage() {
                                                         .join(', ')
                                                     : 'No related users'}
                                             </td>
-                                            <td>
-                                                <Button variant="plain" size="sm" onClick={() => openUserModal(index)}>✏️</Button>
-                                                <Button variant="plain" size="sm" onClick={() => handleDelete(index)}>❌</Button>
-                                            </td>
+                                                <td>
+                                                    <Button variant="plain" size="sm" onClick={() => handleEdit(index)}>✏️</Button>
+                                                    <Button variant="plain" size="sm" onClick={() => handleDelete(index)}>❌</Button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={7} className="text-center">No users found</td>
                                         </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan={7} className="text-center">No users found</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
+                                    )}
+                                </tbody>
+                            </table>
+                        </Box>
                     </article>
                 </Layout.Main>
             </Layout.Root>
