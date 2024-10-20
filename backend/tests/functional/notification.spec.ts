@@ -35,6 +35,24 @@ test.group('Notifications', (group) => {
         })
     });
 
+    test('can create notification with invalid inputs', async ({ client, assert }) => {
+      const school = await School.create({ name: 'School 1' });
+
+      const news = await Notification.create({
+          title: '', //empty title is not allowed
+          date: '2024-10-10',
+          content: "this is notification",
+      })
+
+      await news.related('schools').attach([school.id])
+
+    // Use assert.rejects and wait for the Promise
+    await assert.rejects(async () => {
+      const response = await client.get('/notifications')
+      response.assertStatus(500)
+    })
+  });
+
     // EXISTING TEST: Update a notification and sync schools (update method)
     test('can update a notification and sync schools', async ({ client, assert }) => {
         const school1 = await School.create({ name: 'School 1' })
