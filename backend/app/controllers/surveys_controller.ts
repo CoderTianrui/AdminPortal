@@ -21,6 +21,8 @@ export default class SurveysController {
     if (schools && schools.length > 0) {
       await survey.related('schools').attach(schools) // Attach school IDs to the survey
     }
+
+    await survey.load('schools');
     return survey
     // return await Survey.create(request.all())
   }
