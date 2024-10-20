@@ -23,7 +23,7 @@ const Calendar = ({ sx, initialEvents }) => {
                 throw new Error('Network response was not ok');
             }
             const data = await response.json();
-            setEvents(data.data || data); // 兼容分页数据和非分页数据
+            setEvents(data.data || data);
         } catch (error) {
             console.error('Error fetching events:', error);
         }
@@ -57,8 +57,8 @@ const Calendar = ({ sx, initialEvents }) => {
                     description: newEvent.memo,
                     startDate: `${selectedDate}T${newEvent.startTime}`,
                     endDate: `${selectedDate}T${newEvent.endTime}`,
-                    permissionMetadata: JSON.stringify([]), // 根据后端需要调整
-                    ownedById: 1, // 根据实际情况调整
+                    permissionMetadata: JSON.stringify([]), 
+                    ownedById: 1, 
                 };
                 const response = await fetch('http://localhost:3333/events', {
                     method: 'POST',
