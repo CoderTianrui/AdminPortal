@@ -1,6 +1,6 @@
 export enum Profile {
     Admin = 'Admin',
-    School = 'Parent',
+    Parent = 'Parent',
     Teacher = 'Teacher',
     Student = 'Student',
     User = "User",
