@@ -5,6 +5,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import SupportRoundedIcon from '@mui/icons-material/SupportRounded';
+import LogoutIcon from '@mui/icons-material/Logout';
 import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
 import Divider from '@mui/joy/Divider';
@@ -24,6 +25,23 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import ColorSchemeToggle from './ColorSchemeToggle';
 import { closeSidebar } from './utils';
+
+const SignOutButton = () => {
+    const handleSignOut = () => {
+        // Clear token or perform any sign out logic
+        localStorage.removeItem('token');
+
+        // Redirect to the sign-in page using window.location
+        window.location.href = '/signin';
+    };
+
+    return (
+        <ListItemButton onClick={handleSignOut}>
+            <LogoutIcon />
+            Sign out
+        </ListItemButton>
+    );
+};
 
 function Toggler({
     defaultExpanded = false,
@@ -254,16 +272,7 @@ export default function Sidebar() {
                     }}
                 >
                     <ListItem>
-                        <ListItemButton>
-                            <SupportRoundedIcon />
-                            Support
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem>
-                        <ListItemButton>
-                            <SettingsRoundedIcon />
-                            Settings
-                        </ListItemButton>
+                        <SignOutButton />
                     </ListItem>
                 </List>
             </Box>
