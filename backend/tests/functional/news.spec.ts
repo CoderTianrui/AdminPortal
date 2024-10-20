@@ -35,6 +35,24 @@ test.group('News', (group) => {
         })
     });
 
+    test('can create news with invalid inputs', async ({ client, assert }) => {
+      const school = await School.create({ name: 'School 1' });
+
+      const news = await New.create({
+          title: '', //empty title is not allowed
+          date: '2024-10-10',
+          url: "example.com",
+      })
+
+      await news.related('schools').attach([school.id])
+
+    // Use assert.rejects and wait for the Promise
+    await assert.rejects(async () => {
+      const response = await client.get('/news')
+      response.assertStatus(500)
+    })
+  });
+
     // EXISTING TEST: Update a news and sync schools (update method)
     test('can update a news and sync schools', async ({ client, assert }) => {
         const school1 = await School.create({ name: 'School 1' })

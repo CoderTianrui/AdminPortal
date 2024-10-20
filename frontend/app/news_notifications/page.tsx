@@ -246,7 +246,7 @@ export default function NewsNotificationManagementPage() {
 
             if (editNotificationIndex !== null) {
                 // Update existing notification
-                response = await fetch(`http://localhost:3333/notifications/${newsList[editNotificationIndex].id}`, {
+                response = await fetch(`http://localhost:3333/notifications/${notificationList[editNotificationIndex].id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -273,14 +273,14 @@ export default function NewsNotificationManagementPage() {
                 }
 
                 const createdNotification = await response.json();
-                console.log('New News Saved: ', createdNotification);
+                console.log('New Notification Saved: ', createdNotification);
 
-                setNewsList((prevNotification) => [...prevNotification, createdNotification]);
+                setNotificationList((prevNotification) => [...prevNotification, createdNotification]);
             }
             fetchNotifications(); 
             closeNotificationModal(); 
         } catch (error) {
-            console.error('Failed to save news:', error);
+            console.error('Failed to save notification:', error);
         }
     };
 
@@ -507,8 +507,8 @@ export default function NewsNotificationManagementPage() {
                                                 id="date"
                                                 className="form-control"
                                                 name="date"
-                                                value={newNews.date}
-                                                onChange={handleNewsChange}
+                                                value={newNotification.date}
+                                                onChange={handleNotificationChange}
                                             />
 
                                             <label>Recipients</label>

@@ -6,7 +6,7 @@ export default class SurveySchoolsPivot extends BaseSchema {
   public async up () {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id') // Primary key
-      table.integer('notification_id').unsigned().references('id').inTable('news').onDelete('CASCADE') // Foreign key to news
+      table.integer('notification_id').unsigned().references('id').inTable('notifications').onDelete('CASCADE') // Foreign key to news
       table.integer('school_id').unsigned().references('id').inTable('schools').onDelete('CASCADE') // Foreign key to schools
 
       table.timestamp('created_at', { useTz: true }).notNullable().defaultTo(this.now()) // Optional: track when the relationship was created
