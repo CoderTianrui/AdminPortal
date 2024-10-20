@@ -278,7 +278,8 @@ describe('UserManagementPage', () => {
     });
   
     // Enter search term
-    await fireEvent.change(screen.getByPlaceholderText('Search by name'), { target: { value: 'Alice' } });
+    await fireEvent.change(screen.getByPlaceholderText('Search by name...'), { target: { value: 'alice' } });
+    fireEvent.click(screen.getAllByText('Search')[0]);
   
     // Verify that only Alice is displayed
     await waitFor(() => {
