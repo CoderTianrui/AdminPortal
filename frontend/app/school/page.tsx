@@ -47,7 +47,7 @@ export default function SchoolManagementPage() {
     const fetchSchoolsWithUsers = async () => {
         try {
             console.log('Fetching users...');
-            const usersResponse = await fetch('http://localhost:3333/users', {
+            const usersResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
                 credentials: 'include',
             });
             const usersData = await usersResponse.json();
@@ -57,7 +57,7 @@ export default function SchoolManagementPage() {
             setUsers(fetchedUsers);
 
             console.log('Fetching schools...');
-            const schoolsResponse = await fetch('http://localhost:3333/schools');
+            const schoolsResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/schools`);
             const schoolsData = await schoolsResponse.json();
 
             let fetchedSchools: School[] = Array.isArray(schoolsData.data)
@@ -115,7 +115,7 @@ export default function SchoolManagementPage() {
             if (editIndex !== null) {
                 // Editing an existing school
                 console.log(`Updating school with ID: ${schools[editIndex].id}`);
-                response = await fetch(`http://localhost:3333/schools/${schools[editIndex].id}`, {
+                response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/schools/${schools[editIndex].id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
@@ -160,7 +160,7 @@ export default function SchoolManagementPage() {
             } else {
                 // Adding a new school
                 console.log('Creating a new school...');
-                response = await fetch('http://localhost:3333/schools', {
+                response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/schools`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
@@ -228,7 +228,7 @@ export default function SchoolManagementPage() {
 
     const handleDelete = async (index: number) => {
         try {
-            await fetch(`http://localhost:3333/schools/${schools[index].id}`, {
+            await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/schools/${schools[index].id}`, {
                 method: 'DELETE',
             });
             fetchSchoolsWithUsers();

@@ -55,7 +55,7 @@ export default function SurveyManagementPage() {
 
     const fetchSurveys = async () => {
         try {
-            const res = await fetch('http://localhost:3333/surveys')
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/surveys`)
             const surveys = await res.json()
             setSurveyList(surveys.data)
         } catch (err) {
@@ -66,7 +66,7 @@ export default function SurveyManagementPage() {
     const fetchSchools = async () => {
         console.log('fetchSchools called');
         try {
-            const response = await fetch('http://localhost:3333/schools');
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/schools`);
             const data = await response.json();
             console.log('Fetched Data:', data);
 
@@ -169,7 +169,7 @@ export default function SurveyManagementPage() {
 
             if (editSurveyIndex !== null) {
                 // Update existing survey
-                response = await fetch(`http://localhost:3333/surveys/${surveyList[editSurveyIndex].id}`, {
+                response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/surveys/${surveyList[editSurveyIndex].id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -180,7 +180,7 @@ export default function SurveyManagementPage() {
                 // Create new survey
                 console.log('Payload:', payload);
 
-                response = await fetch('http://localhost:3333/surveys', {
+                response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/surveys`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -211,7 +211,7 @@ export default function SurveyManagementPage() {
 
     const deleteSurvey = async (id: string) => {
         try {
-            await fetch(`http://localhost:3333/surveys/${id}`, {
+            await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/surveys/${id}`, {
                 method: 'DELETE'
             })
             const updatedSurveyList = surveyList.filter((survey, i) => survey.id !== id);

@@ -68,6 +68,9 @@
     },
     "testMatch": [
       "**/test/**/*.[jt]s?(x)"
+    ],
+    "setupFilesAfterEnv": [
+      "./jest.setup.js"
     ]
   },
   "packageManager": "yarn@4.5.0"

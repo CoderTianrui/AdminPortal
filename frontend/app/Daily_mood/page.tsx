@@ -57,7 +57,7 @@ export default function DailyMoodPage() {
     // Fetch moods
     const fetchMoods = async () => {
         try {
-            const response = await fetch('http://localhost:3333/moods');
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/moods`);
             if (!response.ok) {
                 throw new Error('Failed to fetch moods');
             }
@@ -73,7 +73,7 @@ export default function DailyMoodPage() {
     // Fetch SOS notifications
     const fetchSOSNotifications = async () => {
         try {
-            const response = await fetch('http://localhost:3333/sos_messages');
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sos_messages`);
             const jsonData = await response.json();
             setSosNotifications(jsonData.data);
         } catch (error) {
@@ -105,7 +105,7 @@ export default function DailyMoodPage() {
             };
 
             if (editIndex !== null) {
-                const response = await fetch(`http://localhost:3333/moods/${moodList[editIndex].id}`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/moods/${moodList[editIndex].id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formattedMood),
@@ -118,7 +118,7 @@ export default function DailyMoodPage() {
                 const data = await response.json();
                 console.log('Updated mood:', data);
             } else {
-                const response = await fetch('http://localhost:3333/moods', {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/moods`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formattedMood),
@@ -160,7 +160,7 @@ export default function DailyMoodPage() {
             };
     
             if (sosEditIndex !== null) {
-                const response = await fetch(`http://localhost:3333/sos_messages/${sosNotifications[sosEditIndex].id}`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sos_messages/${sosNotifications[sosEditIndex].id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formattedSOSNotification),
@@ -173,7 +173,7 @@ export default function DailyMoodPage() {
                 const data = await response.json();
                 console.log('Updated SOS notification:', data);
             } else {
-                const response = await fetch('http://localhost:3333/sos_messages', {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sos_messages`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formattedSOSNotification),
@@ -226,7 +226,7 @@ export default function DailyMoodPage() {
         if (window.confirm('Are you sure you want to delete this mood?')) {
             try {
                 const moodToDelete = moodList[index];
-                await fetch(`http://localhost:3333/moods/${moodToDelete.id}`, {
+                await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/moods/${moodToDelete.id}`, {
                     method: 'DELETE',
                 });
                 fetchMoods();
@@ -240,7 +240,7 @@ export default function DailyMoodPage() {
         if (window.confirm('Are you sure you want to delete this notification?')) {
             try {
                 const notificationToDelete = sosNotifications[index];
-                await fetch(`http://localhost:3333/sos_messages/${notificationToDelete.id}`, {
+                await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sos_messages/${notificationToDelete.id}`, {
                     method: 'DELETE',
                 });
                 fetchSOSNotifications();

@@ -18,7 +18,7 @@ const Calendar = ({ sx, initialEvents }) => {
 
     const fetchEvents = async () => {
         try {
-            const response = await fetch('http://localhost:3333/events');
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/events`);
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -60,7 +60,7 @@ const Calendar = ({ sx, initialEvents }) => {
                     permissionMetadata: JSON.stringify([]), 
                     ownedById: 1, 
                 };
-                const response = await fetch('http://localhost:3333/events', {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/events`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ const Calendar = ({ sx, initialEvents }) => {
                 permissionMetadata: editEvent.permissionMetadata,
                 ownedById: editEvent.ownedById,
             };
-            const response = await fetch(`http://localhost:3333/events/${editEvent.id}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/events/${editEvent.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ const Calendar = ({ sx, initialEvents }) => {
     
     const handleDelete = async (eventToDelete) => {
         try {
-            const response = await fetch(`http://localhost:3333/events/${eventToDelete.id}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/events/${eventToDelete.id}`, {
                 method: 'DELETE',
             });
             if (!response.ok) {
