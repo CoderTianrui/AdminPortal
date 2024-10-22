@@ -49,7 +49,7 @@ export default function ManageSubscribedChannels() {
 
     const fetchSubscriptions = async () => {
         try {
-            const response = await fetch('http://localhost:3333/subscriptions');
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/subscriptions`);
             const result = await response.json();
             const data = result.data;
             const subscriptions: Subscription[] = await Promise.all(
@@ -92,7 +92,7 @@ export default function ManageSubscribedChannels() {
             return userCache[userId]; 
         }
         try {
-            const response = await fetch(`http://localhost:3333/users/${userId}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userId}`, {
                 credentials: 'include',
             });
             const user = await response.json();
@@ -107,7 +107,7 @@ export default function ManageSubscribedChannels() {
             return channelCache[channelId]; 
         }
         try {
-            const response = await fetch(`http://localhost:3333/channels/${channelId}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/channels/${channelId}`);
             const channel = await response.json();
             return channel;
         } catch (error) {
@@ -139,7 +139,7 @@ export default function ManageSubscribedChannels() {
         }
     
         try {
-            await fetch(`http://localhost:3333/users/${subscription.user_id}/channel-action`, {
+            await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${subscription.user_id}/channel-action`, {
                 credentials: 'include',
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },

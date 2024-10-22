@@ -57,7 +57,7 @@ export default function UserManagementPage() {
     const fetchSchools = async () => {
         console.log('fetchSchools called');
         try {
-            const response = await fetch('http://localhost:3333/schools', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/schools`, {
                 credentials: 'include',
             });
             const data = await response.json();
@@ -78,7 +78,7 @@ export default function UserManagementPage() {
     const fetchUsers = async () => {
         console.log('fetchUsers called');
         try {
-            const response = await fetch('http://localhost:3333/users', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
                 credentials: 'include',
             });
             const data = await response.json();
@@ -130,7 +130,7 @@ export default function UserManagementPage() {
                 // Code for editing user
                 const userId = users[editIndex].id;
 
-                const response = await fetch(`http://localhost:3333/users/${userId}`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${userId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -152,7 +152,7 @@ export default function UserManagementPage() {
                 // Create new user
                 console.log('Payload:', payload);
 
-                const response = await fetch('http://localhost:3333/users', {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -192,7 +192,7 @@ export default function UserManagementPage() {
     const handleDelete = async (index: number) => {
         try {
             console.log('Deleting user at index:', index);
-            await fetch(`http://localhost:3333/users/${users[index].id}`, {
+            await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${users[index].id}`, {
                 method: 'DELETE',
                 credentials: 'include',
             });

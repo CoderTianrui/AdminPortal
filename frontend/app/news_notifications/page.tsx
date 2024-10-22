@@ -65,7 +65,7 @@ export default function NewsNotificationManagementPage() {
     const fetchSchools = async () => {
         console.log('fetchSchools called');
         try {
-            const response = await fetch('http://localhost:3333/schools');
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/schools`);
             const data = await response.json();
             console.log('Fetched Data:', data);
 
@@ -83,7 +83,7 @@ export default function NewsNotificationManagementPage() {
 
     const fetchNews = async () => {
         try {
-            const response = await fetch('http://localhost:3333/news');
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/news`);
             const jsonData = await response.json();
             setNewsList(jsonData.data);
             setFilteredNewsList(jsonData.data);
@@ -94,7 +94,7 @@ export default function NewsNotificationManagementPage() {
 
     const fetchNotifications = async () => {
         try {
-            const response = await fetch('http://localhost:3333/notifications');
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notifications`);
             const jsonData = await response.json();
             setNotificationList(jsonData.data);
             setFilteredNotificationList(jsonData.data);
@@ -185,7 +185,7 @@ export default function NewsNotificationManagementPage() {
 
             if (editNewsIndex !== null) {
                 // Update existing news
-                response = await fetch(`http://localhost:3333/news/${newsList[editNewsIndex].id}`, {
+                response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/news/${newsList[editNewsIndex].id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -196,7 +196,7 @@ export default function NewsNotificationManagementPage() {
                 // Create new news
                 console.log('Payload:', payload);
 
-                response = await fetch('http://localhost:3333/news', {
+                response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/news`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -246,7 +246,7 @@ export default function NewsNotificationManagementPage() {
 
             if (editNotificationIndex !== null) {
                 // Update existing notification
-                response = await fetch(`http://localhost:3333/notifications/${notificationList[editNotificationIndex].id}`, {
+                response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notifications/${notificationList[editNotificationIndex].id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -257,7 +257,7 @@ export default function NewsNotificationManagementPage() {
                 // Create new notification
                 console.log('Payload:', payload);
 
-                response = await fetch('http://localhost:3333/notifications', {
+                response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notifications`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -287,7 +287,7 @@ export default function NewsNotificationManagementPage() {
     const deleteNews = async (index: number) => {
         try {
             const newsToDelete = newsList[index];
-            await fetch(`http://localhost:3333/news/${newsToDelete.id}`, {
+            await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/news/${newsToDelete.id}`, {
                 method: 'DELETE',
             });
             fetchNews();
@@ -299,7 +299,7 @@ export default function NewsNotificationManagementPage() {
     const deleteNotification = async (index: number) => {
         try {
             const notificationToDelete = notificationList[index];
-            await fetch(`http://localhost:3333/notifications/${notificationToDelete.id}`, {
+            await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/notifications/${notificationToDelete.id}`, {
                 method: 'DELETE',
             });
             fetchNotifications();

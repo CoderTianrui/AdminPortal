@@ -144,7 +144,7 @@ export default function GroupPermissionsPage() {
 
   const fetchGroups = useCallback((page = 1) => {
     setLoading(true);
-    fetch(`http://localhost:3333/groups?page=${page}&search=${debouncedSearchQuery}`, { credentials: 'include' })
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/groups?page=${page}&search=${debouncedSearchQuery}`, { credentials: 'include' })
       .then(response => response.json())
       .then((data: ApiResponse) => {
         setGroups(data.data);
@@ -163,7 +163,7 @@ export default function GroupPermissionsPage() {
   }, [fetchGroups]);
 
   const fetchPermissionsData = () => {
-    fetch('http://localhost:3333/permissions/nodes', { credentials: 'include' })
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/permissions/nodes`, { credentials: 'include' })
       .then(response => response.json())
       .then(nodes => {
         setPermissionNodes(nodes);
@@ -180,7 +180,7 @@ export default function GroupPermissionsPage() {
 
   const handleCreateNewGroup = () => {
     if (newGroupName.trim()) {
-      fetch('http://localhost:3333/groups', {
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/groups`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newGroupName }),
@@ -206,7 +206,7 @@ export default function GroupPermissionsPage() {
 
   const handleUpdateGroup = () => {
     if (editingGroupId && editingGroupName.trim()) {
-      fetch(`http://localhost:3333/groups/${editingGroupId}`, {
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/groups/${editingGroupId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: editingGroupName }),
@@ -227,7 +227,7 @@ export default function GroupPermissionsPage() {
 
   const handleDeleteGroup = (groupId: number) => {
     if (confirm('Are you sure you want to delete this group?')) {
-      fetch(`http://localhost:3333/groups/${groupId}`, {
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/groups/${groupId}`, {
         method: 'DELETE',
         credentials: 'include',
       })
@@ -242,7 +242,7 @@ export default function GroupPermissionsPage() {
   };
 
   const fetchGroupData = (groupId: number) => {
-    fetch(`http://localhost:3333/groups/${groupId}`, { credentials: 'include' })
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/groups/${groupId}`, { credentials: 'include' })
       .then(response => response.json())
       .then(updatedGroup => {
         setGroups(prevGroups => prevGroups.map(g => g.id === updatedGroup.id ? updatedGroup : g));
@@ -651,7 +651,7 @@ function GroupPermissions({
 
   const saveChanges = () => {
     setSaveStatus('saving');
-    fetch(`http://localhost:3333/groups/${group.id}`, {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/groups/${group.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ permissions: groupPermissions }),

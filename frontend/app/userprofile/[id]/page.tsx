@@ -58,7 +58,7 @@ export default function UserProfilePage() {
 
   useEffect(() => {
     if (id) {
-      fetch(`http://localhost:3333/users/${id}`, {
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${id}`, {
         method: 'GET', // Optional, GET is the default
         credentials: 'include', // Ensures cookies are sent with the request
       })

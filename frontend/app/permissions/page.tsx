@@ -89,7 +89,7 @@ export default function PermissionsPage() {
   const [paginationPortal, setPaginationPortal] = React.useState<HTMLElement | null>(null);
 
   React.useEffect(() => {
-    fetchData(`http://localhost:3333/users?search=${debouncedSearchQuery}`, setUsers, setPagination);
+    fetchData(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users?search=${debouncedSearchQuery}`, setUsers, setPagination);
   }, [debouncedSearchQuery]);
 
   React.useEffect(() => {
@@ -134,7 +134,7 @@ export default function PermissionsPage() {
   };
 
   const fetchPermissionsData = () => {
-    fetch('http://localhost:3333/permissions/nodes', { credentials: 'include' })
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/permissions/nodes`, { credentials: 'include' })
       .then(response => response.json())
       .then(nodes => {
         setPermissionNodes(nodes);
@@ -146,7 +146,7 @@ export default function PermissionsPage() {
   };
 
   const handlePageChange = (page: number) => {
-    fetchData(`http://localhost:3333/users?page=${page}&search=${searchQuery}`, setUsers, setPagination);
+    fetchData(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users?page=${page}&search=${searchQuery}`, setUsers, setPagination);
   };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -365,7 +365,7 @@ function UserPermissions({
   }, [setIsPortalVisible]);
 
   const fetchUserPermissions = () => {
-    fetch(`http://localhost:3333/users/${user.id}/permissions`, { credentials: 'include' })
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${user.id}/permissions`, { credentials: 'include' })
       .then(response => response.json())
       .then(permissions => {
         setUserPermissions(permissions);
@@ -379,7 +379,7 @@ function UserPermissions({
   };
 
   const fetchGroupPermissions = () => {
-    fetch(`http://localhost:3333/permissions/group?profile=${user.profile}`, { credentials: 'include' })
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/permissions/group?profile=${user.profile}`, { credentials: 'include' })
       .then(response => response.json())
       .then(groupPermissions => {
         setGroupPermissions(groupPermissions);
@@ -444,7 +444,7 @@ function UserPermissions({
     setSaveStatus('saving');
     // Only send user-specific permissions (those with + or - prefix)
     const userSpecificPermissions = userPermissions.filter(perm => perm.startsWith('+') || perm.startsWith('-'));
-    fetch(`http://localhost:3333/users/${user.id}/permissions`, {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${user.id}/permissions`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ permissions: userSpecificPermissions }),
