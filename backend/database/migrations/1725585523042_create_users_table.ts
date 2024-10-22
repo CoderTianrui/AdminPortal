@@ -16,7 +16,7 @@ export default class extends BaseSchema {
 
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
-      table.enum('profile', ['Admin', 'Parent', 'Teacher', 'Student']).notNullable()
+      table.enum('profile', ['Admin', 'Parent', 'Teacher', 'Student', 'User']).notNullable()
       table.enum('access', ['Full', 'High', 'Medium', 'Low']).notNullable()
       table.json('permission_metadata').notNullable().defaultTo(JSON.stringify([]))
       table.string('profile_image').nullable()
