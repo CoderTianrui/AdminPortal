@@ -191,6 +191,8 @@ export default function GroupPermissionsPage() {
           setGroups([...groups, newGroup]);
           setIsCreatingNewGroup(false);
           setNewGroupName('');
+          // refresh group permissions
+          fetchGroupData(newGroup.id);
         })
         .catch(err => {
           console.error('Failed to create new group', err);
