@@ -40,4 +40,4 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 ```bash
 email: admin@test.gg
 password: password
-```
+```# AdminPortal
